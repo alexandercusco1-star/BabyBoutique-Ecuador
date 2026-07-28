@@ -1,1 +1,115 @@
 
+.banner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:60px;
+    background:linear-gradient(135deg,#FFF6FA,#FFE4EF);
+    min-height:80vh;
+}
+
+.textoBanner{
+    flex:1;
+}
+
+.textoBanner h1{
+    font-size:3.5rem;
+    color:var(--rosa-principal);
+    margin-bottom:20px;
+    line-height:1.2;
+}
+
+.textoBanner p{
+    font-size:1.2rem;
+    margin-bottom:35px;
+    max-width:550px;
+}
+
+.textoBanner a{
+    display:inline-block;
+    background:var(--rosa-principal);
+    color:white;
+    padding:15px 35px;
+    border-radius:50px;
+    font-weight:600;
+    transition:.3s;
+}
+
+.textoBanner a:hover{
+    transform:translateY(-4px);
+    box-shadow:0 10px 25px rgba(255,111,174,.35);
+}
+
+.imagenBanner{
+    flex:1;
+    display:flex;
+    justify-content:center;
+}
+
+.imagenBanner img{
+    width:100%;
+    max-width:550px;
+}
+
+.categorias{
+    background:white;
+}
+
+.contenedorCategorias{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:25px;
+}
+
+.categoria{
+    background:#fff;
+    border-radius:20px;
+    padding:35px;
+    text-align:center;
+    box-shadow:var(--sombra);
+    transition:.3s;
+    cursor:pointer;
+    font-size:45px;
+}
+
+.categoria:hover{
+    transform:translateY(-8px);
+}
+
+.categoria p{
+    margin-top:15px;
+    font-size:18px;
+    font-weight:600;
+    color:var(--texto);
+}
+
+.destacados{
+    background:var(--rosa-suave);
+}
+
+#productosDestacados{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:30px;
+}
+
+.beneficios{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+    text-align:center;
+    background:white;
+}
+
+.beneficios div{
+    padding:30px;
+    border-radius:20px;
+    background:var(--rosa-claro);
+    box-shadow:var(--sombra);
+    font-size:40px;
+}
+
+.beneficios h3{
+    margin-top:15px;
+    font-size:18px;
+}
