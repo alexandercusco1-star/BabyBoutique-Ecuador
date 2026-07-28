@@ -1,1 +1,32 @@
 
+:root{
+
+    --rosa-principal:#FF6FAE;
+    --rosa-claro:#FFE4EF;
+    --rosa-suave:#FFF3F8;
+
+    --celeste:#DFF6FF;
+
+    --crema:#FFFDF7;
+
+    --blanco:#FFFFFF;
+
+    --gris:#666666;
+
+    --gris-claro:#EEEEEE;
+
+    --texto:#333333;
+
+    --verde:#34C759;
+
+    --rojo:#FF3B30;
+
+    --sombra:0 5px 20px rgba(0,0,0,.10);
+
+    --radio:18px;
+
+    --transicion:.30s;
+
+    --fuente:'Poppins',sans-serif;
+
+}
