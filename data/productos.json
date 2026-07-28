@@ -1,1 +1,28 @@
 
+[
+  {
+    "id": 1,
+    "codigo": "001",
+    "nombre": "Body para Bebé",
+    "categoria": "Body",
+    "precio": 4.00,
+    "precioMediaDocena": 3.50,
+    "precioDocena": 3.00,
+    "tallas": ["0","1","2","3"],
+    "edad": "0 a 12 meses",
+    "tela": "Algodón",
+    "clima": "Cálido",
+    "colores": [
+      "Rosado",
+      "Fucsia"
+    ],
+    "imagenes": [
+      "assets/productos/body001/rosado.jpg",
+      "assets/productos/body001/fucsia.jpg"
+    ],
+    "disponible": true,
+    "destacado": true,
+    "nuevo": true,
+    "descripcion": "Body de algodón suave para bebés, cómodo y fresco para uso diario."
+  }
+]
