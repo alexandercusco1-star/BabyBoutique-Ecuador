@@ -1,1 +1,130 @@
 
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Productos | Baby Boutique Ecuador</title>
+
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/header.css">
+<link rel="stylesheet" href="css/productos.css">
+<link rel="stylesheet" href="css/footer.css">
+<link rel="stylesheet" href="css/responsive.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+
+<img src="assets/logo/logo.png" alt="Logo">
+
+<h2>Baby Boutique Ecuador</h2>
+
+</div>
+
+<nav>
+
+<a href="index.html">Inicio</a>
+
+<a href="productos.html">Productos</a>
+
+<a href="nosotros.html">Nosotros</a>
+
+<a href="contacto.html">Contacto</a>
+
+</nav>
+
+<div class="acciones">
+
+<button class="buscar">🔍</button>
+
+<button class="carrito">
+
+🛒
+
+<span id="contadorCarrito">0</span>
+
+</button>
+
+</div>
+
+</header>
+
+<section class="catalogo">
+
+<h1>Nuestro Catálogo</h1>
+
+<p class="subtitulo">
+
+Ropa para bebés de 0 a 12 meses
+
+</p>
+
+<div class="filtros">
+
+<select>
+
+<option>Todas las tallas</option>
+
+<option>Talla 0</option>
+
+<option>Talla 1</option>
+
+<option>Talla 2</option>
+
+<option>Talla 3</option>
+
+</select>
+
+<select>
+
+<option>Todos los colores</option>
+
+<option>Rosado</option>
+
+<option>Fucsia</option>
+
+</select>
+
+<input
+type="text"
+placeholder="Buscar producto...">
+
+</div>
+
+<div id="listaProductos">
+
+</div>
+
+</section>
+
+<footer>
+
+<p>
+
+© 2026 Baby Boutique Ecuador
+
+</p>
+
+</footer>
+
+<script src="js/productos.js"></script>
+
+</body>
+
+</html>
