@@ -1,1 +1,62 @@
 
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:var(--fuente);
+    background:var(--crema);
+    color:var(--texto);
+    line-height:1.6;
+}
+
+img{
+    max-width:100%;
+    display:block;
+}
+
+a{
+    text-decoration:none;
+    color:inherit;
+}
+
+button{
+    font-family:inherit;
+    cursor:pointer;
+    border:none;
+}
+
+section{
+    width:100%;
+    padding:70px 8%;
+}
+
+h1{
+    font-size:3rem;
+    font-weight:700;
+}
+
+h2{
+    font-size:2rem;
+    margin-bottom:30px;
+    text-align:center;
+}
+
+h3{
+    font-size:1.2rem;
+}
+
+p{
+    color:var(--gris);
+}
+
+.container{
+    max-width:1300px;
+    margin:auto;
+}
