@@ -1,4 +1,3 @@
-
 [
   {
     "id": 1,
@@ -8,42 +7,87 @@
     "precio": 4.00,
     "precioMediaDocena": 3.50,
     "precioDocena": 3.00,
-    "tallas": ["0","1","2","3"],
-    "edad": "0 a 12 meses",
+
+    "tallas": [
+      {
+        "numero": "0",
+        "edad": "0-3 meses"
+      },
+      {
+        "numero": "1",
+        "edad": "3-6 meses"
+      },
+      {
+        "numero": "2",
+        "edad": "6-9 meses"
+      },
+      {
+        "numero": "3",
+        "edad": "9-12 meses"
+      }
+    ],
+
     "tela": "Algodón",
     "clima": "Cálido",
+
     "colores": [
-      "Rosado",
-      "Fucsia"
+      {
+        "nombre": "Rosado",
+        "imagen": "assets/productos/body001/rosado.jpg"
+      },
+      {
+        "nombre": "Fucsia",
+        "imagen": "assets/productos/body001/fucsia.jpg"
+      }
     ],
-    "imagenes": [
-      "assets/productos/body001/rosado.jpg",
-      "assets/productos/body001/fucsia.jpg"
-    ],
+
     "disponible": true,
     "destacado": true,
     "nuevo": true,
-    "descripcion": "Body de algodón suave para bebés, cómodo y fresco para uso diario."
-  }
-  
-{
- "id":2,
- "codigo":"002",
- "nombre":"Enterizo para bebé",
- "categoria":"Enterizos",
-  "precio": 9.00,
+    "descripcion": "Body de algodón suave para bebés."
+  },
+
+  {
+    "id": 2,
+    "codigo": "002",
+    "nombre": "Enterizo para Bebé",
+    "categoria": "Enterizos",
+    "precio": 9.00,
     "precioMediaDocena": 8.50,
     "precioDocena": 8.00,
- "imagenes":[
- "assets/productos/enterizo001/blanco.jpg"
- ],
- "tallas":["0","1","2","3"],
- "colores":["Blanco"],
- "tela":"Algodón",
- "clima":"Fresco"
-  "disponible": true,
+
+    "tallas": [
+      {
+        "numero": "0",
+        "edad": "0-3 meses"
+      },
+      {
+        "numero": "1",
+        "edad": "3-6 meses"
+      },
+      {
+        "numero": "2",
+        "edad": "6-9 meses"
+      },
+      {
+        "numero": "3",
+        "edad": "9-12 meses"
+      }
+    ],
+
+    "tela": "Algodón",
+    "clima": "Fresco",
+
+    "colores": [
+      {
+        "nombre": "Blanco",
+        "imagen": "assets/productos/enterizo001/blanco.jpg"
+      }
+    ],
+
+    "disponible": true,
     "destacado": true,
     "nuevo": true,
-    "descripcion": "Body de algodón suave para bebés, cómodo y fresco para uso diario."
-}
+    "descripcion": "Enterizo de algodón suave para bebés."
+  }
 ]
