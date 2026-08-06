@@ -1,4 +1,3 @@
-
 const listaProductos = document.getElementById("listaProductos");
 const contadorCarrito = document.getElementById("contadorCarrito");
 
@@ -204,3 +203,410 @@ listaProductos.appendChild(tarjeta);
 
 
 }
+
+function seleccionarTalla(boton){
+
+let grupo = boton.parentElement.parentElement;
+
+
+grupo.querySelectorAll("button")
+.forEach(btn=>{
+
+btn.classList.remove("activo");
+
+});
+
+
+boton.classList.add("activo");
+
+
+}
+
+
+
+
+function sumar(id){
+
+
+if(!cantidades[id]){
+
+cantidades[id]=0;
+
+}
+
+
+cantidades[id]++;
+
+
+
+document.getElementById(`cantidad-${id}`)
+.innerHTML = cantidades[id];
+
+
+
+actualizarPrecio(id);
+
+actualizarEnvio(id);
+
+
+
+}
+
+
+
+
+function restar(id){
+
+
+if(cantidades[id]>0){
+
+cantidades[id]--;
+
+}
+
+
+
+document.getElementById(`cantidad-${id}`)
+.innerHTML = cantidades[id];
+
+
+
+actualizarPrecio(id);
+
+actualizarEnvio(id);
+
+
+
+}
+
+
+
+
+
+function actualizarPrecio(id){
+
+
+let producto =
+productos.find(p=>p.id==id);
+
+
+
+let precio =
+producto.precio;
+
+
+
+if(cantidades[id]>=12){
+
+
+precio = producto.precioDocena;
+
+
+}
+else if(cantidades[id]>=6){
+
+
+precio = producto.precioMediaDocena;
+
+
+}
+
+
+
+
+document.getElementById(`precio-${id}`)
+.innerHTML =
+"$"+precio.toFixed(2);
+
+
+
+}
+
+
+
+
+
+
+function actualizarEnvio(id){
+
+
+let faltan =
+12-cantidades[id];
+
+
+
+let mensaje =
+document.getElementById(`envio-${id}`);
+
+
+
+if(faltan>0){
+
+
+mensaje.innerHTML =
+`Te faltan ${faltan} prendas para envío GRATIS 🚚`;
+
+
+}else{
+
+
+mensaje.innerHTML =
+"🎉 Tu pedido tiene envío GRATIS";
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+function cambiarColor(id,index){
+
+
+let producto =
+productos.find(p=>p.id==id);
+
+
+
+document.getElementById(`imagen-${id}`)
+.src =
+producto.colores[index].imagen;
+
+
+
+}
+
+
+
+
+
+
+
+function agregarCarrito(id){
+
+
+let producto =
+productos.find(p=>p.id==id);
+
+
+
+if(cantidades[id]<=0){
+
+
+alert("Seleccione una cantidad primero");
+
+
+return;
+
+
+}
+
+
+
+
+
+if(carrito[id]){
+
+
+carrito[id].cantidad += cantidades[id];
+
+
+}else{
+
+
+carrito[id]={
+
+id:producto.id,
+
+nombre:producto.nombre,
+
+cantidad:cantidades[id],
+
+precio:producto.precio
+
+};
+
+
+}
+
+
+
+
+guardarCarrito();
+
+
+actualizarCarrito();
+
+
+
+}
+
+
+
+
+
+
+function guardarCarrito(){
+
+
+localStorage.setItem(
+
+"carrito",
+
+JSON.stringify(carrito)
+
+);
+
+
+}
+
+
+
+
+
+
+function actualizarCarrito(){
+
+
+if(contadorCarrito){
+
+
+contadorCarrito.innerHTML =
+Object.keys(carrito).length;
+
+
+}
+
+
+
+guardarCarrito();
+
+
+
+}
+
+
+
+
+
+
+
+function filtrarCategoria(categoria){
+
+
+let productosFiltrados =
+productos.filter(producto=>{
+
+
+return producto.categoria===categoria;
+
+
+});
+
+
+
+mostrarProductos(productosFiltrados);
+
+
+
+}
+
+
+
+
+
+document.querySelectorAll(".menuCategorias button")
+.forEach(boton=>{
+
+
+boton.addEventListener("click",()=>{
+
+
+let texto =
+boton.textContent;
+
+
+
+document.querySelectorAll(".menuCategorias button")
+.forEach(btn=>{
+
+btn.classList.remove("activo");
+
+});
+
+
+
+boton.classList.add("activo");
+
+
+
+
+if(texto.includes("Bodies")){
+
+
+filtrarCategoria("Body");
+
+
+}
+
+
+
+else if(texto.includes("Enterizos")){
+
+
+filtrarCategoria("Enterizos");
+
+
+}
+
+
+
+else if(texto.includes("Toallas")){
+
+
+filtrarCategoria("Toallas");
+
+
+}
+
+
+
+else if(texto.includes("Conjuntos")){
+
+
+filtrarCategoria("Conjuntos");
+
+
+}
+
+
+
+else if(texto.includes("Medias")){
+
+
+filtrarCategoria("Medias");
+
+
+}
+
+
+
+else if(texto.includes("Accesorios")){
+
+
+filtrarCategoria("Accesorios");
+
+
+}
+
+
+
+});
+
+});
