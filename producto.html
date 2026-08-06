@@ -1,187 +1,73 @@
-// producto.js
+<!DOCTYPE html>
+<html lang="es">
 
-const detalleProducto = document.getElementById("detalle-producto");
+<head>
 
-let productos = [];
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-async function cargarProducto(){
+<title>Producto | Baby Boutique Ecuador</title>
 
-    const respuesta = await fetch("data/productos.json");
+<link rel="stylesheet" href="css/style.css">
 
-    productos = await respuesta.json();
+</head>
 
 
-    const parametros = new URLSearchParams(
-        window.location.search
-    );
+<body>
 
 
-    const id = parametros.get("id");
+<header>
 
+    <h1>Baby Boutique Ecuador</h1>
 
-    const producto = productos.find(
-        p => p.id == id
-    );
 
+    <nav>
 
-    if(!producto){
+        <a href="index.html">Inicio</a>
 
-        detalleProducto.innerHTML = `
-            <h2>Producto no encontrado</h2>
-        `;
+        <a href="productos.html">Productos</a>
 
-        return;
+        <a href="carrito.html">
+            🛒 Carrito
+            <span id="contador-carrito">0</span>
+        </a>
 
-    }
+    </nav>
 
 
+</header>
 
-    detalleProducto.innerHTML = `
 
-        <div class="producto-detalle">
 
+<main>
 
-            <img 
-            src="${producto.imagen}" 
-            alt="${producto.nombre}"
-            >
 
+<section id="detalle-producto">
 
-            <div class="informacion-producto">
+    <!-- Aquí se carga el producto automáticamente -->
 
+</section>
 
-                <h1>
-                ${producto.nombre}
-                </h1>
 
 
-                <p>
-                ${producto.descripcion || ""}
-                </p>
+</main>
 
 
-                <h2>
-                $${producto.precio.toFixed(2)}
-                </h2>
 
 
+<footer>
 
-                <label>
-                Cantidad:
-                </label>
+<p>
+© 2026 Baby Boutique Ecuador
+</p>
 
+</footer>
 
-                <input 
-                type="number"
-                id="cantidadProducto"
-                value="1"
-                min="1"
-                >
 
 
+<script src="js/producto.js"></script>
 
-                <button 
-                id="btnAgregar">
 
-                Agregar al carrito
+</body>
 
-                </button>
-
-
-
-            </div>
-
-
-        </div>
-
-    `;
-
-
-
-    document
-    .getElementById("btnAgregar")
-    .addEventListener("click",()=>{
-
-
-        const cantidad =
-        parseInt(
-            document.getElementById(
-                "cantidadProducto"
-            ).value
-        );
-
-
-        agregarAlCarrito(
-            producto,
-            cantidad
-        );
-
-
-    });
-
-
-
-}
-
-
-
-function agregarAlCarrito(producto,cantidad){
-
-
-    let carrito =
-    JSON.parse(
-        localStorage.getItem("carrito")
-    ) || [];
-
-
-
-    const existe =
-    carrito.find(
-        p=>p.id == producto.id
-    );
-
-
-
-    if(existe){
-
-        existe.cantidad += cantidad;
-
-
-    }else{
-
-
-        carrito.push({
-
-            id: producto.id,
-
-            nombre: producto.nombre,
-
-            precio: producto.precio,
-
-            imagen: producto.imagen,
-
-            cantidad:cantidad
-
-        });
-
-
-    }
-
-
-
-    localStorage.setItem(
-        "carrito",
-        JSON.stringify(carrito)
-    );
-
-
-    alert(
-        "Producto agregado al carrito"
-    );
-
-
-}
-
-
-
-cargarProducto();
+</html>
