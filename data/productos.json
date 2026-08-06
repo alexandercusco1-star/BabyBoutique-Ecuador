@@ -7,6 +7,7 @@
     "precio": 4.00,
     "precioMediaDocena": 3.50,
     "precioDocena": 3.00,
+
     "tallas": [
       {
         "numero": "0",
@@ -25,8 +26,10 @@
         "edad": "9 a 12 meses"
       }
     ],
+
     "tela": "Algodón",
     "clima": "Cálido",
+
     "colores": [
       {
         "nombre": "Rosado",
@@ -37,11 +40,14 @@
         "imagen": "assets/productos/body001/fucsia.jpg"
       }
     ],
+
     "disponible": true,
     "destacado": true,
     "nuevo": true,
-    "descripcion": "Body de algodón suave para bebés, cómodo y fresco para uso diario."
+
+    "descripcion": "Body de algodón suave para bebé."
   },
+
 
   {
     "id": 2,
@@ -51,6 +57,7 @@
     "precio": 9.00,
     "precioMediaDocena": 8.50,
     "precioDocena": 8.00,
+
     "tallas": [
       {
         "numero": "0",
@@ -69,17 +76,21 @@
         "edad": "9 a 12 meses"
       }
     ],
+
     "tela": "Algodón",
     "clima": "Fresco",
+
     "colores": [
       {
         "nombre": "Blanco",
         "imagen": "assets/productos/enterizo001/blanco.jpg"
       }
     ],
+
     "disponible": true,
     "destacado": true,
     "nuevo": true,
-    "descripcion": "Enterizo cómodo de algodón para bebés."
+
+    "descripcion": "Enterizo cómodo para bebé."
   }
 ]
