@@ -2,12 +2,16 @@ const listaProductos = document.getElementById("listaProductos");
 const contadorCarrito = document.getElementById("contadorCarrito");
 
 let productos = [];
-let carrito = [];
+let carrito = {};
 let cantidades = {};
 
 
+// CARGAR PRODUCTOS
+
 fetch("data/productos.json")
+
 .then(res => res.json())
+
 .then(data => {
 
     productos = data;
@@ -18,21 +22,31 @@ fetch("data/productos.json")
 
 
 
+
+// MOSTRAR PRODUCTOS
+
 function mostrarProductos(lista){
 
+
     listaProductos.innerHTML = "";
+
 
     lista.forEach(producto => {
 
 
+
         if(!cantidades[producto.id]){
+
             cantidades[producto.id] = 0;
+
         }
+
 
 
         let tarjeta = document.createElement("div");
 
         tarjeta.className = "producto";
+
 
 
         tarjeta.innerHTML = `
@@ -42,6 +56,7 @@ function mostrarProductos(lista){
         id="imagen-${producto.id}"
         src="${producto.colores[0].imagen}"
         alt="${producto.nombre}">
+
 
 
         <div class="infoProducto">
@@ -66,8 +81,9 @@ function mostrarProductos(lista){
 
 
         <p class="estado">
-        ${producto.disponible ? "Disponible ✅":"Agotado ❌"}
+        ${producto.disponible ? "Disponible ✅" : "Agotado ❌"}
         </p>
+
 
 
         <p 
@@ -85,23 +101,33 @@ function mostrarProductos(lista){
 
         <div class="opciones">
 
-        ${producto.tallas.map(t=>`
 
-            <div>
+        ${producto.tallas.map(talla => `
 
-            <button onclick="seleccionarTalla(this)">
-            ${t.numero}
-            </button>
 
-            <small>
-            ${t.edad}
-            </small>
+        <div>
 
-            </div>
+
+        <button onclick="seleccionarTalla(this)">
+        ${talla.numero}
+        </button>
+
+
+        <div>
+        ${talla.edad}
+        </div>
+
+
+        </div>
+
 
         `).join("")}
 
+
+
         </div>
+
+
 
 
 
@@ -110,35 +136,50 @@ function mostrarProductos(lista){
         </p>
 
 
+
         <div class="opciones">
 
 
-        ${producto.colores.map((c,index)=>`
 
-            <div>
-
-            <button
-            class="color ${c.nombre.toLowerCase()}"
-            onclick="cambiarColor(${producto.id},${index})">
-            </button>
-
-            <small>
-            ${c.nombre}
-            </small>
-
-            </div>
+        ${producto.colores.map((color,index)=>`
 
 
-        `).join("")}
+
+        <div>
+
+
+        <button
+
+        class="color ${color.nombre.toLowerCase()}"
+
+        onclick="cambiarColor(${producto.id},${index})">
+
+        </button>
+
+
+        <div>
+        ${color.nombre}
+        </div>
 
 
         </div>
 
 
 
+        `).join("")}
+
+
+
+        </div>
+
+
+
+
+
         <p class="tituloOpcion">
         Cantidad
         </p>
+
 
 
         <div class="cantidad">
@@ -149,11 +190,13 @@ function mostrarProductos(lista){
         </button>
 
 
-        <span
-        id="cantidad-${producto.id}"
-        class="numeroCantidad">
+
+        <span 
+        class="numeroCantidad"
+        id="cantidad-${producto.id}">
         0
         </span>
+
 
 
         <button onclick="sumar(${producto.id})">
@@ -165,9 +208,12 @@ function mostrarProductos(lista){
 
 
 
+
+
         <p id="envio-${producto.id}">
         Te faltan 12 prendas para envío GRATIS 🚚
         </p>
+
 
 
 
@@ -184,13 +230,17 @@ function mostrarProductos(lista){
         </div>
 
 
+
         `;
+
 
 
         listaProductos.appendChild(tarjeta);
 
 
+
     });
+
 
 
 }
@@ -198,9 +248,15 @@ function mostrarProductos(lista){
 
 
 
+
+
+// SELECCIONAR TALLA
+
 function seleccionarTalla(boton){
 
+
 let grupo = boton.parentElement.parentElement;
+
 
 
 grupo.querySelectorAll("button")
@@ -211,7 +267,9 @@ btn.classList.remove("activo");
 });
 
 
+
 boton.classList.add("activo");
+
 
 
 }
@@ -220,13 +278,20 @@ boton.classList.add("activo");
 
 
 
+
+
+// SUMAR CANTIDAD
+
 function sumar(id){
+
 
 cantidades[id]++;
 
 
+
 document.getElementById(`cantidad-${id}`)
-.innerHTML=cantidades[id];
+.innerHTML = cantidades[id];
+
 
 
 actualizarPrecio(id);
@@ -234,12 +299,19 @@ actualizarPrecio(id);
 actualizarEnvio(id);
 
 
+
 }
 
 
 
 
+
+
+
+// RESTAR CANTIDAD
+
 function restar(id){
+
 
 if(cantidades[id]>0){
 
@@ -248,8 +320,10 @@ cantidades[id]--;
 }
 
 
+
 document.getElementById(`cantidad-${id}`)
-.innerHTML=cantidades[id];
+.innerHTML = cantidades[id];
+
 
 
 actualizarPrecio(id);
@@ -257,15 +331,22 @@ actualizarPrecio(id);
 actualizarEnvio(id);
 
 
+
 }
 
 
 
 
+
+
+
+// CAMBIO DE PRECIO
+
 function actualizarPrecio(id){
 
 
 let producto = productos.find(p=>p.id==id);
+
 
 
 let precio = producto.precio;
@@ -274,10 +355,14 @@ let precio = producto.precio;
 
 if(cantidades[id]>=12){
 
+
 precio = producto.precioDocena;
 
 
-}else if(cantidades[id]>=6){
+}
+
+else if(cantidades[id]>=6){
+
 
 precio = producto.precioMediaDocena;
 
@@ -287,7 +372,8 @@ precio = producto.precioMediaDocena;
 
 
 document.getElementById(`precio-${id}`)
-.innerHTML="$"+precio.toFixed(2);
+.innerHTML =
+"$"+precio.toFixed(2);
 
 
 
@@ -295,6 +381,11 @@ document.getElementById(`precio-${id}`)
 
 
 
+
+
+
+
+// MENSAJE ENVÍO GRATIS
 
 function actualizarEnvio(id){
 
@@ -324,11 +415,17 @@ mensaje.innerHTML =
 }
 
 
+
 }
 
 
 
 
+
+
+
+
+// CAMBIAR COLOR
 
 function cambiarColor(id,index){
 
@@ -351,6 +448,9 @@ producto.colores[index].imagen;
 
 
 
+
+// AÑADIR AL CARRITO
+
 function agregarCarrito(id){
 
 
@@ -359,22 +459,22 @@ productos.find(p=>p.id==id);
 
 
 
-let existente =
-carrito.find(p=>p.id==id);
+if(cantidades[id]<=0){
+
+
+alert("Seleccione una cantidad antes de añadir");
+
+return;
+
+
+}
 
 
 
-if(existente){
 
 
-existente.cantidad =
-cantidades[id];
+carrito[id]={
 
-
-}else{
-
-
-carrito.push({
 
 id:producto.id,
 
@@ -382,27 +482,32 @@ nombre:producto.nombre,
 
 cantidad:cantidades[id]
 
-});
 
+};
 
-}
 
 
 
 actualizarCarrito();
 
 
+
 }
 
 
 
 
+
+
+
+// CONTADOR DEL CARRITO
 
 function actualizarCarrito(){
 
 
 contadorCarrito.innerHTML =
-carrito.length;
+Object.keys(carrito).length;
+
 
 
 }
@@ -411,23 +516,18 @@ carrito.length;
 
 
 
+
+
+// FILTRAR CATEGORÍAS
 
 function filtrarCategoria(categoria){
 
 
-if(categoria=="Todos"){
-
-mostrarProductos(productos);
-
-return;
-
-}
-
-
-
 let resultado =
 productos.filter(producto=>
-producto.categoria===categoria
+
+producto.categoria === categoria
+
 );
 
 
@@ -442,19 +542,15 @@ mostrarProductos(resultado);
 
 
 
+
+
+// BOTONES DE CATEGORÍA
+
 document.querySelectorAll(".menuCategorias button")
 .forEach(boton=>{
 
 
 boton.addEventListener("click",()=>{
-
-
-document.querySelectorAll(".menuCategorias button")
-.forEach(btn=>btn.classList.remove("activo"));
-
-
-
-boton.classList.add("activo");
 
 
 
@@ -465,39 +561,36 @@ boton.textContent;
 
 if(texto.includes("Bodies")){
 
+
 filtrarCategoria("Body");
 
 
-}else if(texto.includes("Enterizos")){
+}
+
+
+
+if(texto.includes("Enterizos")){
+
 
 filtrarCategoria("Enterizos");
 
 
-}else if(texto.includes("Toallas")){
+}
+
+
+
+if(texto.includes("Toallas")){
+
 
 filtrarCategoria("Toallas");
 
 
-}else if(texto.includes("Conjuntos")){
-
-filtrarCategoria("Conjuntos");
-
-
-}else if(texto.includes("Medias")){
-
-filtrarCategoria("Medias");
-
-
-}else if(texto.includes("Accesorios")){
-
-filtrarCategoria("Accesorios");
-
-
 }
 
 
 
 });
+
 
 
 });
@@ -507,60 +600,36 @@ filtrarCategoria("Accesorios");
 
 
 
-function generarCodigoPedido(){
 
-
-let fecha = new Date();
-
-
-let codigo =
-"BBE-"+
-fecha.getFullYear()+
-(fecha.getMonth()+1)+
-fecha.getDate()+
-"-"+
-Math.floor(Math.random()*90000+10000);
-
-
-
-return codigo;
-
-
-}
-
-
-
-
-
+// WHATSAPP
 
 function enviarWhatsApp(){
 
 
-if(carrito.length===0){
+
+if(Object.keys(carrito).length===0){
+
 
 alert("El carrito está vacío");
 
+
 return;
+
 
 }
 
 
 
-let codigo =
-generarCodigoPedido();
-
-
-
 let mensaje =
-`Hola, deseo realizar un pedido.%0A%0ACódigo: ${codigo}%0A%0A`;
+"Hola, deseo realizar un pedido:%0A%0A";
 
 
 
-carrito.forEach(item=>{
+Object.values(carrito).forEach(item=>{
 
 
 mensaje +=
-`${item.nombre} - ${item.cantidad} unidades%0A`;
+`${item.nombre} - Cantidad: ${item.cantidad}%0A`;
 
 
 });
@@ -572,9 +641,13 @@ const telefono="593984391581";
 
 
 window.open(
+
 `https://wa.me/${telefono}?text=${mensaje}`,
+
 "_blank"
+
 );
+
 
 
 }
