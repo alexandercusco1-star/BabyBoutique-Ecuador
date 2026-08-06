@@ -387,63 +387,52 @@ producto.colores[index].imagen;
 
 
 
-
 function agregarCarrito(id){
 
-
-let producto =
-productos.find(p=>p.id==id);
+    let producto = productos.find(p => p.id == id);
 
 
+    if(cantidades[id] <= 0){
 
-if(cantidades[id]<=0){
+        alert("Primero seleccione una cantidad");
 
+        return;
 
-alert("Seleccione una cantidad primero");
-
-
-return;
-
-
-}
+    }
 
 
 
+    carrito[id] = {
 
+        id: producto.id,
 
-if(carrito[id]){
+        nombre: producto.nombre,
 
+        cantidad: cantidades[id],
 
-carrito[id].cantidad += cantidades[id];
+        precio: producto.precio,
 
+        precioMediaDocena: producto.precioMediaDocena,
 
-}else{
+        precioDocena: producto.precioDocena
 
-
-carrito[id]={
-
-id:producto.id,
-
-nombre:producto.nombre,
-
-cantidad:cantidades[id],
-
-precio:producto.precio
-
-};
-
-
-}
+    };
 
 
 
+    localStorage.setItem(
+        "carrito",
+        JSON.stringify(carrito)
+    );
 
-guardarCarrito();
 
 
-actualizarCarrito();
+    contadorCarrito.innerHTML =
+    Object.keys(carrito).length;
 
 
+
+    alert("Producto añadido al carrito");
 
 }
 
