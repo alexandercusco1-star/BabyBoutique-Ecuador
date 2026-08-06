@@ -177,15 +177,14 @@ Te faltan 12 prendas para envío GRATIS 🚚
 </p>
 
 
-
-
 <button 
 class="btnCarrito"
-onclick="agregarCarrito(${producto.id})">
+onclick="agregarCarrito(${producto.id});">
 
 🛒 Añadir al carrito
 
 </button>
+
 
 
 </div>
