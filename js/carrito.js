@@ -1,270 +1,196 @@
-const listaCarrito = document.getElementById("listaCarrito");
-const totalCarrito = document.getElementById("totalCarrito");
-const contadorCarrito = document.getElementById("contadorCarrito");
+// carrito.js
+
+let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
+const contenedorCarrito = document.getElementById("lista-carrito");
+const totalElemento = document.getElementById("total-carrito");
+const contador = document.getElementById("contador-carrito");
 
 
-let carrito = JSON.parse(localStorage.getItem("carrito")) || {};
+function guardarCarrito() {
+    localStorage.setItem("carrito", JSON.stringify(carrito));
+}
 
 
+function mostrarCarrito() {
+
+    if (!contenedorCarrito) return;
+
+    contenedorCarrito.innerHTML = "";
+
+    let total = 0;
+    let cantidadTotal = 0;
 
 
+    if (carrito.length === 0) {
 
-function mostrarCarrito(){
+        contenedorCarrito.innerHTML = `
+            <p class="carrito-vacio">
+                Tu carrito está vacío
+            </p>
+        `;
+
+        if(totalElemento){
+            totalElemento.textContent = "$0.00";
+        }
+
+        actualizarContador();
+        return;
+    }
 
 
-listaCarrito.innerHTML="";
+    carrito.forEach((producto, index)=>{
 
 
-let total = 0;
+        let subtotal = producto.precio * producto.cantidad;
+
+        total += subtotal;
+        cantidadTotal += producto.cantidad;
 
 
+        contenedorCarrito.innerHTML += `
 
-if(Object.keys(carrito).length === 0){
+        <div class="item-carrito">
+
+            <img src="${producto.imagen}" alt="${producto.nombre}">
+
+            <div>
+                <h3>${producto.nombre}</h3>
+
+                <p>
+                Precio: $${producto.precio.toFixed(2)}
+                </p>
+
+                <div class="cantidad">
+
+                    <button onclick="restarCantidad(${index})">
+                    -
+                    </button>
 
 
-listaCarrito.innerHTML = `
+                    <span>
+                    ${producto.cantidad}
+                    </span>
 
-<h2>
-Tu carrito está vacío 🛒
-</h2>
 
-`;
+                    <button onclick="sumarCantidad(${index})">
+                    +
+                    </button>
 
-actualizarContador();
+                </div>
 
-return;
 
+                <p>
+                Subtotal:
+                $${subtotal.toFixed(2)}
+                </p>
+
+
+                <button 
+                onclick="eliminarProducto(${index})"
+                class="btn-eliminar">
+
+                Eliminar
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+        `;
+
+
+    });
+
+
+    if(totalElemento){
+
+        totalElemento.textContent =
+        "$" + total.toFixed(2);
+
+    }
+
+
+    actualizarContador();
 
 }
 
 
 
+function sumarCantidad(index){
 
+    carrito[index].cantidad++;
 
-Object.values(carrito).forEach(producto=>{
+    guardarCarrito();
 
-
-
-let precio = producto.precio;
-
-
-
-if(producto.cantidad >= 12){
-
-precio = producto.precioDocena || precio;
-
-
-}
-
-else if(producto.cantidad >= 6){
-
-precio = producto.precioMediaDocena || precio;
-
+    mostrarCarrito();
 
 }
 
 
 
+function restarCantidad(index){
 
-let subtotal = precio * producto.cantidad;
+    if(carrito[index].cantidad > 1){
 
+        carrito[index].cantidad--;
 
-total += subtotal;
+    }else{
 
+        carrito.splice(index,1);
 
-
-
-
-let tarjeta = document.createElement("div");
-
-
-tarjeta.className="producto";
+    }
 
 
+    guardarCarrito();
 
-tarjeta.innerHTML = `
-
-
-<div class="infoProducto">
-
-
-<h2>
-${producto.nombre}
-</h2>
-
-
-<p>
-Cantidad: ${producto.cantidad}
-</p>
-
-
-<p>
-Precio unitario: $${precio.toFixed(2)}
-</p>
-
-
-<p>
-Subtotal: $${subtotal.toFixed(2)}
-</p>
-
-
-
-<button 
-class="btnCarrito"
-onclick="eliminarProducto(${producto.id})">
-
-❌ Eliminar
-
-</button>
-
-
-
-</div>
-
-
-
-`;
-
-
-
-listaCarrito.appendChild(tarjeta);
-
-
-
-});
-
-
-
-
-totalCarrito.innerHTML =
-`Total: $${total.toFixed(2)}`;
-
-
-
-actualizarContador();
-
-
+    mostrarCarrito();
 
 }
 
 
 
+function eliminarProducto(index){
 
+    carrito.splice(index,1);
 
+    guardarCarrito();
 
-
-
-function eliminarProducto(id){
-
-
-delete carrito[id];
-
-
-
-localStorage.setItem(
-
-"carrito",
-
-JSON.stringify(carrito)
-
-);
-
-
-
-mostrarCarrito();
-
-
+    mostrarCarrito();
 
 }
-
-
-
-
 
 
 
 function actualizarContador(){
 
+    if(contador){
 
-if(contadorCarrito){
+        let cantidad = carrito.reduce(
+            (total, producto)=> total + producto.cantidad,
+            0
+        );
 
+        contador.textContent = cantidad;
 
-contadorCarrito.innerHTML =
-Object.keys(carrito).length;
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-function enviarWhatsApp(){
-
-
-
-if(Object.keys(carrito).length===0){
-
-
-alert("El carrito está vacío");
-
-
-return;
-
+    }
 
 }
 
 
 
+function vaciarCarrito(){
 
-let mensaje =
-"Hola, deseo realizar el siguiente pedido:%0A%0A";
+    carrito=[];
 
+    guardarCarrito();
 
-
-Object.values(carrito).forEach(producto=>{
-
-
-mensaje += 
-`${producto.nombre}%0A`;
-
-mensaje +=
-`Cantidad: ${producto.cantidad}%0A%0A`;
-
-
-});
-
-
-
-mensaje +=
-"Gracias.";
-
-
-
-let telefono =
-"593984391581";
-
-
-
-window.open(
-
-`https://wa.me/${telefono}?text=${mensaje}`,
-
-"_blank"
-
-);
-
-
+    mostrarCarrito();
 
 }
-
-
 
 
 
