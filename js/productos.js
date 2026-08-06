@@ -1,604 +1,79 @@
-const listaProductos = document.getElementById("listaProductos");
-const contadorCarrito = document.getElementById("contadorCarrito");
+// productos.js
+
+const listaProductos = document.getElementById("lista-productos");
 
 let productos = [];
-let carrito = JSON.parse(localStorage.getItem("carrito")) || {};
-let cantidades = {};
 
-fetch("data/productos.json")
-.then(res => res.json())
-.then(data => {
 
-    productos = data;
+async function cargarProductos(){
 
-    mostrarProductos(productos);
+    const respuesta = await fetch("data/productos.json");
 
-    actualizarCarrito();
+    productos = await respuesta.json();
 
-});
+
+    mostrarProductos();
+
+}
 
 
 
-function mostrarProductos(lista){
+function mostrarProductos(){
+
+
+    if(!listaProductos) return;
+
 
     listaProductos.innerHTML = "";
 
 
-    lista.forEach(producto=>{
+    productos.forEach(producto=>{
 
 
-        cantidades[producto.id] = 0;
+        listaProductos.innerHTML += `
 
 
-        let tarjeta = document.createElement("div");
+        <div class="card-producto">
 
-        tarjeta.className="producto";
 
+            <img 
+            src="${producto.imagen}" 
+            alt="${producto.nombre}"
+            >
 
-        tarjeta.innerHTML = `
 
+            <h2>
+            ${producto.nombre}
+            </h2>
 
-<img 
-id="imagen-${producto.id}"
-src="${producto.colores[0].imagen}"
-alt="${producto.nombre}">
 
+            <p>
+            $${producto.precio.toFixed(2)}
+            </p>
 
-<div class="infoProducto">
 
 
-<h2>${producto.nombre}</h2>
+            <a 
+            href="producto.html?id=${producto.id}"
+            class="btn-ver">
 
+            Ver producto
 
-<p>
-Código: ${producto.codigo}
-</p>
+            </a>
 
 
-<p>
-Tela: ${producto.tela}
-</p>
 
+        </div>
 
-<p>
-Clima: ${producto.clima}
-</p>
 
+        `;
 
-<p class="estado">
-${producto.disponible ? "Disponible ✅":"Agotado ❌"}
-</p>
 
-
-
-<p class="precio" id="precio-${producto.id}">
-$${producto.precio.toFixed(2)}
-</p>
-
-
-
-<p class="tituloOpcion">
-Talla
-</p>
-
-
-<div class="opciones">
-
-
-${producto.tallas.map(t=>`
-
-<div>
-
-<button onclick="seleccionarTalla(this)">
-${t.numero}
-</button>
-
-<div>
-${t.edad}
-</div>
-
-</div>
-
-`).join("")}
-
-
-</div>
-
-
-
-
-<p class="tituloOpcion">
-Color
-</p>
-
-
-<div class="opciones">
-
-
-${producto.colores.map((c,index)=>`
-
-<div>
-
-
-<button
-class="color ${c.nombre.toLowerCase()}"
-onclick="cambiarColor(${producto.id},${index})">
-</button>
-
-
-<div>
-${c.nombre}
-</div>
-
-
-</div>
-
-
-`).join("")}
-
-
-</div>
-
-
-
-
-<p class="tituloOpcion">
-Cantidad
-</p>
-
-
-
-<div class="cantidad">
-
-
-<button onclick="restar(${producto.id})">
--
-</button>
-
-
-<span 
-id="cantidad-${producto.id}"
-class="numeroCantidad">
-0
-</span>
-
-
-<button onclick="sumar(${producto.id})">
-+
-</button>
-
-
-</div>
-
-
-
-<p id="envio-${producto.id}">
-Te faltan 12 prendas para envío GRATIS 🚚
-</p>
-
-
-<button 
-class="btnCarrito"
-onclick="agregarCarrito(${producto.id});">
-
-🛒 Añadir al carrito
-
-</button>
-
-
-
-</div>
-
-
-`;
-
-
-
-listaProductos.appendChild(tarjeta);
-
-
-
-});
-
-
-}
-
-function seleccionarTalla(boton){
-
-let grupo = boton.parentElement.parentElement;
-
-
-grupo.querySelectorAll("button")
-.forEach(btn=>{
-
-btn.classList.remove("activo");
-
-});
-
-
-boton.classList.add("activo");
+    });
 
 
 }
 
 
 
-
-function sumar(id){
-
-
-if(!cantidades[id]){
-
-cantidades[id]=0;
-
-}
-
-
-cantidades[id]++;
-
-
-
-document.getElementById(`cantidad-${id}`)
-.innerHTML = cantidades[id];
-
-
-
-actualizarPrecio(id);
-
-actualizarEnvio(id);
-
-
-
-}
-
-
-
-
-function restar(id){
-
-
-if(cantidades[id]>0){
-
-cantidades[id]--;
-
-}
-
-
-
-document.getElementById(`cantidad-${id}`)
-.innerHTML = cantidades[id];
-
-
-
-actualizarPrecio(id);
-
-actualizarEnvio(id);
-
-
-
-}
-
-
-
-
-
-function actualizarPrecio(id){
-
-
-let producto =
-productos.find(p=>p.id==id);
-
-
-
-let precio =
-producto.precio;
-
-
-
-if(cantidades[id]>=12){
-
-
-precio = producto.precioDocena;
-
-
-}
-else if(cantidades[id]>=6){
-
-
-precio = producto.precioMediaDocena;
-
-
-}
-
-
-
-
-document.getElementById(`precio-${id}`)
-.innerHTML =
-"$"+precio.toFixed(2);
-
-
-
-}
-
-
-
-
-
-
-function actualizarEnvio(id){
-
-
-let faltan =
-12-cantidades[id];
-
-
-
-let mensaje =
-document.getElementById(`envio-${id}`);
-
-
-
-if(faltan>0){
-
-
-mensaje.innerHTML =
-`Te faltan ${faltan} prendas para envío GRATIS 🚚`;
-
-
-}else{
-
-
-mensaje.innerHTML =
-"🎉 Tu pedido tiene envío GRATIS";
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-function cambiarColor(id,index){
-
-
-let producto =
-productos.find(p=>p.id==id);
-
-
-
-document.getElementById(`imagen-${id}`)
-.src =
-producto.colores[index].imagen;
-
-
-
-}
-
-
-
-
-
-
-function agregarCarrito(id){
-
-console.log("Entró al carrito", id);
-
-
-let producto = productos.find(p => p.id == id);
-
-
-if(!producto){
-
-alert("No se encontró el producto");
-
-return;
-
-}
-
-
-if(cantidades[id] <= 0){
-
-alert("Seleccione una cantidad");
-
-return;
-
-}
-
-
-
-carrito[id] = {
-
-id: producto.id,
-
-nombre: producto.nombre,
-
-cantidad: cantidades[id]
-
-};
-
-
-
-localStorage.setItem(
-"carrito",
-JSON.stringify(carrito)
-);
-
-
-
-contadorCarrito.innerHTML =
-Object.keys(carrito).length;
-
-
-
-alert("Agregado correctamente");
-
-
-}
-
-
-
-function guardarCarrito(){
-
-
-localStorage.setItem(
-
-"carrito",
-
-JSON.stringify(carrito)
-
-);
-
-
-}
-
-
-
-
-
-
-function actualizarCarrito(){
-
-
-if(contadorCarrito){
-
-
-contadorCarrito.innerHTML =
-Object.keys(carrito).length;
-
-
-}
-
-
-
-guardarCarrito();
-
-
-
-}
-
-
-
-
-
-
-
-function filtrarCategoria(categoria){
-
-
-let productosFiltrados =
-productos.filter(producto=>{
-
-
-return producto.categoria===categoria;
-
-
-});
-
-
-
-mostrarProductos(productosFiltrados);
-
-
-
-}
-
-
-
-
-
-document.querySelectorAll(".menuCategorias button")
-.forEach(boton=>{
-
-
-boton.addEventListener("click",()=>{
-
-
-let texto =
-boton.textContent;
-
-
-
-document.querySelectorAll(".menuCategorias button")
-.forEach(btn=>{
-
-btn.classList.remove("activo");
-
-});
-
-
-
-boton.classList.add("activo");
-
-
-
-
-if(texto.includes("Bodies")){
-
-
-filtrarCategoria("Body");
-
-
-}
-
-
-
-else if(texto.includes("Enterizos")){
-
-
-filtrarCategoria("Enterizos");
-
-
-}
-
-
-
-else if(texto.includes("Toallas")){
-
-
-filtrarCategoria("Toallas");
-
-
-}
-
-
-
-else if(texto.includes("Conjuntos")){
-
-
-filtrarCategoria("Conjuntos");
-
-
-}
-
-
-
-else if(texto.includes("Medias")){
-
-
-filtrarCategoria("Medias");
-
-
-}
-
-
-
-else if(texto.includes("Accesorios")){
-
-
-filtrarCategoria("Accesorios");
-
-
-}
-
-
-
-});
-
-});
+cargarProductos();
