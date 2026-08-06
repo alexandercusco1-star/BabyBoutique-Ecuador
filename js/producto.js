@@ -1,1 +1,187 @@
+// producto.js
 
+const detalleProducto = document.getElementById("detalle-producto");
+
+let productos = [];
+
+async function cargarProducto(){
+
+    const respuesta = await fetch("data/productos.json");
+
+    productos = await respuesta.json();
+
+
+    const parametros = new URLSearchParams(
+        window.location.search
+    );
+
+
+    const id = parametros.get("id");
+
+
+    const producto = productos.find(
+        p => p.id == id
+    );
+
+
+    if(!producto){
+
+        detalleProducto.innerHTML = `
+            <h2>Producto no encontrado</h2>
+        `;
+
+        return;
+
+    }
+
+
+
+    detalleProducto.innerHTML = `
+
+        <div class="producto-detalle">
+
+
+            <img 
+            src="${producto.imagen}" 
+            alt="${producto.nombre}"
+            >
+
+
+            <div class="informacion-producto">
+
+
+                <h1>
+                ${producto.nombre}
+                </h1>
+
+
+                <p>
+                ${producto.descripcion || ""}
+                </p>
+
+
+                <h2>
+                $${producto.precio.toFixed(2)}
+                </h2>
+
+
+
+                <label>
+                Cantidad:
+                </label>
+
+
+                <input 
+                type="number"
+                id="cantidadProducto"
+                value="1"
+                min="1"
+                >
+
+
+
+                <button 
+                id="btnAgregar">
+
+                Agregar al carrito
+
+                </button>
+
+
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+
+    document
+    .getElementById("btnAgregar")
+    .addEventListener("click",()=>{
+
+
+        const cantidad =
+        parseInt(
+            document.getElementById(
+                "cantidadProducto"
+            ).value
+        );
+
+
+        agregarAlCarrito(
+            producto,
+            cantidad
+        );
+
+
+    });
+
+
+
+}
+
+
+
+function agregarAlCarrito(producto,cantidad){
+
+
+    let carrito =
+    JSON.parse(
+        localStorage.getItem("carrito")
+    ) || [];
+
+
+
+    const existe =
+    carrito.find(
+        p=>p.id == producto.id
+    );
+
+
+
+    if(existe){
+
+        existe.cantidad += cantidad;
+
+
+    }else{
+
+
+        carrito.push({
+
+            id: producto.id,
+
+            nombre: producto.nombre,
+
+            precio: producto.precio,
+
+            imagen: producto.imagen,
+
+            cantidad:cantidad
+
+        });
+
+
+    }
+
+
+
+    localStorage.setItem(
+        "carrito",
+        JSON.stringify(carrito)
+    );
+
+
+    alert(
+        "Producto agregado al carrito"
+    );
+
+
+}
+
+
+
+cargarProducto();
