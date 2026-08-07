@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Carrito | Baby Boutique Ecuador</title>
+    <title>Carrito de Compras | Baby Boutique Ecuador</title>
 
     <!-- Estilos Unificados -->
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="./css/style.css">
 
     <!-- Tipografía Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,7 +43,7 @@
                 </nav>
 
                 <div class="acciones">
-                    <a href="carrito.html" class="cart-icon-btn active" title="Ver Carrito">
+                    <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito">
                         🛒 Carrito
                         <span class="cart-badge" id="contadorCarrito">0</span>
                     </a>
@@ -51,50 +51,40 @@
             </div>
         </header>
 
-        <!-- Contenido Principal del Carrito -->
+        <!-- Contenido Principal - Carrito -->
         <main class="container">
-            <div class="cart-page-container">
-                <h1 style="color: #831843; margin-bottom: 20px; font-size: 1.8rem;">🛒 Mi Carrito de Compras</h1>
+            <h1 style="color: #db2777; margin-bottom: 20px;">Tu Carrito de Compras</h1>
 
-                <!-- Tabla de Productos del Carrito -->
-                <div class="cart-table-wrapper">
-                    <table class="cart-table">
-                        <thead>
-                            <tr>
-                                <th>Imagen</th>
-                                <th>Producto</th>
-                                <th>Código</th>
-                                <th>Color</th>
-                                <th>Talla</th>
-                                <th>Cantidad</th>
-                                <th>Precio U.</th>
-                                <th>Subtotal</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cart-items-container">
-                            <!-- Los elementos se cargan dinámicamente mediante renderCartPage() -->
-                        </tbody>
-                    </table>
+            <div class="cart-table-container">
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Producto</th>
+                            <th>Código</th>
+                            <th>Color</th>
+                            <th>Talla</th>
+                            <th>Cantidad</th>
+                            <th>Precio U.</th>
+                            <th>Subtotal</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cart-items-container">
+                        <!-- Renderizado dinámico desde carrito.js / productos.js -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Resumen y Acción de WhatsApp -->
+            <div class="cart-summary">
+                <div>
+                    <h3>Total de prendas: <span id="cart-total-items" style="color: #db2777;">0</span></h3>
+                    <h2 style="text-align: left; margin: 5px 0 0; color: #1f2937;">Total a pagar: <span id="cart-total-price" style="color: #db2777;">$0.00</span></h2>
                 </div>
-
-                <!-- Resumen y Acciones del Carrito -->
-                <div class="cart-summary">
-                    <div style="text-align: right; margin-bottom: 10px;">
-                        <span style="font-size: 1rem; color: #6b7280;">Total de Prendas: <strong id="cart-total-items" style="color: #1f2937;">0</strong></span>
-                        <div class="total-display">Total: <span id="cart-total-price">$0.00</span></div>
-                    </div>
-
-                    <div class="cart-actions">
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <a href="productos.html" class="btn-secondary">⬅️ Seguir Comprando</a>
-                            <button class="btn-danger" onclick="clearCart()">🗑️ Vaciar Carrito</button>
-                        </div>
-                        
-                        <button class="btn-whatsapp" onclick="sendWhatsAppOrder()">
-                            📲 Enviar pedido por WhatsApp
-                        </button>
-                    </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button onclick="vaciarCarrito()" class="btn-delete" style="padding: 12px 20px; font-size: 0.95rem;">🗑️ Vaciar Carrito</button>
+                    <button onclick="enviarWhatsApp()" class="btn-whatsapp">📲 Pedir por WhatsApp</button>
                 </div>
             </div>
         </main>
@@ -108,8 +98,8 @@
     </div>
 
     <!-- Scripts del Sistema -->
-    <script src="js/carrito.js"></script>
-    <script src="js/app.js"></script>
+    <script src="./js/carrito.js"></script>
+    <script src="./js/productos.js"></script>
 </body>
 
 </html>
