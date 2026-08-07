@@ -1,96 +1,165 @@
 [
   {
-    "id": 1,
+    "id": "BODY-001",
     "codigo": "001",
-    "nombre": "Body para Bebé",
-    "categoria": "Body",
+    "nombre": "Body para Bebé Algodón Premium",
+    "categoria": "Bodies",
     "precio": 4.00,
     "precioMediaDocena": 3.50,
     "precioDocena": 3.00,
-
     "tallas": [
-      {
-        "numero": "0",
-        "edad": "0 a 3 meses"
-      },
-      {
-        "numero": "1",
-        "edad": "3 a 6 meses"
-      },
-      {
-        "numero": "2",
-        "edad": "6 a 9 meses"
-      },
-      {
-        "numero": "3",
-        "edad": "9 a 12 meses"
-      }
+      "0 a 3 meses",
+      "3 a 6 meses",
+      "6 a 9 meses",
+      "9 a 12 meses"
     ],
-
-    "tela": "Algodón",
+    "tela": "Algodón 100%",
     "clima": "Cálido",
-
     "colores": [
       {
         "nombre": "Rosado",
+        "hex": "#f472b6",
         "imagen": "assets/productos/body001/rosado.jpg"
       },
       {
         "nombre": "Fucsia",
+        "hex": "#db2777",
         "imagen": "assets/productos/body001/fucsia.jpg"
       }
     ],
-
     "disponible": true,
     "destacado": true,
     "nuevo": true,
-
-    "descripcion": "Body de algodón suave para bebé."
+    "descripcion": "Body de algodón suave e hipoalergénico para la piel sensible del bebé."
   },
-
-
   {
-    "id": 2,
+    "id": "ENT-002",
     "codigo": "002",
-    "nombre": "Enterizo para Bebé",
+    "nombre": "Enterizo Térmico Cómodo para Bebé",
     "categoria": "Enterizos",
     "precio": 9.00,
     "precioMediaDocena": 8.50,
     "precioDocena": 8.00,
-
     "tallas": [
-      {
-        "numero": "0",
-        "edad": "0 a 3 meses"
-      },
-      {
-        "numero": "1",
-        "edad": "3 a 6 meses"
-      },
-      {
-        "numero": "2",
-        "edad": "6 a 9 meses"
-      },
-      {
-        "numero": "3",
-        "edad": "9 a 12 meses"
-      }
+      "0 a 3 meses",
+      "3 a 6 meses",
+      "6 a 9 meses",
+      "9 a 12 meses"
     ],
-
     "tela": "Algodón",
     "clima": "Fresco",
-
     "colores": [
       {
         "nombre": "Blanco",
+        "hex": "#ffffff",
         "imagen": "assets/productos/enterizo001/blanco.jpg"
       }
     ],
-
     "disponible": true,
     "destacado": true,
     "nuevo": true,
-
-    "descripcion": "Enterizo cómodo para bebé."
+    "descripcion": "Enterizo cómodo con broches frontales de alta durabilidad."
+  },
+  {
+    "id": "CONJ-003",
+    "codigo": "003",
+    "nombre": "Conjunto 3 Piezas Recién Nacido",
+    "categoria": "Conjuntos",
+    "precio": 12.00,
+    "precioMediaDocena": 11.00,
+    "precioDocena": 9.80,
+    "tallas": [
+      "0 a 3 meses",
+      "3 a 6 meses"
+    ],
+    "tela": "Algodón Fino",
+    "clima": "Todo clima",
+    "colores": [
+      {
+        "nombre": "Rosa Bebé",
+        "hex": "#fce7f3",
+        "imagen": "assets/productos/conjunto001/rosa.jpg"
+      }
+    ],
+    "disponible": true,
+    "destacado": true,
+    "nuevo": true,
+    "descripcion": "Hermoso conjunto de tres piezas (camiseta, pantalón y gorrito)."
+  },
+  {
+    "id": "MED-004",
+    "codigo": "004",
+    "nombre": "Pack 3 Pares Medias Antideslizantes",
+    "categoria": "Medias",
+    "precio": 3.50,
+    "precioMediaDocena": 3.00,
+    "precioDocena": 2.50,
+    "tallas": [
+      "0 a 12 meses",
+      "12 a 24 meses"
+    ],
+    "tela": "Algodón Elástico",
+    "clima": "Todo clima",
+    "colores": [
+      {
+        "nombre": "Surtido Niña",
+        "hex": "#f472b6",
+        "imagen": "assets/productos/medias001/nina.jpg"
+      }
+    ],
+    "disponible": true,
+    "destacado": false,
+    "nuevo": false,
+    "descripcion": "Medias suaves con suela de protección antideslizante."
+  },
+  {
+    "id": "TOA-005",
+    "codigo": "005",
+    "nombre": "Toalla de Baño con Capucha Bordada",
+    "categoria": "Toallas",
+    "precio": 10.00,
+    "precioMediaDocena": 9.00,
+    "precioDocena": 8.00,
+    "tallas": [
+      "Talla Única"
+    ],
+    "tela": "Microfibra Bambú",
+    "clima": "Húmedo / Baño",
+    "colores": [
+      {
+        "nombre": "Rosado Oso",
+        "hex": "#f472b6",
+        "imagen": "assets/productos/toalla001/rosado.jpg"
+      }
+    ],
+    "disponible": true,
+    "destacado": true,
+    "nuevo": true,
+    "descripcion": "Toalla ultra absorbente y delicada con capucha bordada."
+  },
+  {
+    "id": "ACC-006",
+    "codigo": "006",
+    "nombre": "Set Accesorios Recién Nacida",
+    "categoria": "Accesorios",
+    "precio": 6.00,
+    "precioMediaDocena": 5.20,
+    "precioDocena": 4.50,
+    "tallas": [
+      "Talla Única"
+    ],
+    "tela": "Algodón Suave",
+    "clima": "Todo clima",
+    "colores": [
+      {
+        "nombre": "Rosa Flor",
+        "hex": "#f472b6",
+        "imagen": "assets/productos/acc001/rosa.jpg"
+      }
+    ],
+    "disponible": true,
+    "destacado": false,
+    "nuevo": true,
+    "descripcion": "Set delicado que incluye cintillo, babero y manoplas."
   }
 ]
