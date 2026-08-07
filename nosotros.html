@@ -1,1 +1,95 @@
 
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nosotros | Baby Boutique Ecuador</title>
+
+    <!-- Estilos Unificados -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Tipografía Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="main-wrapper">
+        <!-- Banner de Envío Gratis Dinámico -->
+        <div class="shipping-banner">
+            <div id="shipping-text">🚚 ¡Agrega <strong>12 prendas</strong> para obtener <strong>ENVÍO GRATIS</strong> en Ecuador!</div>
+            <div class="shipping-progress-bar">
+                <div class="shipping-progress-fill" id="shipping-fill"></div>
+            </div>
+        </div>
+
+        <!-- Encabezado / Navegación -->
+        <header>
+            <div class="header-container">
+                <a href="index.html" class="logo">
+                    👶 <span>Baby Boutique</span>
+                </a>
+
+                <nav>
+                    <ul>
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="productos.html">Productos</a></li>
+                        <li><a href="nosotros.html" class="active">Nosotros</a></li>
+                        <li><a href="contacto.html">Contacto</a></li>
+                    </ul>
+                </nav>
+
+                <div class="acciones">
+                    <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito">
+                        🛒 Carrito
+                        <span class="cart-badge" id="contadorCarrito">0</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenido Principal -->
+        <main class="container">
+            <section class="static-page">
+                <h1>Sobre Baby Boutique Ecuador</h1>
+                <p style="margin-bottom: 20px; font-size: 1.05rem; color: #4b5563;">
+                    Somos una tienda especializada en la venta de ropa y accesorios de primera calidad para bebés de 0 a 24 meses en todo el Ecuador. Nos dedicamos a ofrecer prendas confeccionadas con los materiales más suaves e hipoalergénicos para cuidar la piel sensible de tu pequeño.
+                </p>
+
+                <div class="contact-grid" style="margin-top: 30px;">
+                    <div class="contact-card">
+                        <h3>💖 Nuestra Misión</h3>
+                        <p>Brindar confort, suavidad y estilo a los primeros meses de vida de los bebés ecuatorianos, facilitando la compra al por mayor y menor a precios accesibles.</p>
+                    </div>
+                    <div class="contact-card">
+                        <h3>🌟 Calidad Garantizada</h3>
+                        <p>Seleccionamos cuidadosamente telas 100% algodón, broches seguros y confecciones delicadas pensadas para la comodidad y el libre movimiento de tu bebé.</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; text-align: center;">
+                    <a href="productos.html" class="add-to-cart-btn" style="display: inline-flex; width: auto; padding: 12px 30px; text-decoration: none;">
+                        🛍️ Conoce Nuestro Catálogo
+                    </a>
+                </div>
+            </section>
+        </main>
+
+        <!-- Pie de página -->
+        <footer>
+            <div class="container">
+                <p>© 2026 Baby Boutique Ecuador. Todos los derechos reservados.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts del Sistema -->
+    <script src="js/carrito.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
