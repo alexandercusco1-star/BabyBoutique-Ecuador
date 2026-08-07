@@ -1,1 +1,100 @@
 
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto | Baby Boutique Ecuador</title>
+
+    <!-- Estilos Unificados -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Tipografía Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="main-wrapper">
+        <!-- Banner de Envío Gratis Dinámico -->
+        <div class="shipping-banner">
+            <div id="shipping-text">🚚 ¡Agrega <strong>12 prendas</strong> para obtener <strong>ENVÍO GRATIS</strong> en Ecuador!</div>
+            <div class="shipping-progress-bar">
+                <div class="shipping-progress-fill" id="shipping-fill"></div>
+            </div>
+        </div>
+
+        <!-- Encabezado / Navegación -->
+        <header>
+            <div class="header-container">
+                <a href="index.html" class="logo">
+                    👶 <span>Baby Boutique</span>
+                </a>
+
+                <nav>
+                    <ul>
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="productos.html">Productos</a></li>
+                        <li><a href="nosotros.html">Nosotros</a></li>
+                        <li><a href="contacto.html" class="active">Contacto</a></li>
+                    </ul>
+                </nav>
+
+                <div class="acciones">
+                    <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito">
+                        🛒 Carrito
+                        <span class="cart-badge" id="contadorCarrito">0</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenido Principal -->
+        <main class="container">
+            <section class="static-page">
+                <h1>Contáctanos</h1>
+                <p style="margin-bottom: 30px; font-size: 1.05rem; color: #4b5563;">
+                    ¿Tienes dudas sobre tallas, pedidos al por mayor o envíos? Escríbenos y con gusto te asesoraremos en tu compra.
+                </p>
+
+                <div class="contact-grid">
+                    <div class="contact-card">
+                        <h3>📲 Atención por WhatsApp</h3>
+                        <p>Haz tus pedidos de forma rápida y directa por nuestro canal de soporte.</p>
+                        <a href="https://wa.me/593999999999" target="_blank" class="btn-whatsapp" style="display: inline-flex; margin-top: 15px; text-decoration: none; padding: 10px 20px; font-size: 0.95rem;">
+                            Escribir al WhatsApp
+                        </a>
+                    </div>
+
+                    <div class="contact-card">
+                        <h3>🚚 Envíos a todo el País</h3>
+                        <p>Despachamos desde Ecuador mediante Servientrega y agencias locales.</p>
+                        <p style="margin-top: 10px; font-weight: 600; color: #831843;">Envío GRATIS en compras de 12+ prendas.</p>
+                    </div>
+
+                    <div class="contact-card">
+                        <h3>📍 Ubicación y Horarios</h3>
+                        <p> Atendemos pedidos en línea de Lunes a Sábado de 8:00 AM a 7:00 PM.</p>
+                        <p style="margin-top: 10px; color: #6b7280;">Ecuador</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Pie de página -->
+        <footer>
+            <div class="container">
+                <p>© 2026 Baby Boutique Ecuador. Todos los derechos reservados.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts del Sistema -->
+    <script src="js/carrito.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
