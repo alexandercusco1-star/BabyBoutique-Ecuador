@@ -2,194 +2,92 @@
 <html lang="es">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo | Baby Boutique Ecuador</title>
 
-<meta charset="UTF-8">
+    <!-- Estilos Unificados -->
+    <link rel="stylesheet" href="css/styles.css">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Catálogo | Baby Boutique Ecuador</title>
-
-
-<link rel="stylesheet" href="css/variables.css">
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/header.css">
-<link rel="stylesheet" href="css/productos.css">
-<link rel="stylesheet" href="css/footer.css">
-<link rel="stylesheet" href="css/responsive.css">
-
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-
+    <!-- Tipografía Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-
 
 <body>
 
-
-<header>
-
-
-<div class="logo">
-
-<img src="assets/logo/logo.png" alt="Logo">
-
-<h2>Baby Boutique Ecuador</h2>
-
-</div>
-
-
-
-<nav>
-
-<a href="index.html">Inicio</a>
-
-<a href="productos.html">Productos</a>
-
-<a href="nosotros.html">Nosotros</a>
-
-<a href="contacto.html">Contacto</a>
-
-</nav>
-
-
-
-
-<div class="acciones">
-
-
-<a href="carrito.html" class="carrito">
-
-
-🛒
-
-<span id="contadorCarrito">
-0
-</span>
-
-
-</a>
-
-
-</div>
-
-
-</header>
-
-
-
-
-
-<section class="catalogo">
-
-
-<h1>
-Nuestra Boutique
-</h1>
-
-
-<p class="subtitulo">
-Ropa para bebés de 0 a 12 meses
-</p>
-
-
-
-
-
-<div class="contenedorTienda">
-
-
-
-<aside class="menuCategorias">
-
-
-<h3>
-Categorías
-</h3>
-
-
-
-<button>
-🍼 Bodies
-</button>
-
-
-<button>
-👕 Enterizos
-</button>
-
-
-<button>
-🧸 Conjuntos
-</button>
-
-
-<button>
-🧦 Medias
-</button>
-
-
-<button>
-🛁 Toallas
-</button>
-
-
-<button>
-🎀 Accesorios
-</button>
-
-
-
-</aside>
-
-
-
-
-
-
-<div class="zonaProductos">
-
-
-<div id="listaProductos">
-
-</div>
-
-
-</div>
-
-
-
-</div>
-
-
-
-</section>
-
-
-
-
-
-<footer>
-
-
-<p>
-© 2026 Baby Boutique Ecuador
-</p>
-
-
-</footer>
-
-
-
-
-
-<script src="js/productos.js"></script>
-
-
+    <div class="main-wrapper">
+        <!-- Banner de Envío Gratis Dinámico -->
+        <div class="shipping-banner">
+            <div id="shipping-text">🚚 ¡Agrega <strong>12 prendas</strong> para obtener <strong>ENVÍO GRATIS</strong> en Ecuador!</div>
+            <div class="shipping-progress-bar">
+                <div class="shipping-progress-fill" id="shipping-fill"></div>
+            </div>
+        </div>
+
+        <!-- Encabezado / Navegación -->
+        <header>
+            <div class="header-container">
+                <a href="index.html" class="logo">
+                    👶 <span>Baby Boutique</span>
+                </a>
+
+                <nav>
+                    <ul>
+                        <li><a href="index.html">Inicio</a></li>
+                        <li><a href="productos.html" class="active">Productos</a></li>
+                        <li><a href="nosotros.html">Nosotros</a></li>
+                        <li><a href="contacto.html">Contacto</a></li>
+                    </ul>
+                </nav>
+
+                <div class="acciones">
+                    <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito">
+                        🛒 Carrito
+                        <span class="cart-badge" id="contadorCarrito">0</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenido Principal del Catálogo -->
+        <main class="container">
+            <!-- Sección de Filtros de Categorías -->
+            <section class="category-filter-section">
+                <h1 style="color: #831843; font-size: 2rem; margin-bottom: 5px;">Nuestra Boutique</h1>
+                <p style="color: #6b7280; margin-bottom: 25px;">Ropa y accesorios para bebés de 0 a 24 meses</p>
+
+                <div class="category-buttons">
+                    <button class="cat-btn active" data-category="Todos">✨ Todos</button>
+                    <button class="cat-btn" data-category="Bodies">👶 Bodies</button>
+                    <button class="cat-btn" data-category="Enterizos">🧸 Enterizos</button>
+                    <button class="cat-btn" data-category="Conjuntos">👔 Conjuntos</button>
+                    <button class="cat-btn" data-category="Medias">🧦 Medias</button>
+                    <button class="cat-btn" data-category="Toallas">🛁 Toallas</button>
+                    <button class="cat-btn" data-category="Accesorios">🎀 Accesorios</button>
+                </div>
+            </section>
+
+            <!-- Grilla Dinámica de Productos -->
+            <section style="margin-bottom: 60px;">
+                <div class="products-grid" id="products-container">
+                    <!-- Los productos se filtran y renderizan dinámicamente mediante app.js -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Pie de página -->
+        <footer>
+            <div class="container">
+                <p>© 2026 Baby Boutique Ecuador. Todos los derechos reservados.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts del Sistema -->
+    <script src="js/carrito.js"></script>
+    <script src="js/app.js"></script>
 </body>
 
 </html>
