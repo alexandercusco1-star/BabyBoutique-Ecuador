@@ -182,7 +182,7 @@
       {
         "nombre": "Café Claro",
         "hex": "#d97706",
-        "imagen": "assets/conjunto001.jpg"
+        "imagen": "assets/producto/conjunto001/conjunto001.jpg"
       }
     ],
     "disponible": true,
