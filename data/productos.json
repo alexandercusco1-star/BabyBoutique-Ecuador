@@ -163,20 +163,31 @@
     "descripcion": "Set delicado que incluye cintillo, babero y manoplas."
   },
   {
-  "id": "CONJ-001",
-  "codigo": "001",
-  "nombre": "Conjunto Térmico Clima Frío",
-  "categoria": "Conjuntos",
-  "precio": 15.00,
-  "precioMediaDocena": 14.50,
-  "precioDocena": 14.00,
-  "tallas": ["0 a 3 meses", "3 a 6 meses", "6 a 9 meses", "9 a 12 meses"],
-  "colores": [
-    {
-      "nombre": "Café Claro",
-      "hex": "#d97706",
-      "imagen": "assets/conjunto001.jpg"
-    }
-  ]
-}
+    "id": "CONJ-007",
+    "codigo": "007",
+    "nombre": "Conjunto Térmico Clima Frío",
+    "categoria": "Conjuntos",
+    "precio": 15.00,
+    "precioMediaDocena": 14.50,
+    "precioDocena": 14.00,
+    "tallas": [
+      "0 a 3 meses",
+      "3 a 6 meses",
+      "6 a 9 meses",
+      "9 a 12 meses"
+    ],
+    "tela": "Térmica Abrigada",
+    "clima": "Frío",
+    "colores": [
+      {
+        "nombre": "Café Claro",
+        "hex": "#d97706",
+        "imagen": "assets/conjunto001.jpg"
+      }
+    ],
+    "disponible": true,
+    "destacado": true,
+    "nuevo": true,
+    "descripcion": "Conjunto abrigado ideal para viento y clima frío."
+  }
 ]
