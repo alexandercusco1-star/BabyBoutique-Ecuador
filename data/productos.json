@@ -165,7 +165,7 @@
   {
     "id": "CONJ-007",
     "codigo": "007",
-    "nombre": "Conjunto Térmico Clima Frío",
+    "nombre": "Conjunto Térmico Clima Frío Mickey",
     "categoria": "Conjuntos",
     "precio": 15.00,
     "precioMediaDocena": 14.50,
@@ -182,7 +182,7 @@
       {
         "nombre": "Café Claro",
         "hex": "#d97706",
-        "imagen": "assets/productos/conjunto001/conjunto001.jpg"
+        "imagen": "assets/productos/conjunto001/conjunto001%20.jpg"
       }
     ],
     "disponible": true,
