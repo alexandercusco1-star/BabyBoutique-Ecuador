@@ -114,18 +114,18 @@ function mostrarProductos(lista) {
                             </select>
                         </div>
 
-                        <!-- Selector de Cantidad -->
+                        <!-- Selector de Cantidad (Comienza en 0) -->
                         <div class="option-group">
                             <label class="option-label">Cantidad (Precio por volumen):</label>
-                            <input type="number" class="qty-select" id="qty-${prod.id}" value="1" min="1" max="100" 
+                            <input type="number" class="qty-select" id="qty-${prod.id}" value="0" min="0" max="100" 
                                    onchange="actualizarPrecioEnTarjeta('${prod.id}')" onkeyup="actualizarPrecioEnTarjeta('${prod.id}')">
                         </div>
                     </div>
 
                     <!-- Visualización de Precio Dinámico -->
                     <div class="price-box">
-                        <div class="price-main" id="price-${prod.id}">$${(prod.precio || 0).toFixed(2)}</div>
-                        <div class="price-tier-info" id="tier-info-${prod.id}">Precio Unitario</div>
+                        <div class="price-main" id="price-${prod.id}">$0.00</div>
+                        <div class="price-tier-info" id="tier-info-${prod.id}">Selecciona 1 o más prendas</div>
                     </div>
                 </div>
 
@@ -136,7 +136,7 @@ function mostrarProductos(lista) {
         `;
     }).join('');
 
-    // Calcular precios iniciales para cada tarjeta
+    // Evaluar estado inicial (0) para cada tarjeta
     lista.forEach(p => actualizarPrecioEnTarjeta(p.id));
 }
 
@@ -165,8 +165,14 @@ function actualizarPrecioEnTarjeta(idProducto) {
     const displayPrecio = document.getElementById(`price-${idProducto}`);
     const displayInfo = document.getElementById(`tier-info-${idProducto}`);
 
-    let cantidad = parseInt(inputQty ? inputQty.value : 1) || 1;
-    if (cantidad < 1) cantidad = 1;
+    let cantidad = parseInt(inputQty ? inputQty.value : 0) || 0;
+
+    // Si la cantidad es 0 o menor, no calcula operaciones
+    if (cantidad <= 0) {
+        if (displayPrecio) displayPrecio.textContent = "$0.00";
+        if (displayInfo) displayInfo.textContent = "Selecciona 1 o más prendas";
+        return;
+    }
 
     const precioUnidad = prod.precio || 0;
     const precioMedia = prod.precioMediaDocena || precioUnidad;
@@ -191,17 +197,24 @@ function actualizarPrecioEnTarjeta(idProducto) {
 
 // Botón de Añadir al Carrito
 function agregarProductoAlCarrito(idProducto) {
+    const inputQty = document.getElementById(`qty-${idProducto}`);
+    const cantidad = parseInt(inputQty ? inputQty.value : 0) || 0;
+
+    // Validación: Previene añadir si la cantidad es 0
+    if (cantidad <= 0) {
+        alert("Por favor selecciona al menos 1 prenda antes de agregar al carrito.");
+        return;
+    }
+
     const prod = productos.find(p => p.id == idProducto || p.codigo == idProducto);
     if (!prod) return;
 
     const labelColor = document.getElementById(`color-label-${idProducto}`);
     const selectSize = document.getElementById(`size-${idProducto}`);
-    const inputQty = document.getElementById(`qty-${idProducto}`);
     const imgElem = document.getElementById(`img-${idProducto}`);
 
     const colorSeleccionado = labelColor ? labelColor.textContent : (prod.colores && prod.colores[0] ? prod.colores[0].nombre : 'Único');
     const tallaSeleccionada = selectSize ? selectSize.value : 'Única';
-    const cantidad = parseInt(inputQty ? inputQty.value : 1) || 1;
     const imagenActual = imgElem ? imgElem.src : prod.imagen;
 
     const itemParaCarrito = {
