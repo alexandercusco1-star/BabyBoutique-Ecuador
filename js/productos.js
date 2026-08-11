@@ -6,6 +6,28 @@
 let productos = [];
 let categoriaActiva = 'Todos';
 
+// CLAVE DE ALMACENAMIENTO PRIVADA POR DISPOSITIVO/NAVEGADOR
+const CARRITO_STORAGE_KEY = 'bb_ecuador_carrito_cliente';
+
+// Funciones Auxiliares para Carrito 100% Independiente por Usuario
+function obtenerCarritoCliente() {
+    try {
+        const carrito = localStorage.getItem(CARRITO_STORAGE_KEY);
+        return carrito ? JSON.parse(carrito) : [];
+    } catch (e) {
+        console.error("Error al leer el carrito local:", e);
+        return [];
+    }
+}
+
+function guardarCarritoCliente(carrito) {
+    try {
+        localStorage.setItem(CARRITO_STORAGE_KEY, JSON.stringify(carrito));
+    } catch (e) {
+        console.error("Error al guardar el carrito local:", e);
+    }
+}
+
 // Cargar productos desde data/productos.json con respaldo de seguridad
 async function cargarProductos() {
     try {
@@ -31,7 +53,7 @@ async function cargarProductos() {
         mostrarDetalleProducto();
     }
 
-    if (contenedorTablaCarrito && typeof mostrarCarrito === 'function') {
+    if (contenedorTablaCarrito) {
         mostrarCarrito();
     }
 }
@@ -167,7 +189,6 @@ function actualizarPrecioEnTarjeta(idProducto) {
 
     let cantidad = parseInt(inputQty ? inputQty.value : 0) || 0;
 
-    // Si la cantidad es 0 o menor, no calcula operaciones
     if (cantidad <= 0) {
         if (displayPrecio) displayPrecio.textContent = "$0.00";
         if (displayInfo) displayInfo.textContent = "Selecciona 1 o más prendas";
@@ -195,12 +216,11 @@ function actualizarPrecioEnTarjeta(idProducto) {
     if (displayInfo) displayInfo.textContent = textoEscala;
 }
 
-// Botón de Añadir al Carrito
+// Botón de Añadir al Carrito (Aislado al almacenamiento del navegador cliente)
 function agregarProductoAlCarrito(idProducto) {
     const inputQty = document.getElementById(`qty-${idProducto}`);
     const cantidad = parseInt(inputQty ? inputQty.value : 0) || 0;
 
-    // Validación: Previene añadir si la cantidad es 0
     if (cantidad <= 0) {
         alert("Por favor selecciona al menos 1 prenda antes de agregar al carrito.");
         return;
@@ -231,12 +251,29 @@ function agregarProductoAlCarrito(idProducto) {
         imagen: imagenActual
     };
 
-    if (typeof agregarAlCarrito === 'function') {
-        agregarAlCarrito(itemParaCarrito);
+    let cart = obtenerCarritoCliente();
+    
+    // Verificar si ya existe el mismo producto con mismo color y talla
+    const indexExistente = cart.findIndex(item => item.id === itemParaCarrito.id && item.color === itemParaCarrito.color && item.talla === itemParaCarrito.talla);
+    
+    if (indexExistente !== -1) {
+        cart[indexExistente].cantidad += cantidad;
+    } else {
+        cart.push(itemParaCarrito);
     }
+
+    guardarCarritoCliente(cart);
+    alert(`¡Se agregaron ${cantidad} unidad(es) de "${prod.nombre}" a tu carrito privado!`);
 }
 
-// Renderizado de la tabla de la página del Carrito (carrito.html)
+// Calcular precio por unidad según el tramo
+function obtenerPrecioTramoUnico(item, cantidad) {
+    if (cantidad >= 12) return item.precioDocena || item.precio;
+    if (cantidad >= 6) return item.precioMediaDocena || item.precio;
+    return item.precio;
+}
+
+// Renderizado de la tabla del Carrito (carrito.html)
 function mostrarCarrito() {
     const contenedorTabla = document.getElementById("cart-items-container");
     const displayTotal = document.getElementById("cart-total-price");
@@ -244,7 +281,7 @@ function mostrarCarrito() {
 
     if (!contenedorTabla) return;
 
-    const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('carrito')) || [];
+    const cart = obtenerCarritoCliente();
 
     if (cart.length === 0) {
         contenedorTabla.innerHTML = `
@@ -263,7 +300,7 @@ function mostrarCarrito() {
     let prendasTotales = 0;
 
     contenedorTabla.innerHTML = cart.map((item, index) => {
-        const precioUnitario = typeof getPrecioPorTramo === 'function' ? getPrecioPorTramo(item, item.cantidad) : item.precio;
+        const precioUnitario = obtenerPrecioTramoUnico(item, item.cantidad);
         const subtotal = precioUnitario * item.cantidad;
         granTotal += subtotal;
         prendasTotales += item.cantidad;
@@ -277,15 +314,15 @@ function mostrarCarrito() {
                 <td>${item.talla}</td>
                 <td>
                     <div class="qty-control">
-                        <button class="qty-btn" onclick="actualizarCantidad(${index}, ${item.cantidad - 1})">-</button>
+                        <button class="qty-btn" onclick="actualizarCantidadCliente(${index}, ${item.cantidad - 1})">-</button>
                         <span class="qty-val">${item.cantidad}</span>
-                        <button class="qty-btn" onclick="actualizarCantidad(${index}, ${item.cantidad + 1})">+</button>
+                        <button class="qty-btn" onclick="actualizarCantidadCliente(${index}, ${item.cantidad + 1})">+</button>
                     </div>
                 </td>
                 <td>$${precioUnitario.toFixed(2)}</td>
                 <td><strong>$${subtotal.toFixed(2)}</strong></td>
                 <td>
-                    <button class="btn-delete" onclick="eliminarProducto(${index})">🗑️ Eliminar</button>
+                    <button class="btn-delete" onclick="eliminarProductoCliente(${index})">🗑️ Eliminar</button>
                 </td>
             </tr>
         `;
@@ -293,6 +330,25 @@ function mostrarCarrito() {
 
     if (displayTotal) displayTotal.textContent = `$${granTotal.toFixed(2)}`;
     if (displayCantItems) displayCantItems.textContent = prendasTotales;
+}
+
+// Funciones para modificar el carrito de forma totalmente aislada
+function actualizarCantidadCliente(index, nuevaCantidad) {
+    let cart = obtenerCarritoCliente();
+    if (nuevaCantidad <= 0) {
+        cart.splice(index, 1);
+    } else {
+        cart[index].cantidad = nuevaCantidad;
+    }
+    guardarCarritoCliente(cart);
+    mostrarCarrito();
+}
+
+function eliminarProductoCliente(index) {
+    let cart = obtenerCarritoCliente();
+    cart.splice(index, 1);
+    guardarCarritoCliente(cart);
+    mostrarCarrito();
 }
 
 // Datos de respaldo para pruebas locales
