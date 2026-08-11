@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Baby Boutique Ecuador - Lógica de Productos, Filtros y Precios Dinámicos
+   Baby Boutique Ecuador - Lógica de Productos, Filtros, Precios y Pedidos
    Archivo: js/productos.js
    ========================================================================== */
 
@@ -349,6 +349,51 @@ function eliminarProductoCliente(index) {
     cart.splice(index, 1);
     guardarCarritoCliente(cart);
     mostrarCarrito();
+}
+
+// Envío del pedido por WhatsApp con notificación automática a tu correo
+function enviarPedidoWhatsApp() {
+    const cart = obtenerCarritoCliente();
+    
+    if (cart.length === 0) {
+        alert("Tu carrito está vacío. Agrega productos antes de enviar el pedido.");
+        return;
+    }
+
+    let total = 0;
+    let mensajeWhatsApp = "🛍️ *NUEVO PEDIDO - BABY BOUTIQUE ECUADOR*\n\n";
+    let detalleCorreo = "";
+
+    cart.forEach((item, index) => {
+        const precioUnitario = obtenerPrecioTramoUnico(item, item.cantidad);
+        const subtotal = precioUnitario * item.cantidad;
+        total += subtotal;
+
+        const linea = `${index + 1}. *${item.nombre}* (Código: ${item.codigo})\n   - Color: ${item.color}\n   - Talla: ${item.talla}\n   - Cantidad: ${item.cantidad}\n   - Subtotal: $${subtotal.toFixed(2)}\n\n`;
+        mensajeWhatsApp += linea;
+        detalleCorreo += `${index + 1}. ${item.nombre} (Cód: ${item.codigo}) | Color: ${item.color} | Talla: ${item.talla} | Cant: ${item.cantidad} | Subtotal: $${subtotal.toFixed(2)}\n`;
+    });
+
+    mensajeWhatsApp += `💰 *TOTAL A PAGAR: $${total.toFixed(2)}*\n\n`;
+    mensajeWhatsApp += `Quedo a la espera de sus datos bancarios para realizar el pago y coordinar el envío.`;
+
+    // Respaldo enviado a tu correo alexandercusco1@gmail.com
+    const asunto = encodeURIComponent(`NUEVA VENTA REGISTRADA - Total: $${total.toFixed(2)}`);
+    const cuerpoEmail = encodeURIComponent(`Hola Alexander,\n\nSe ha generado un nuevo pedido en la tienda web:\n\n${detalleCorreo}\nTOTAL VENTA: $${total.toFixed(2)}\nFecha: ${new Date().toLocaleString()}\n\nEl cliente fue redirigido al WhatsApp del vendedor (0981559211).`);
+    
+    // Envío silencioso de notificación por correo de respaldo
+    try {
+        const imgTracking = new Image();
+        imgTracking.src = `https://formsubmit.co/ajax/alexandercusco1@gmail.com?subject=${asunto}&message=${cuerpoEmail}`;
+    } catch (err) {
+        console.warn("Respaldo de correo procesado.");
+    }
+
+    // Redirección del cliente al WhatsApp del vendedor (0981559211)
+    const numeroVendedor = "593981559211";
+    const urlWhatsApp = `https://wa.me/${numeroVendedor}?text=${encodeURIComponent(mensajeWhatsApp)}`;
+    
+    window.open(urlWhatsApp, '_blank');
 }
 
 // Datos de respaldo para pruebas locales
