@@ -218,9 +218,9 @@
 
       
       {
-        "nombre": "Rosado Oso",
-        "hex": "#f472b6",
-        "imagen": "assets/productos/toalla001/rosado.jpg"
+        "nombre": "Talla azual aguamarina",
+        "hex": "#a4fff7",
+        "imagen": "assets/productos/toalla001/azual_agua.jpg"
       }
     ],
     "disponible": true,
