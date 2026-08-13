@@ -206,18 +206,18 @@
     "clima": "Húmedo / Baño",
     "colores": [
       {
-        "nombre": "Toalla azul",
-        "hex": "#645394",
+        "nombre": "Toalla azul celeste",
+        "hex": "#B2A8D3",
         "imagen": "assets/productos/toallas001/toalla_azul.jpg"
       },
       {
-        "nombre": "Toalla verde lima",
-        "hex": "#89f336",
+        "nombre": "Toalla verde menta",
+        "hex": "#C3E6CD",
         "imagen": "assets/productos/toallas001/toalla_verde_limon.jpg"
       },
       {
-        "nombre": "Toalla azul aguamarina",
-        "hex": "#a4fff7",
+        "nombre": "Toalla azul lavanda",
+        "hex": "#B2A8D3",
         "imagen": "assets/productos/toallas001/toalla_verde_agua.jpg"
       }
     ],
