@@ -220,12 +220,12 @@
       {
         "nombre": "Toalla azual aguamarina",
         "hex": "#a4fff7",
-        "imagen": "assets/productos/toalla001/azual_agua.jpg"
+        "imagen": "assets/productos/toalla001/toalla_verde_agua.jpg"
       }
     ],
     "disponible": true,
     "destacado": true,
     "nuevo": true,
-    "descripcion": "Toalla ultra absorbente y delicada con capucha bordada."
+    "descripcion": "Toalla ultra absorbente y delicada con capucha y babero."
   }
 ]
