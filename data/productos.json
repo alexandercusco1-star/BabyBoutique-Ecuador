@@ -210,15 +210,13 @@
         "hex": "#645394",
         "imagen": "assets/productos/toallas001/toalla_azul.jpg"
       },
-{
+      {
         "nombre": "Toalla verde lima",
         "hex": "#89f336",
         "imagen": "assets/productos/toallas001/toalla_verde_limon.jpg"
       },
-
-      
       {
-        "nombre": "Toalla azual aguamarina",
+        "nombre": "Toalla azul aguamarina",
         "hex": "#a4fff7",
         "imagen": "assets/productos/toallas001/toalla_verde_agua.jpg"
       }
