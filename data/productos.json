@@ -189,5 +189,31 @@
     "destacado": true,
     "nuevo": true,
     "descripcion": "Conjunto abrigado ideal para viento y clima frío."
+  },
+
+  {
+    "id": "TOA-008",
+    "codigo": "008",
+    "nombre": "Toalla de Baño con Capucha Bordada",
+    "categoria": "Toallas",
+    "precio": 6.00,
+    "precioMediaDocena": 5.50,
+    "precioDocena": 5.00,
+    "tallas": [
+      "Talla Única"
+    ],
+    "tela": "Algodón",
+    "clima": "Húmedo / Baño",
+    "colores": [
+      {
+        "nombre": "Rosado Oso",
+        "hex": "#f472b6",
+        "imagen": "assets/productos/toalla001/rosado.jpg"
+      }
+    ],
+    "disponible": true,
+    "destacado": true,
+    "nuevo": true,
+    "descripcion": "Toalla ultra absorbente y delicada con capucha bordada."
   }
 ]
