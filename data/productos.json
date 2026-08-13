@@ -207,7 +207,7 @@
     "colores": [
       {
         "nombre": "Toalla azul",
-        "hex": "#f645394",
+        "hex": "#645394",
         "imagen": "assets/productos/toalla001/toalla_azul.jpg"
       },
 {
@@ -218,7 +218,7 @@
 
       
       {
-        "nombre": "Talla azual aguamarina",
+        "nombre": "Toalla azual aguamarina",
         "hex": "#a4fff7",
         "imagen": "assets/productos/toalla001/azual_agua.jpg"
       }
