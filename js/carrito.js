@@ -25,12 +25,12 @@ function saveCart(cart) {
     }
 }
 
-// 1. Contador de PRODUCTOS DIFERENTES (Cuenta las filas/modelos en el carrito)
+// Actualiza los badges del carrito en todo el sitio web
 function actualizarContador() {
     const cart = getCart();
-    const elementosContador = document.querySelectorAll('#contadorCarrito, #contador-carrito, .cart-badge');
+    const elementosContador = document.querySelectorAll('#contadorCarrito, #contador-carrito, .cart-badge, .cart-icon-btn span');
     
-    // Muestra la cantidad de tipos/modelos diferentes agregados (ej: 3)
+    // Muestra la cantidad de tipos/modelos diferentes agregados
     const productosDiferentes = cart.length;
     
     elementosContador.forEach(el => {
@@ -85,11 +85,6 @@ function eliminarProducto(index) {
     if (index >= 0 && index < cart.length) {
         cart.splice(index, 1);
         saveCart(cart);
-        if (typeof renderizarCarrito === 'function') {
-            renderizarCarrito();
-        } else if (typeof mostrarCarrito === 'function') {
-            mostrarCarrito();
-        }
     }
 }
 
@@ -104,11 +99,6 @@ function actualizarCantidad(index, nuevaCantidad) {
         }
         cart[index].cantidad = cantidadNum;
         saveCart(cart);
-        if (typeof renderizarCarrito === 'function') {
-            renderizarCarrito();
-        } else if (typeof mostrarCarrito === 'function') {
-            mostrarCarrito();
-        }
     }
 }
 
@@ -117,11 +107,6 @@ function vaciarCarrito() {
     if (confirm("¿Estás seguro de que deseas vaciar el carrito?")) {
         localStorage.removeItem(CART_STORAGE_KEY);
         sincronizarTodo();
-        if (typeof renderizarCarrito === 'function') {
-            renderizarCarrito();
-        } else if (typeof mostrarCarrito === 'function') {
-            mostrarCarrito();
-        }
     }
 }
 
@@ -201,7 +186,6 @@ function mostrarCarrito() {
             });
         }
     } else {
-        // Para calcular totales si no existe el contenedor de tabla activo
         cart.forEach(item => {
             const cantidad = parseInt(item.cantidad) || 1;
             totalPrendas += cantidad;
@@ -211,12 +195,9 @@ function mostrarCarrito() {
 
     if (totalPrendasElement) totalPrendasElement.textContent = totalPrendas;
     if (totalPrecioElement) totalPrecioElement.textContent = `$${totalPagar.toFixed(2)}`;
-
-    actualizarContador();
-    actualizarBannerEnvio();
 }
 
-// Alias de función para compatibilidad con llamadas externas
+// Alias de función para compatibilidad
 function renderizarCarrito() {
     mostrarCarrito();
 }
@@ -303,7 +284,7 @@ function mostrarNotificacion(mensaje) {
     }, 2500);
 }
 
-// Sincronización general
+// Sincronización general centralizada
 function sincronizarTodo() {
     actualizarContador();
     actualizarBannerEnvio();
