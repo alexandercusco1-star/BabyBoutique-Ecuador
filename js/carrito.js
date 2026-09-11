@@ -1,6 +1,5 @@
 /* ==========================================================================
-   Baby Boutique Ecuador - Módulo de Carrito de Compras
-   Manejo de LocalStorage, Contador de Productos Diferentes, WhatsApp
+   Baby Boutique Ecuador - Módulo de Carrito de Compras (Corregido)
    ========================================================================== */
 
 const CART_STORAGE_KEY = 'carrito';
@@ -27,27 +26,26 @@ function saveCart(cart) {
     }
 }
 
-// 1. OBLIGATORIO: Contador de PRODUCTOS DIFERENTES (No la suma de cantidades)
+// Suma la cantidad TOTAL de prendas reales (no solo la longitud del array)
 function actualizarContador() {
     const cart = getCart();
     const elementosContador = document.querySelectorAll('#contadorCarrito, #contador-carrito, .cart-badge');
     
-    // Cuenta únicamente la cantidad de ítems/productos diferentes en el array
-    const productosDiferentes = cart.length;
+    // Suma real de todas las unidades seleccionadas
+    const totalPrendas = cart.reduce((sum, item) => sum + (parseInt(item.cantidad) || 0), 0);
     
     elementosContador.forEach(el => {
-        if (el) el.textContent = productosDiferentes;
+        if (el) el.textContent = totalPrendas;
     });
 }
 
-// Determinar el precio según el volumen de compra (Unidad, Media Docena, Docena)
+// Determinar el precio según el volumen de compra
 function getPrecioPorTramo(producto, cantidadTotal) {
     if (!producto) return 0;
     
-    // Soporte para estructura del JSON o datos planos
-    const precioUnidad = producto.precio || (producto.precios ? producto.precios.unidad : 0);
-    const precioMedia = producto.precioMediaDocena || (producto.precios ? producto.precios.media_docena : precioUnidad);
-    const precioDocena = producto.precioDocena || (producto.precios ? producto.precios.docena : precioUnidad);
+    const precioUnidad = Number(producto.precio || (producto.precios ? producto.precios.unidad : 0)) || 0;
+    const precioMedia = Number(producto.precioMediaDocena || (producto.precios ? producto.precios.media_docena : precioUnidad)) || precioUnidad;
+    const precioDocena = Number(producto.precioDocena || (producto.precios ? producto.precios.docena : precioUnidad)) || precioUnidad;
 
     if (cantidadTotal >= 12) {
         return precioDocena;
@@ -59,23 +57,27 @@ function getPrecioPorTramo(producto, cantidadTotal) {
 
 // Agregar producto al carrito
 function agregarAlCarrito(producto) {
+    if (!producto || !producto.id) return;
+    
     let cart = getCart();
     
-    // Buscar si ya existe la combinación exacta de ID, color y talla
     const indexExistente = cart.findIndex(item => 
         item.id === producto.id && 
         item.color === producto.color && 
         item.talla === producto.talla
     );
 
+    const cantidadAAgregar = parseInt(producto.cantidad) || 1;
+
     if (indexExistente > -1) {
-        cart[indexExistente].cantidad += producto.cantidad;
+        cart[indexExistente].cantidad += cantidadAAgregar;
     } else {
+        producto.cantidad = cantidadAAgregar;
         cart.push(producto);
     }
 
     saveCart(cart);
-    mostrarNotificacion(`¡${producto.nombre} añadido al carrito!`);
+    mostrarNotificacion(`¡${producto.nombre || 'Producto'} añadido al carrito!`);
 }
 
 // Eliminar producto por su índice
@@ -90,15 +92,16 @@ function eliminarProducto(index) {
     }
 }
 
-// Modificar cantidad desde botones +/- en la tabla del carrito
+// Modificar cantidad desde el carrito
 function actualizarCantidad(index, nuevaCantidad) {
     let cart = getCart();
     if (index >= 0 && index < cart.length) {
-        if (nuevaCantidad <= 0) {
+        const cantidadNum = parseInt(nuevaCantidad);
+        if (isNaN(cantidadNum) || cantidadNum <= 0) {
             eliminarProducto(index);
             return;
         }
-        cart[index].cantidad = parseInt(nuevaCantidad);
+        cart[index].cantidad = cantidadNum;
         saveCart(cart);
         if (typeof mostrarCarrito === 'function') {
             mostrarCarrito();
@@ -118,10 +121,10 @@ function vaciarCarrito() {
     }
 }
 
-// 7. OBLIGATORIO: Banner Dinámico de Envío Gratis (12 prendas)
+// Banner Dinámico de Envío Gratis
 function actualizarBannerEnvio() {
     const cart = getCart();
-    const totalPrendas = cart.reduce((sum, item) => sum + item.cantidad, 0);
+    const totalPrendas = cart.reduce((sum, item) => sum + (parseInt(item.cantidad) || 0), 0);
     
     const textoBanner = document.getElementById('shipping-text');
     const barraProgreso = document.getElementById('shipping-fill');
@@ -144,7 +147,7 @@ function actualizarBannerEnvio() {
     }
 }
 
-// 4. OBLIGATORIO: Generador Automático de Pedido por WhatsApp
+// Generador Automático de Pedido por WhatsApp
 function enviarWhatsApp() {
     const cart = getCart();
     if (cart.length === 0) {
@@ -168,15 +171,17 @@ function enviarWhatsApp() {
     mensaje += `📦 *DETALLE DE PRODUCTOS:* \n\n`;
 
     cart.forEach((item, idx) => {
-        const precioUnitario = getPrecioPorTramo(item, item.cantidad);
-        const subtotal = precioUnitario * item.cantidad;
-        totalPrendas += item.cantidad;
+        const cantidadItem = parseInt(item.cantidad) || 1;
+        const precioUnitario = getPrecioPorTramo(item, cantidadItem);
+        const subtotal = precioUnitario * cantidadItem;
+        
+        totalPrendas += cantidadItem;
         totalPagar += subtotal;
 
-        mensaje += `${idx + 1}. *${item.nombre}*\n`;
+        mensaje += `${idx + 1}. *${item.nombre || 'Producto'}*\n`;
         mensaje += `   • Código: ${item.codigo || item.id}\n`;
-        mensaje += `   • Color: ${item.color} | Talla: ${item.talla}\n`;
-        mensaje += `   • Cantidad: ${item.cantidad} u.\n`;
+        mensaje += `   • Color: ${item.color || 'N/A'} | Talla: ${item.talla || 'N/A'}\n`;
+        mensaje += `   • Cantidad: ${cantidadItem} u.\n`;
         mensaje += `   • Precio U.: $${precioUnitario.toFixed(2)}\n`;
         mensaje += `   • Subtotal: *$${subtotal.toFixed(2)}*\n\n`;
     });
@@ -190,13 +195,13 @@ function enviarWhatsApp() {
     mensaje += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
     mensaje += `Por favor me confirman la disponibilidad de los artículos para realizar el pago.`;
 
-    const telefono = "593984391581"; // Número oficial 0984391581
+    const telefono = "593984391581";
     const url = `https://api.whatsapp.com/send?phone=${telefono}&text=${encodeURIComponent(mensaje)}`;
     
     window.open(url, '_blank');
 }
 
-// Notificación emergente ligera
+// Notificación emergente
 function mostrarNotificacion(mensaje) {
     let toast = document.getElementById('toast-notification');
     if (!toast) {
@@ -224,8 +229,12 @@ function mostrarNotificacion(mensaje) {
     }, 2500);
 }
 
-// Inicializar contadores al cargar el script
-document.addEventListener('DOMContentLoaded', () => {
+// Sincronización en vivo entre pestañas y al cargar navegación móvil
+function sincronizarTodo() {
     actualizarContador();
     actualizarBannerEnvio();
-});
+}
+
+document.addEventListener('DOMContentLoaded', sincronizarTodo);
+window.addEventListener('pageshow', sincronizarTodo); // Se ejecuta al volver atrás en navegadores móviles
+window.addEventListener('storage', sincronizarTodo);  // Sincroniza si abre la web en dos pestañas
