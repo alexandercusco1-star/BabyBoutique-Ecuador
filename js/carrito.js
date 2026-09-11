@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Baby Boutique Ecuador - Módulo de Carrito de Compras (Corregido)
+   Baby Boutique Ecuador - Módulo de Carrito de Compras
    ========================================================================== */
 
 const CART_STORAGE_KEY = 'carrito';
@@ -19,23 +19,22 @@ function getCart() {
 function saveCart(cart) {
     try {
         localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-        actualizarContador();
-        actualizarBannerEnvio();
+        sincronizarTodo();
     } catch (e) {
         console.error("Error al guardar en localStorage:", e);
     }
 }
 
-// Suma la cantidad TOTAL de prendas reales (no solo la longitud del array)
+// 1. Contador de PRODUCTOS DIFERENTES (Cuenta las filas/modelos en el carrito)
 function actualizarContador() {
     const cart = getCart();
     const elementosContador = document.querySelectorAll('#contadorCarrito, #contador-carrito, .cart-badge');
     
-    // Suma real de todas las unidades seleccionadas
-    const totalPrendas = cart.reduce((sum, item) => sum + (parseInt(item.cantidad) || 0), 0);
+    // Muestra la cantidad de tipos/modelos diferentes agregados (ej: 3)
+    const productosDiferentes = cart.length;
     
     elementosContador.forEach(el => {
-        if (el) el.textContent = totalPrendas;
+        if (el) el.textContent = productosDiferentes;
     });
 }
 
@@ -86,13 +85,15 @@ function eliminarProducto(index) {
     if (index >= 0 && index < cart.length) {
         cart.splice(index, 1);
         saveCart(cart);
-        if (typeof mostrarCarrito === 'function') {
+        if (typeof renderizarCarrito === 'function') {
+            renderizarCarrito();
+        } else if (typeof mostrarCarrito === 'function') {
             mostrarCarrito();
         }
     }
 }
 
-// Modificar cantidad desde el carrito
+// Modificar cantidad desde la tabla del carrito
 function actualizarCantidad(index, nuevaCantidad) {
     let cart = getCart();
     if (index >= 0 && index < cart.length) {
@@ -103,7 +104,9 @@ function actualizarCantidad(index, nuevaCantidad) {
         }
         cart[index].cantidad = cantidadNum;
         saveCart(cart);
-        if (typeof mostrarCarrito === 'function') {
+        if (typeof renderizarCarrito === 'function') {
+            renderizarCarrito();
+        } else if (typeof mostrarCarrito === 'function') {
             mostrarCarrito();
         }
     }
@@ -113,9 +116,10 @@ function actualizarCantidad(index, nuevaCantidad) {
 function vaciarCarrito() {
     if (confirm("¿Estás seguro de que deseas vaciar el carrito?")) {
         localStorage.removeItem(CART_STORAGE_KEY);
-        actualizarContador();
-        actualizarBannerEnvio();
-        if (typeof mostrarCarrito === 'function') {
+        sincronizarTodo();
+        if (typeof renderizarCarrito === 'function') {
+            renderizarCarrito();
+        } else if (typeof mostrarCarrito === 'function') {
             mostrarCarrito();
         }
     }
@@ -145,6 +149,76 @@ function actualizarBannerEnvio() {
         textoBanner.innerHTML = `🚚 Te faltan <strong>${faltantes} ${faltantes === 1 ? 'prenda' : 'prendas'}</strong> para obtener <strong>ENVÍO GRATIS</strong>`;
         barraProgreso.style.width = `${porcentaje}%`;
     }
+}
+
+// Renderizar la tabla de productos y totales dentro de carrito.html
+function mostrarCarrito() {
+    const cart = getCart();
+    const contenedorTabla = document.getElementById('cart-items-container');
+    const totalPrendasElement = document.getElementById('cart-total-items');
+    const totalPrecioElement = document.getElementById('cart-total-price');
+
+    let totalPrendas = 0;
+    let totalPagar = 0;
+
+    if (contenedorTabla) {
+        contenedorTabla.innerHTML = '';
+
+        if (cart.length === 0) {
+            contenedorTabla.innerHTML = `
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 30px; font-weight: 500;">
+                        🛒 Tu carrito está vacío. <a href="productos.html" style="color: #db2777;">Ver catálogo</a>
+                    </td>
+                </tr>
+            `;
+        } else {
+            cart.forEach((item, index) => {
+                const cantidad = parseInt(item.cantidad) || 1;
+                const precioUnitario = getPrecioPorTramo(item, cantidad);
+                const subtotal = precioUnitario * cantidad;
+
+                totalPrendas += cantidad;
+                totalPagar += subtotal;
+
+                contenedorTabla.innerHTML += `
+                    <tr>
+                        <td><img src="${item.imagen || './img/placeholder.jpg'}" alt="${item.nombre}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"></td>
+                        <td><strong>${item.nombre || 'Producto'}</strong></td>
+                        <td>${item.codigo || item.id}</td>
+                        <td>${item.color || '-'}</td>
+                        <td>${item.talla || '-'}</td>
+                        <td>
+                            <input type="number" min="1" value="${cantidad}" onchange="actualizarCantidad(${index}, this.value)" style="width: 60px; text-align: center; padding: 5px; border: 1px solid #ccc; border-radius: 5px;">
+                        </td>
+                        <td>$${precioUnitario.toFixed(2)}</td>
+                        <td><strong>$${subtotal.toFixed(2)}</strong></td>
+                        <td>
+                            <button onclick="eliminarProducto(${index})" class="btn-delete" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+    } else {
+        // Para calcular totales si no existe el contenedor de tabla activo
+        cart.forEach(item => {
+            const cantidad = parseInt(item.cantidad) || 1;
+            totalPrendas += cantidad;
+            totalPagar += getPrecioPorTramo(item, cantidad) * cantidad;
+        });
+    }
+
+    if (totalPrendasElement) totalPrendasElement.textContent = totalPrendas;
+    if (totalPrecioElement) totalPrecioElement.textContent = `$${totalPagar.toFixed(2)}`;
+
+    actualizarContador();
+    actualizarBannerEnvio();
+}
+
+// Alias de función para compatibilidad con llamadas externas
+function renderizarCarrito() {
+    mostrarCarrito();
 }
 
 // Generador Automático de Pedido por WhatsApp
@@ -201,7 +275,7 @@ function enviarWhatsApp() {
     window.open(url, '_blank');
 }
 
-// Notificación emergente
+// Notificación emergente ligera
 function mostrarNotificacion(mensaje) {
     let toast = document.getElementById('toast-notification');
     if (!toast) {
@@ -229,12 +303,14 @@ function mostrarNotificacion(mensaje) {
     }, 2500);
 }
 
-// Sincronización en vivo entre pestañas y al cargar navegación móvil
+// Sincronización general
 function sincronizarTodo() {
     actualizarContador();
     actualizarBannerEnvio();
+    mostrarCarrito();
 }
 
+// Escuchadores globales para ejecuciones en móviles y pestañas
 document.addEventListener('DOMContentLoaded', sincronizarTodo);
-window.addEventListener('pageshow', sincronizarTodo); // Se ejecuta al volver atrás en navegadores móviles
-window.addEventListener('storage', sincronizarTodo);  // Sincroniza si abre la web en dos pestañas
+window.addEventListener('pageshow', sincronizarTodo);
+window.addEventListener('storage', sincronizarTodo);
