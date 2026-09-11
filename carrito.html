@@ -13,6 +13,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Corrección visual directa para eliminar ceros estáticos del CSS -->
+    <style>
+        .cart-icon-btn::after, .acciones a::after {
+            content: none !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -43,9 +50,8 @@
                 </nav>
 
                 <div class="acciones">
-                    <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito">
-                        🛒 Carrito
-                        <span class="cart-badge" id="contadorCarrito">0</span>
+                    <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito" id="btnCarritoHeader">
+                        🛒 Carrito <span class="cart-badge" id="contadorCarrito" style="background:#fff; color:#db2777; padding:2px 8px; border-radius:12px; font-weight:bold; margin-left:5px;">0</span>
                     </a>
                 </div>
             </div>
@@ -101,37 +107,39 @@
     <script src="./js/carrito.js"></script>
     <script src="./js/productos.js"></script>
 
-    <!-- Script de Sincronización y Forzado del Contador Header -->
+    <!-- Script de Inyección Directa -->
     <script>
-        function forzarContadorHeader() {
+        function corregirBotonRosa() {
             try {
                 const cart = JSON.parse(localStorage.getItem('carrito')) || [];
-                // Cuenta el número de ítems/modelos únicos en el carrito
-                const totalTipos = cart.length; 
+                const totalModelos = cart.length; // Cuenta cuántos modelos diferentes hay
                 
-                // Busca el contenedor del badge sin importar la clase/id que aplique el diseño
-                const badges = document.querySelectorAll('#contadorCarrito, .cart-badge, .cart-icon-btn span, .acciones a span');
-                badges.forEach(badge => {
-                    if (badge) badge.textContent = totalTipos;
+                // Forzar modificación de todos los spans dentro del área del header
+                const spans = document.querySelectorAll('header span, .acciones span, #contadorCarrito, .cart-badge');
+                spans.forEach(span => {
+                    if (span && !span.parentElement.classList.contains('logo')) {
+                        span.textContent = totalModelos;
+                    }
                 });
+
+                // Si la estructura del botón reemplaza el texto interno:
+                const btn = document.getElementById('btnCarritoHeader') || document.querySelector('.cart-icon-btn');
+                if (btn) {
+                    btn.innerHTML = `🛒 Carrito <span class="cart-badge" id="contadorCarrito" style="background:#fff; color:#db2777; padding:2px 8px; border-radius:12px; font-weight:bold; margin-left:5px;">${totalModelos}</span>`;
+                }
             } catch (e) {
-                console.error("Error actualizando contador:", e);
+                console.error(e);
             }
         }
 
-        // Ejecuciones múltiples para ganar la carrera contra la caché del navegador
+        // Ejecutar inmediatamente
+        corregirBotonRosa();
         document.addEventListener("DOMContentLoaded", () => {
-            if (typeof sincronizarTodo === 'function') sincronizarTodo();
-            forzarContadorHeader();
+            if (typeof mostrarCarrito === 'function') mostrarCarrito();
+            corregirBotonRosa();
         });
-
-        window.addEventListener("pageshow", () => {
-            if (typeof sincronizarTodo === 'function') sincronizarTodo();
-            forzarContadorHeader();
-        });
-
-        setTimeout(forzarContadorHeader, 300);
-        setTimeout(forzarContadorHeader, 1000);
+        window.addEventListener("pageshow", corregirBotonRosa);
+        setTimeout(corregirBotonRosa, 500);
     </script>
 </body>
 
