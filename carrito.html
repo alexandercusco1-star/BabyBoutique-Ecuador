@@ -13,13 +13,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Corrección visual directa para eliminar ceros estáticos del CSS -->
-    <style>
-        .cart-icon-btn::after, .acciones a::after {
-            content: none !important;
-        }
-    </style>
 </head>
 
 <body>
@@ -50,8 +43,8 @@
                 </nav>
 
                 <div class="acciones">
-                    <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito" id="btnCarritoHeader">
-                        🛒 Carrito <span class="cart-badge" id="contadorCarrito" style="background:#fff; color:#db2777; padding:2px 8px; border-radius:12px; font-weight:bold; margin-left:5px;">0</span>
+                    <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito">
+                        🛒 Carrito <span class="cart-badge" id="contadorCarrito">0</span>
                     </a>
                 </div>
             </div>
@@ -107,39 +100,54 @@
     <script src="./js/carrito.js"></script>
     <script src="./js/productos.js"></script>
 
-    <!-- Script de Inyección Directa -->
+    <!-- Observador en Vivo para Bloquear el "0" del Botón Rosa -->
     <script>
-        function corregirBotonRosa() {
+        function forzarValorCarrito() {
             try {
                 const cart = JSON.parse(localStorage.getItem('carrito')) || [];
-                const totalModelos = cart.length; // Cuenta cuántos modelos diferentes hay
-                
-                // Forzar modificación de todos los spans dentro del área del header
-                const spans = document.querySelectorAll('header span, .acciones span, #contadorCarrito, .cart-badge');
-                spans.forEach(span => {
-                    if (span && !span.parentElement.classList.contains('logo')) {
-                        span.textContent = totalModelos;
+                const totalModelos = String(cart.length); // Cuenta únicamente los 3 tipos de productos
+
+                // 1. Reemplaza cualquier número dentro de los elementos del badge/carrito
+                const elementosBadge = document.querySelectorAll('#contadorCarrito, .cart-badge, .acciones span, header span');
+                elementosBadge.forEach(el => {
+                    if (el && !el.parentElement.classList.contains('logo') && el.textContent !== totalModelos) {
+                        el.textContent = totalModelos;
                     }
                 });
 
-                // Si la estructura del botón reemplaza el texto interno:
-                const btn = document.getElementById('btnCarritoHeader') || document.querySelector('.cart-icon-btn');
-                if (btn) {
-                    btn.innerHTML = `🛒 Carrito <span class="cart-badge" id="contadorCarrito" style="background:#fff; color:#db2777; padding:2px 8px; border-radius:12px; font-weight:bold; margin-left:5px;">${totalModelos}</span>`;
-                }
+                // 2. Si el botón rosa es una etiqueta completa generada por script externo:
+                const botonesCarrito = document.querySelectorAll('.cart-icon-btn, .acciones a, header a[href*="carrito"]');
+                botonesCarrito.forEach(btn => {
+                    const badgeInterno = btn.querySelector('span');
+                    if (badgeInterno) {
+                        badgeInterno.textContent = totalModelos;
+                    }
+                });
             } catch (e) {
                 console.error(e);
             }
         }
 
-        // Ejecutar inmediatamente
-        corregirBotonRosa();
+        // Ejecución continua con observador DOM
+        forzarValorCarrito();
+
+        // Escucha cualquier cambio en el header (por si productos.js o el CSS lo reescriben al vuelo)
+        const observer = new MutationObserver(() => {
+            forzarValorCarrito();
+        });
+
+        const headerNode = document.querySelector('header');
+        if (headerNode) {
+            observer.observe(headerNode, { childList: true, subtree: true, characterData: true });
+        }
+
+        // Refuerzos de tiempo para carga en móviles
         document.addEventListener("DOMContentLoaded", () => {
             if (typeof mostrarCarrito === 'function') mostrarCarrito();
-            corregirBotonRosa();
+            forzarValorCarrito();
         });
-        window.addEventListener("pageshow", corregirBotonRosa);
-        setTimeout(corregirBotonRosa, 500);
+        window.addEventListener("pageshow", forzarValorCarrito);
+        setInterval(forzarValorCarrito, 500); // Revisa cada medio segundo
     </script>
 </body>
 
