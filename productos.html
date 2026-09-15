@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo | Baby Boutique Ecuador</title>
 
-    <!-- Estilos Unificados (Ruta exacta a style.css) -->
+    <!-- Estilos Unificados -->
     <link rel="stylesheet" href="./css/style.css">
 
     <!-- Tipografía Google Fonts -->
@@ -18,76 +18,255 @@
 <body>
 
     <div class="main-wrapper">
-        <!-- Banner de Envío Gratis Dinámico -->
+
+        <!-- =========================================================
+             BANNER DE ENVÍO GRATIS
+             ========================================================= -->
+
         <div class="shipping-banner">
-            <div id="shipping-text">🚚 ¡Agrega <strong>12 prendas</strong> para obtener <strong>ENVÍO GRATIS</strong> en Ecuador!</div>
-            <div class="shipping-progress-bar">
-                <div class="shipping-progress-fill" id="shipping-fill"></div>
+
+            <div id="shipping-text">
+                🚚 ¡Agrega
+                <strong>12 prendas</strong>
+                para obtener
+                <strong>ENVÍO GRATIS</strong>
+                en Ecuador!
             </div>
+
+            <div class="shipping-progress-bar">
+                <div
+                    class="shipping-progress-fill"
+                    id="shipping-fill">
+                </div>
+            </div>
+
         </div>
 
-        <!-- Encabezado / Navegación -->
+
+        <!-- =========================================================
+             ENCABEZADO / NAVEGACIÓN
+             ========================================================= -->
+
         <header>
+
             <div class="header-container">
+
                 <a href="index.html" class="logo">
                     👶 <span>Baby Boutique</span>
                 </a>
 
+
                 <nav>
+
                     <ul>
-                        <li><a href="index.html">Inicio</a></li>
-                        <li><a href="productos.html" class="active">Productos</a></li>
-                        <li><a href="nosotros.html">Nosotros</a></li>
-                        <li><a href="contacto.html">Contacto</a></li>
+
+                        <li>
+                            <a href="index.html">
+                                Inicio
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="productos.html" class="active">
+                                Productos
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="nosotros.html">
+                                Nosotros
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="contacto.html">
+                                Contacto
+                            </a>
+                        </li>
+
                     </ul>
+
                 </nav>
 
+
                 <div class="acciones">
-                    <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito">
+
+                    <a
+                        href="carrito.html"
+                        class="cart-icon-btn"
+                        title="Ver Carrito">
+
                         🛒 Carrito
-                        <span class="cart-badge" id="contadorCarrito">0</span>
+
+                        <span
+                            class="cart-badge"
+                            id="contadorCarrito">
+                            0
+                        </span>
+
                     </a>
+
                 </div>
+
             </div>
+
         </header>
 
-        <!-- Contenido Principal del Catálogo -->
+
+        <!-- =========================================================
+             CONTENIDO PRINCIPAL
+             ========================================================= -->
+
         <main class="container">
-            <!-- Sección de Filtros de Categorías -->
+
+
+            <!-- =====================================================
+                 FILTROS DE CATEGORÍAS
+                 ===================================================== -->
+
             <section class="category-filter-section">
-                <h1 style="color: #db2777; font-size: 2rem; margin-bottom: 5px;">Nuestra Boutique</h1>
-                <p style="color: #6b7280; margin-bottom: 25px;">Ropa y accesorios para bebés de 0 a 24 meses</p>
+
+                <h1
+                    style="
+                        color:#db2777;
+                        font-size:2rem;
+                        margin-bottom:5px;
+                    ">
+
+                    Nuestra Boutique
+
+                </h1>
+
+
+                <p
+                    style="
+                        color:#6b7280;
+                        margin-bottom:25px;
+                    ">
+
+                    Ropa y accesorios para bebés de 0 a 24 meses
+
+                </p>
+
 
                 <div class="category-buttons">
-                    <button class="cat-btn active" data-category="Todos">✨ Todos</button>
-                    <button class="cat-btn" data-category="Bodies">👶 Bodies</button>
-                    <button class="cat-btn" data-category="Enterizos">🧸 Enterizos</button>
-                    <button class="cat-btn" data-category="Conjuntos">👔 Conjuntos</button>
-                    <button class="cat-btn" data-category="Medias">🧦 Medias</button>
-                    <button class="cat-btn" data-category="Toallas">动 Toallas</button>
-                    <button class="cat-btn" data-category="Accesorios">🎀 Accesorios</button>
+
+                    <button
+                        class="cat-btn active"
+                        data-category="Todos">
+
+                        ✨ Todos
+
+                    </button>
+
+
+                    <button
+                        class="cat-btn"
+                        data-category="Bodies">
+
+                        👶 Bodies
+
+                    </button>
+
+
+                    <button
+                        class="cat-btn"
+                        data-category="Enterizos">
+
+                        🧸 Enterizos
+
+                    </button>
+
+
+                    <button
+                        class="cat-btn"
+                        data-category="Conjuntos">
+
+                        👔 Conjuntos
+
+                    </button>
+
+
+                    <button
+                        class="cat-btn"
+                        data-category="Medias">
+
+                        🧦 Medias
+
+                    </button>
+
+
+                    <button
+                        class="cat-btn"
+                        data-category="Toallas">
+
+                        🧴 Toallas
+
+                    </button>
+
+
+                    <button
+                        class="cat-btn"
+                        data-category="Accesorios">
+
+                        🎀 Accesorios
+
+                    </button>
+
                 </div>
+
             </section>
 
-            <!-- Grilla Dinámica de Productos -->
-            <section style="margin-bottom: 60px;">
-                <div class="products-grid" id="products-container">
-                    <!-- Los productos se filtran y renderizan dinámicamente mediante productos.js -->
+
+            <!-- =====================================================
+                 GRILLA DINÁMICA DE PRODUCTOS
+                 ===================================================== -->
+
+            <section style="margin-bottom:60px;">
+
+                <div
+                    class="products-grid"
+                    id="products-container">
+
+                    <!--
+                        Los productos se cargan
+                        automáticamente desde productos.json
+                    -->
+
                 </div>
+
             </section>
+
         </main>
 
-        <!-- Pie de página -->
+
+        <!-- =========================================================
+             PIE DE PÁGINA
+             ========================================================= -->
+
         <footer>
+
             <div class="container">
-                <p>© 2026 Baby Boutique Ecuador. Todos los derechos reservados.</p>
+
+                <p>
+                    © 2026 Baby Boutique Ecuador.
+                    Todos los derechos reservados.
+                </p>
+
             </div>
+
         </footer>
+
     </div>
 
-    <!-- Scripts del Sistema (Rutas exactas a tus archivos) -->
+
+    <!-- =========================================================
+         JAVASCRIPT
+         ========================================================= -->
+
     <script src="./js/carrito.js"></script>
     <script src="./js/productos.js"></script>
+
 </body>
 
 </html>
