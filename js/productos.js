@@ -6,9 +6,9 @@
 let productos = [];
 let categoriaActiva = 'Todos';
 
+
 // ============================================================
 // UN ÚNICO CARRITO PARA TODO EL SITIO
-// Debe coincidir con carrito.js
 // ============================================================
 
 const CART_STORAGE_KEY = 'carrito';
@@ -21,9 +21,19 @@ const CART_STORAGE_KEY = 'carrito';
 function obtenerCarritoCliente() {
     try {
         const carrito = localStorage.getItem(CART_STORAGE_KEY);
-        return carrito ? JSON.parse(carrito) : [];
+
+        if (!carrito) {
+            return [];
+        }
+
+        const datos = JSON.parse(carrito);
+
+        return Array.isArray(datos) ? datos : [];
+
     } catch (e) {
+
         console.error('Error al leer carrito:', e);
+
         return [];
     }
 }
@@ -34,21 +44,26 @@ function obtenerCarritoCliente() {
 // ============================================================
 
 function guardarCarritoCliente(carrito) {
-    try {
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(carrito));
 
-        // Actualizar contador si carrito.js está disponible
+    try {
+
+        localStorage.setItem(
+            CART_STORAGE_KEY,
+            JSON.stringify(carrito)
+        );
+
         if (typeof actualizarContador === 'function') {
             actualizarContador();
         }
 
-        // Actualizar banner si existe
         if (typeof actualizarBannerEnvio === 'function') {
             actualizarBannerEnvio();
         }
 
     } catch (e) {
+
         console.error('Error al guardar carrito:', e);
+
     }
 }
 
@@ -59,7 +74,6 @@ function guardarCarritoCliente(carrito) {
 
 async function cargarProductos() {
 
-    // Si estamos en carrito.html no necesitamos cargar catálogo
     const contenedorCatalogo =
         document.getElementById('products-container') ||
         document.getElementById('lista-productos');
@@ -67,39 +81,79 @@ async function cargarProductos() {
     const contenedorDetalle =
         document.getElementById('detalle-producto');
 
+    // Si esta página no tiene catálogo ni detalle,
+    // no hacemos nada.
     if (!contenedorCatalogo && !contenedorDetalle) {
         return;
     }
 
+
+    // ========================================================
+    // INTENTAR CARGAR productos.json
+    // ========================================================
+
     try {
 
-        const respuesta = await fetch('./data/productos.json');
+        const respuesta = await fetch('./data/productos.json', {
+            cache: 'no-cache'
+        });
 
         if (!respuesta.ok) {
-            throw new Error('No se pudo cargar productos.json');
+            throw new Error(
+                `Error HTTP ${respuesta.status} al cargar productos.json`
+            );
         }
 
-        productos = await respuesta.json();
+        const datos = await respuesta.json();
+
+        if (!Array.isArray(datos)) {
+            throw new Error(
+                'productos.json no contiene una lista válida de productos'
+            );
+        }
+
+        productos = datos;
+
 
     } catch (error) {
 
-        console.warn(
-            'Cargando datos de respaldo para visualización local:',
+        console.error(
+            'No se pudo cargar ./data/productos.json:',
             error
         );
 
+        // ====================================================
+        // DATOS DE RESPALDO
+        // ====================================================
+
         productos = getProductosRespaldo();
+
     }
 
+
+    // ========================================================
+    // MOSTRAR CATÁLOGO
+    // ========================================================
 
     if (contenedorCatalogo) {
+
         mostrarProductos(productos);
+
         inicializarFiltrosCategorias();
+
     }
 
 
+    // ========================================================
+    // MOSTRAR DETALLE
+    // ========================================================
+
     if (contenedorDetalle) {
-        mostrarDetalleProducto();
+
+        if (typeof mostrarDetalleProducto === 'function') {
+            mostrarDetalleProducto();
+        }
+
     }
 }
 
@@ -110,25 +164,34 @@ async function cargarProductos() {
 
 function inicializarFiltrosCategorias() {
 
-    const botones = document.querySelectorAll('.cat-btn');
+    const botones =
+        document.querySelectorAll('.cat-btn');
 
-    if (!botones.length) return;
+    if (!botones.length) {
+        return;
+    }
+
 
     botones.forEach(btn => {
 
         btn.addEventListener('click', e => {
 
-            botones.forEach(b =>
-                b.classList.remove('active')
-            );
+            botones.forEach(b => {
+                b.classList.remove('active');
+            });
+
 
             e.currentTarget.classList.add('active');
+
 
             const catSeleccionada =
                 e.currentTarget.getAttribute('data-category') ||
                 'Todos';
 
-            categoriaActiva = catSeleccionada;
+
+            categoriaActiva =
+                catSeleccionada;
+
 
             if (catSeleccionada === 'Todos') {
 
@@ -136,16 +199,28 @@ function inicializarFiltrosCategorias() {
 
             } else {
 
-                const filtrados = productos.filter(p =>
-                    p.categoria &&
-                    p.categoria.toLowerCase() ===
-                    catSeleccionada.toLowerCase()
-                );
+                const filtrados =
+                    productos.filter(p => {
+
+                        if (!p.categoria) {
+                            return false;
+                        }
+
+                        return (
+                            String(p.categoria).toLowerCase() ===
+                            String(catSeleccionada).toLowerCase()
+                        );
+
+                    });
+
 
                 mostrarProductos(filtrados);
             }
+
         });
+
     });
+
 }
 
 
@@ -159,10 +234,13 @@ function mostrarProductos(lista) {
         document.getElementById('products-container') ||
         document.getElementById('lista-productos');
 
-    if (!contenedor) return;
+
+    if (!contenedor) {
+        return;
+    }
 
 
-    if (lista.length === 0) {
+    if (!Array.isArray(lista) || lista.length === 0) {
 
         contenedor.innerHTML = `
             <div style="
@@ -182,8 +260,17 @@ function mostrarProductos(lista) {
 
     contenedor.innerHTML = lista.map(prod => {
 
+        const idProducto =
+            prod.id || prod.codigo || `producto-${Math.random()}`;
+
+
+        // ====================================================
+        // COLOR INICIAL
+        // ====================================================
+
         const colorInicial =
-            prod.colores && prod.colores.length > 0
+            Array.isArray(prod.colores) &&
+            prod.colores.length > 0
                 ? prod.colores[0]
                 : {
                     nombre: 'Único',
@@ -191,25 +278,150 @@ function mostrarProductos(lista) {
                 };
 
 
+        // ====================================================
+        // IMAGEN INICIAL
+        // ====================================================
+
         const imagenInicial =
             colorInicial.imagen ||
             prod.imagen ||
             'https://via.placeholder.com/300x300/fbcfe8/db2777?text=Baby+Boutique';
 
 
-        const listaTallas =
-            prod.tallas || [
-                '0 a 3 meses',
-                '3 a 6 meses',
-                '6 a 9 meses',
-                '9 a 12 meses'
-            ];
+        // ====================================================
+        // TALLAS
+        // ====================================================
 
+        const listaTallas =
+            Array.isArray(prod.tallas) &&
+            prod.tallas.length > 0
+                ? prod.tallas
+                : [
+                    '0 a 3 meses',
+                    '3 a 6 meses',
+                    '6 a 9 meses',
+                    '9 a 12 meses'
+                ];
+
+
+        // ====================================================
+        // COLORES
+        // ====================================================
+
+        let coloresHTML = '';
+
+
+        if (
+            Array.isArray(prod.colores) &&
+            prod.colores.length > 0
+        ) {
+
+            coloresHTML = `
+
+                <div class="option-group">
+
+                    <label class="option-label">
+
+                        Color:
+
+                        <span
+                            id="color-label-${idProducto}"
+                            style="
+                                font-weight:bold;
+                                color:#1f2937;
+                            "
+                        >
+                            ${colorInicial.nombre || 'Único'}
+                        </span>
+
+                    </label>
+
+
+                    <div class="color-picker">
+
+                        ${prod.colores.map((c, i) => `
+
+                            <span
+                                class="color-dot ${i === 0 ? 'active' : ''}"
+                                style="
+                                    background-color:${c.hex || '#f472b6'};
+                                "
+                                title="${c.nombre || 'Color'}"
+                                onclick="
+                                    cambiarColorProducto(
+                                        '${idProducto}',
+                                        '${String(c.nombre || 'Único').replace(/'/g, "\\'")}',
+                                        '${String(c.imagen || '').replace(/'/g, "\\'")}',
+                                        this
+                                    )
+                                "
+                            ></span>
+
+                        `).join('')}
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+
+        // ====================================================
+        // TALLAS HTML
+        // ====================================================
+
+        const tallasHTML =
+            listaTallas.map(t => {
+
+                if (typeof t === 'object') {
+
+                    const valor =
+                        t.edad ||
+                        t.nombre ||
+                        t.numero ||
+                        'Única';
+
+
+                    const texto =
+                        t.numero
+                            ? `Talla ${t.numero} - ${t.edad || t.nombre || ''}`
+                            : valor;
+
+
+                    return `
+                        <option value="${valor}">
+                            ${texto}
+                        </option>
+                    `;
+
+                }
+
+
+                return `
+                    <option value="${t}">
+                        ${t}
+                    </option>
+                `;
+
+            }).join('');
+
+
+        // ====================================================
+        // TARJETA DEL PRODUCTO
+        // ====================================================
 
         return `
-            <div class="product-card" id="card-${prod.id}">
+
+            <div
+                class="product-card"
+                id="card-${idProducto}"
+            >
 
                 <div>
+
+                    <!-- IMAGEN -->
 
                     <div class="product-image-container">
 
@@ -219,8 +431,8 @@ function mostrarProductos(lista) {
 
                         <img
                             src="${imagenInicial}"
-                            id="img-${prod.id}"
-                            alt="${prod.nombre}"
+                            id="img-${idProducto}"
+                            alt="${prod.nombre || 'Producto Baby Boutique'}"
                             onerror="
                                 this.src='https://via.placeholder.com/300x300/fbcfe8/db2777?text=Baby+Boutique'
                             "
@@ -229,65 +441,33 @@ function mostrarProductos(lista) {
                     </div>
 
 
+                    <!-- CÓDIGO -->
+
                     <div class="product-code">
-                        CÓDIGO: ${prod.codigo || prod.id}
+
+                        CÓDIGO:
+                        ${prod.codigo || prod.id || ''}
+
                     </div>
 
 
+                    <!-- NOMBRE -->
+
                     <h3 class="product-title">
-                        ${prod.nombre}
+
+                        ${prod.nombre || 'Producto'}
+
                     </h3>
 
 
+                    <!-- OPCIONES -->
+
                     <div class="product-options">
 
-                        ${
-                            prod.colores &&
-                            prod.colores.length > 0
-                                ? `
-                            <div class="option-group">
-
-                                <label class="option-label">
-                                    Color:
-                                    <span
-                                        id="color-label-${prod.id}"
-                                        style="
-                                            font-weight:bold;
-                                            color:#1f2937;
-                                        "
-                                    >
-                                        ${colorInicial.nombre}
-                                    </span>
-                                </label>
+                        ${coloresHTML}
 
 
-                                <div class="color-picker">
-
-                                    ${prod.colores.map((c, i) => `
-                                        <span
-                                            class="color-dot ${i === 0 ? 'active' : ''}"
-                                            style="
-                                                background-color:${c.hex || '#f472b6'};
-                                            "
-                                            title="${c.nombre}"
-                                            onclick="
-                                                cambiarColorProducto(
-                                                    '${prod.id}',
-                                                    '${c.nombre}',
-                                                    '${c.imagen}',
-                                                    this
-                                                )
-                                            "
-                                        ></span>
-                                    `).join('')}
-
-                                </div>
-
-                            </div>
-                        `
-                                : ''
-                        }
-
+                        <!-- TALLA -->
 
                         <div class="option-group">
 
@@ -295,44 +475,43 @@ function mostrarProductos(lista) {
                                 Talla:
                             </label>
 
+
                             <select
                                 class="size-select"
-                                id="size-${prod.id}"
+                                id="size-${idProducto}"
                             >
 
-                                ${listaTallas.map(t => `
-                                    <option value="${t.edad || t}">
-                                        ${
-                                            t.edad
-                                                ? `${t.numero ? 'Talla ' + t.numero + ' - ' : ''}${t.edad}`
-                                                : t
-                                        }
-                                    </option>
-                                `).join('')}
+                                ${tallasHTML}
 
                             </select>
 
                         </div>
 
 
+                        <!-- CANTIDAD -->
+
                         <div class="option-group">
 
                             <label class="option-label">
-                                Cantidad (Precio por volumen):
+
+                                Cantidad
+                                (Precio por volumen):
+
                             </label>
+
 
                             <input
                                 type="number"
                                 class="qty-select"
-                                id="qty-${prod.id}"
+                                id="qty-${idProducto}"
                                 value="0"
                                 min="0"
                                 max="100"
                                 onchange="
-                                    actualizarPrecioEnTarjeta('${prod.id}')
+                                    actualizarPrecioEnTarjeta('${idProducto}')
                                 "
                                 onkeyup="
-                                    actualizarPrecioEnTarjeta('${prod.id}')
+                                    actualizarPrecioEnTarjeta('${idProducto}')
                                 "
                             >
 
@@ -341,18 +520,21 @@ function mostrarProductos(lista) {
                     </div>
 
 
+                    <!-- PRECIO -->
+
                     <div class="price-box">
 
                         <div
                             class="price-main"
-                            id="price-${prod.id}"
+                            id="price-${idProducto}"
                         >
                             $0.00
                         </div>
 
+
                         <div
                             class="price-tier-info"
-                            id="tier-info-${prod.id}"
+                            id="tier-info-${idProducto}"
                         >
                             Selecciona 1 o más prendas
                         </div>
@@ -362,24 +544,40 @@ function mostrarProductos(lista) {
                 </div>
 
 
+                <!-- BOTÓN -->
+
                 <button
                     class="add-to-cart-btn"
                     onclick="
-                        agregarProductoAlCarrito('${prod.id}')
+                        agregarProductoAlCarrito('${idProducto}')
                     "
                 >
+
                     🛒 Añadir al Carrito
+
                 </button>
 
             </div>
+
         `;
 
     }).join('');
 
 
-    lista.forEach(p =>
-        actualizarPrecioEnTarjeta(p.id)
-    );
+    // ========================================================
+    // ACTUALIZAR PRECIOS
+    // ========================================================
+
+    lista.forEach(p => {
+
+        const id =
+            p.id ||
+            p.codigo;
+
+        actualizarPrecioEnTarjeta(id);
+
+    });
+
 }
 
 
@@ -395,13 +593,21 @@ function cambiarColorProducto(
 ) {
 
     const tarjeta =
-        document.getElementById(`card-${idProducto}`);
+        document.getElementById(
+            `card-${idProducto}`
+        );
 
-    if (!tarjeta) return;
+
+    if (!tarjeta) {
+        return;
+    }
 
 
     const img =
-        document.getElementById(`img-${idProducto}`);
+        document.getElementById(
+            `img-${idProducto}`
+        );
+
 
     const etiquetaColor =
         document.getElementById(
@@ -410,27 +616,39 @@ function cambiarColorProducto(
 
 
     if (img && urlImagen) {
+
         img.src = urlImagen;
+
     }
 
 
     if (etiquetaColor) {
-        etiquetaColor.textContent = nombreColor;
+
+        etiquetaColor.textContent =
+            nombreColor;
+
     }
 
 
     const dots =
-        tarjeta.querySelectorAll('.color-dot');
+        tarjeta.querySelectorAll(
+            '.color-dot'
+        );
 
 
-    dots.forEach(d =>
-        d.classList.remove('active')
-    );
+    dots.forEach(d => {
+
+        d.classList.remove('active');
+
+    });
 
 
     if (elementoDot) {
+
         elementoDot.classList.add('active');
+
     }
+
 }
 
 
@@ -447,7 +665,10 @@ function actualizarPrecioEnTarjeta(idProducto) {
                 p.codigo == idProducto
         );
 
-    if (!prod) return;
+
+    if (!prod) {
+        return;
+    }
 
 
     const inputQty =
@@ -455,10 +676,12 @@ function actualizarPrecioEnTarjeta(idProducto) {
             `qty-${idProducto}`
         );
 
+
     const displayPrecio =
         document.getElementById(
             `price-${idProducto}`
         );
+
 
     const displayInfo =
         document.getElementById(
@@ -473,13 +696,20 @@ function actualizarPrecioEnTarjeta(idProducto) {
     if (cantidad <= 0) {
 
         if (displayPrecio) {
-            displayPrecio.textContent = '$0.00';
+
+            displayPrecio.textContent =
+                '$0.00';
+
         }
 
+
         if (displayInfo) {
+
             displayInfo.textContent =
                 'Selecciona 1 o más prendas';
+
         }
+
 
         return;
     }
@@ -488,9 +718,11 @@ function actualizarPrecioEnTarjeta(idProducto) {
     const precioUnidad =
         Number(prod.precio) || 0;
 
+
     const precioMedia =
         Number(prod.precioMediaDocena) ||
         precioUnidad;
+
 
     const precioDocena =
         Number(prod.precioDocena) ||
@@ -499,6 +731,7 @@ function actualizarPrecioEnTarjeta(idProducto) {
 
     let precioAplicado =
         precioUnidad;
+
 
     let textoEscala =
         'Precio Unitario (1 a 5 prendas)';
@@ -509,6 +742,7 @@ function actualizarPrecioEnTarjeta(idProducto) {
         precioAplicado =
             precioDocena;
 
+
         textoEscala =
             `⚡ Precio Docena: $${precioDocena.toFixed(2)} c/u`;
 
@@ -517,8 +751,10 @@ function actualizarPrecioEnTarjeta(idProducto) {
         precioAplicado =
             precioMedia;
 
+
         textoEscala =
             `⭐ Precio Media Docena: $${precioMedia.toFixed(2)} c/u`;
+
     }
 
 
@@ -527,15 +763,20 @@ function actualizarPrecioEnTarjeta(idProducto) {
 
 
     if (displayPrecio) {
+
         displayPrecio.textContent =
             `$${subtotal.toFixed(2)}`;
+
     }
 
 
     if (displayInfo) {
+
         displayInfo.textContent =
             textoEscala;
+
     }
+
 }
 
 
@@ -574,10 +815,12 @@ function agregarProductoAlCarrito(idProducto) {
 
 
     if (!prod) {
+
         console.error(
             'Producto no encontrado:',
             idProducto
         );
+
         return;
     }
 
@@ -625,7 +868,8 @@ function agregarProductoAlCarrito(idProducto) {
 
     const itemParaCarrito = {
 
-        id: prod.id,
+        id:
+            prod.id || prod.codigo,
 
         codigo:
             prod.codigo || prod.id,
@@ -660,6 +904,7 @@ function agregarProductoAlCarrito(idProducto) {
 
         imagen:
             imagenActual
+
     };
 
 
@@ -669,9 +914,13 @@ function agregarProductoAlCarrito(idProducto) {
 
     const indexExistente =
         cart.findIndex(item =>
+
             item.id === itemParaCarrito.id &&
+
             item.color === itemParaCarrito.color &&
+
             item.talla === itemParaCarrito.talla
+
         );
 
 
@@ -682,21 +931,27 @@ function agregarProductoAlCarrito(idProducto) {
     } else {
 
         cart.push(itemParaCarrito);
+
     }
 
 
     guardarCarritoCliente(cart);
 
 
-    // Actualizar contador inmediatamente
-    if (typeof actualizarContador === 'function') {
+    if (
+        typeof actualizarContador ===
+        'function'
+    ) {
+
         actualizarContador();
+
     }
 
 
     alert(
         `¡Se agregaron ${cantidad} unidad(es) de "${prod.nombre}" al carrito!`
     );
+
 }
 
 
@@ -719,18 +974,25 @@ function getProductosRespaldo() {
             precioDocena: 3.00,
 
             colores: [
+
                 {
                     nombre: 'Rosado',
                     hex: '#f472b6',
-                    imagen: 'assets/productos/body001/rosado.jpg'
+                    imagen:
+                        'assets/productos/body001/rosado.jpg'
                 },
+
                 {
                     nombre: 'Fucsia',
                     hex: '#db2777',
-                    imagen: 'assets/productos/body001/fucsia.jpg'
+                    imagen:
+                        'assets/productos/body001/fucsia.jpg'
                 }
+
             ]
+
         },
+
 
         {
             id: 'ENT-002',
@@ -743,15 +1005,20 @@ function getProductosRespaldo() {
             precioDocena: 8.00,
 
             colores: [
+
                 {
                     nombre: 'Blanco',
                     hex: '#ffffff',
-                    imagen: 'assets/productos/enterizo001/blanco.jpg'
+                    imagen:
+                        'assets/productos/enterizo001/blanco.jpg'
                 }
+
             ]
+
         }
 
     ];
+
 }
 
 
