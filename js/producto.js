@@ -1,6 +1,5 @@
 /* ==========================================================================
-   Baby Boutique Ecuador - Vista Individual de Producto (producto.html)
-   Archivo: js/producto.js
+   Baby Boutique Ecuador - Vista Individual de Producto
    ========================================================================== */
 
 const detalleProducto = document.getElementById("detalle-producto");
@@ -11,12 +10,20 @@ async function cargarProducto() {
     if (!detalleProducto) return;
 
     try {
-        const respuesta = await fetch("data/productos.json");
-        if (!respuesta.ok) throw new Error("Error al obtener productos.json");
-        const productos = await respuesta.json();
-
         const parametros = new URLSearchParams(window.location.search);
         const id = parametros.get("id");
+
+        let productos = [];
+        try {
+            const respuesta = await fetch("data/productos.json");
+            if (respuesta.ok) productos = await respuesta.json();
+        } catch (e) {
+            console.warn("Usando listaProductos local.");
+        }
+
+        if (productos.length === 0 && typeof listaProductos !== 'undefined') {
+            productos = listaProductos;
+        }
 
         productoActual = productos.find(p => p.id == id || p.codigo == id);
 
@@ -35,21 +42,16 @@ async function cargarProducto() {
 
     } catch (error) {
         console.error("Error al cargar la información del producto:", error);
-        detalleProducto.innerHTML = `
-            <div style="text-align: center; padding: 50px;">
-                <h2 style="color: #831843;">Error al cargar el producto</h2>
-                <p style="color: #6b7280;">Intenta recargar la página o vuelve a la tienda.</p>
-                <a href="productos.html" class="btn-secondary" style="display: inline-block; margin-top: 15px; text-decoration: none;">Volver al Catálogo</a>
-            </div>
-        `;
     }
 }
 
 function renderizarDetalle() {
     const prod = productoActual;
-    colorSeleccionado = (prod.colores && prod.colores.length > 0) ? prod.colores[0] : { nombre: 'Único', imagen: prod.imagen || '' };
+    colorSeleccionado = (prod.colores && prod.colores.length > 0) 
+        ? (typeof prod.colores[0] === 'string' ? { nombre: prod.colores[0], imagen: prod.imagen } : prod.colores[0])
+        : { nombre: 'Único', imagen: prod.imagen || '' };
     
-    const imagenInicial = colorSeleccionado.imagen || prod.imagen || 'https://via.placeholder.com/400x400/fbcfe8/db2777?text=Baby+Boutique';
+    const imagenInicial = colorSeleccionado.imagen || prod.imagen || './img/placeholder.jpg';
     const listaTallas = prod.tallas || ["0 a 3 meses", "3 a 6 meses", "6 a 9 meses", "9 a 12 meses"];
 
     detalleProducto.innerHTML = `
@@ -57,7 +59,7 @@ function renderizarDetalle() {
             <div>
                 <div class="product-image-container" style="height: 350px;">
                     <span class="product-badge">${prod.categoria || 'Boutique'}</span>
-                    <img src="${imagenInicial}" id="img-detalle" alt="${prod.nombre}" style="object-fit: contain;" onerror="this.src='https://via.placeholder.com/400x400/fbcfe8/db2777?text=Baby+Boutique'">
+                    <img src="${imagenInicial}" id="img-detalle" alt="${prod.nombre}" style="width:100%; height:100%; object-fit: contain;" onerror="this.src='./img/placeholder.jpg'">
                 </div>
             </div>
 
@@ -67,43 +69,34 @@ function renderizarDetalle() {
                 <p style="color: #4b5563; margin-bottom: 20px; line-height: 1.5;">${prod.descripcion || 'Prenda elaborada con los mejores estándares de calidad para la comodidad de tu bebé.'}</p>
 
                 <div class="product-options">
-                    <!-- Selección de Color -->
                     ${prod.colores && prod.colores.length > 0 ? `
                     <div class="option-group">
-                        <label class="option-label">Color seleccionable: <strong id="nombre-color-det" style="color: #831843;">${colorSeleccionado.nombre}</strong></label>
-                        <div class="color-picker">
-                            ${prod.colores.map((c, i) => `
-                                <span class="color-dot ${i === 0 ? 'active' : ''}" 
-                                      style="background-color: ${c.hex || '#f472b6'}; width: 32px; height: 32px;" 
-                                      title="${c.nombre}"
-                                      onclick="cambiarColorDetalle('${c.nombre}', '${c.imagen}', this)"></span>
-                            `).join('')}
-                        </div>
+                        <label class="option-label">Color: <strong id="nombre-color-det" style="color: #831843;">${colorSeleccionado.nombre || colorSeleccionado}</strong></label>
+                        <select id="color-select-det" class="size-select" style="width:100%; margin-bottom:10px;" onchange="cambiarColorCombo(this.value)">
+                            ${prod.colores.map(c => `<option value="${c.nombre || c}">${c.nombre || c}</option>`).join('')}
+                        </select>
                     </div>` : ''}
 
-                    <!-- Selección de Talla -->
                     <div class="option-group">
                         <label class="option-label">Seleccionar Talla:</label>
-                        <select class="size-select" id="talla-detalle">
+                        <select class="size-select" id="talla-detalle" style="width:100%; margin-bottom:10px;">
                             ${listaTallas.map(t => `<option value="${t.edad || t}">${t.edad ? `${t.numero ? 'Talla ' + t.numero + ' - ' : ''}${t.edad}` : t}</option>`).join('')}
                         </select>
                     </div>
 
-                    <!-- Cantidad -->
                     <div class="option-group">
                         <label class="option-label">Cantidad:</label>
-                        <input type="number" class="qty-select" id="cantidad-detalle" value="1" min="1" max="100" 
+                        <input type="number" class="qty-select" id="cantidad-detalle" value="1" min="1" max="100" style="width:100%; padding:6px;"
                                onchange="actualizarPrecioDetalle()" onkeyup="actualizarPrecioDetalle()">
                     </div>
                 </div>
 
-                <!-- Caja de Precio -->
-                <div class="price-box" style="margin: 20px 0;">
-                    <div class="price-main" id="precio-detalle">$${(prod.precio || 0).toFixed(2)}</div>
-                    <div class="price-tier-info" id="info-escala-detalle">Precio Unitario</div>
+                <div class="price-box" style="margin: 20px 0; background:#fff1f2; padding:15px; border-radius:8px;">
+                    <div class="price-main" id="precio-detalle" style="font-size:1.8rem; font-weight:bold; color:#db2777;">$${(prod.precio || 0).toFixed(2)}</div>
+                    <div class="price-tier-info" id="info-escala-detalle" style="color:#e11d48; font-size:0.9rem;">Precio Unitario</div>
                 </div>
 
-                <button class="add-to-cart-btn" onclick="agregarAlCarritoDetalle()" style="font-size: 1.1rem; padding: 14px;">
+                <button class="add-to-cart-btn" onclick="agregarAlCarritoDetalle()" style="width:100%; background:#db2777; color:white; border:none; font-size: 1.1rem; padding: 14px; border-radius:8px; cursor:pointer;">
                     🛒 Añadir al Carrito
                 </button>
             </div>
@@ -113,18 +106,10 @@ function renderizarDetalle() {
     actualizarPrecioDetalle();
 }
 
-function cambiarColorDetalle(nombreColor, urlImagen, elementoDot) {
-    colorSeleccionado = { nombre: nombreColor, imagen: urlImagen };
-    
-    const imgDetalle = document.getElementById("img-detalle");
+function cambiarColorCombo(nombreColor) {
+    colorSeleccionado = nombreColor;
     const labelColor = document.getElementById("nombre-color-det");
-
-    if (imgDetalle && urlImagen) imgDetalle.src = urlImagen;
     if (labelColor) labelColor.textContent = nombreColor;
-
-    const dots = document.querySelectorAll("#detalle-producto .color-dot");
-    dots.forEach(d => d.classList.remove("active"));
-    if (elementoDot) elementoDot.classList.add("active");
 }
 
 function actualizarPrecioDetalle() {
@@ -167,7 +152,7 @@ function agregarAlCarritoDetalle() {
 
     const talla = selectTalla ? selectTalla.value : 'Única';
     const cantidad = parseInt(inputCantidad ? inputCantidad.value : 1) || 1;
-    const color = colorSeleccionado ? colorSeleccionado.nombre : 'Único';
+    const color = typeof colorSeleccionado === 'object' ? colorSeleccionado.nombre : (colorSeleccionado || 'Único');
     const imagen = imgDetalle ? imgDetalle.src : productoActual.imagen;
 
     const item = {
@@ -186,14 +171,7 @@ function agregarAlCarritoDetalle() {
 
     if (typeof agregarAlCarrito === 'function') {
         agregarAlCarrito(item);
-    } else {
-        // Fallback básico si carrito.js no estuviera presente
-        let cart = JSON.parse(localStorage.getItem("carrito")) || [];
-        cart.push(item);
-        localStorage.setItem("carrito", JSON.stringify(cart));
-        alert("¡Producto añadido al carrito!");
     }
 }
 
-// Ejecutar carga al inicializar
 document.addEventListener("DOMContentLoaded", cargarProducto);
