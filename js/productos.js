@@ -27,28 +27,31 @@ const listaProductos = [
         precioDocena: 6.00,
         imagen: "./img/enterizo-osito.jpg"
     }
-    // Agrega aquí tus otros productos...
 ];
 
 function renderizarProductos(productosAMostrar = listaProductos) {
-    const contenedor = document.getElementById('grid-productos');
+    const contenedor = document.getElementById('products-container') || document.getElementById('grid-productos');
     if (!contenedor) return;
 
     contenedor.innerHTML = '';
 
     if (productosAMostrar.length === 0) {
-        contenedor.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #6b7280;">No se encontraron productos en esta categoría.</p>`;
+        contenedor.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #6b7280; padding: 40px;">No se encontraron productos en esta categoría.</p>`;
         return;
     }
 
     productosAMostrar.forEach(prod => {
         const tarjeta = document.createElement('div');
-        tarjeta.className = 'producto-card';
+        tarjeta.className = 'product-card';
         tarjeta.innerHTML = `
-            <img src="${prod.imagen || './img/placeholder.jpg'}" alt="${prod.nombre}">
+            <a href="producto.html?id=${prod.id}" style="text-decoration: none; color: inherit;">
+                <img src="${prod.imagen || './img/placeholder.jpg'}" alt="${prod.nombre}" style="width:100%; height:220px; object-fit:cover; border-radius:8px;">
+            </a>
             <div class="producto-info" style="padding: 15px;">
                 <span style="font-size: 0.8rem; color: #9ca3af;">CÓDIGO: ${prod.codigo}</span>
-                <h3 style="font-size: 1.1rem; color: #1f2937; margin: 5px 0;">${prod.nombre}</h3>
+                <a href="producto.html?id=${prod.id}" style="text-decoration: none;">
+                    <h3 style="font-size: 1.1rem; color: #1f2937; margin: 5px 0;">${prod.nombre}</h3>
+                </a>
                 
                 <label style="display:block; font-size: 0.85rem; margin-top: 10px;">Color:</label>
                 <select id="color-${prod.id}" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
@@ -98,26 +101,31 @@ function prepararAgregar(idProducto) {
         cantidad: cantidadInput ? parseInt(cantidadInput.value) || 1 : 1
     };
 
-    agregarAlCarrito(productoAAgregar);
+    if (typeof agregarAlCarrito === 'function') {
+        agregarAlCarrito(productoAAgregar);
+    }
 }
 
-function filtrarProductos(categoria) {
-    const botones = document.querySelectorAll('.filter-btn');
-    botones.forEach(b => b.classList.remove('active'));
-    
-    // Activa el botón seleccionado
-    if (event && event.target) {
-        event.target.classList.add('active');
-    }
+function inicializarFiltros() {
+    const botones = document.querySelectorAll('.cat-btn');
+    botones.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            botones.forEach(b => b.classList.remove('active'));
+            e.currentTarget.classList.add('active');
 
-    if (categoria === 'todos') {
-        renderizarProductos(listaProductos);
-    } else {
-        const filtrados = listaProductos.filter(p => p.categoria === categoria);
-        renderizarProductos(filtrados);
-    }
+            const categoria = e.currentTarget.getAttribute('data-category').toLowerCase();
+
+            if (categoria === 'todos') {
+                renderizarProductos(listaProductos);
+            } else {
+                const filtrados = listaProductos.filter(p => p.categoria.toLowerCase() === categoria);
+                renderizarProductos(filtrados);
+            }
+        });
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     renderizarProductos();
+    inicializarFiltros();
 });
