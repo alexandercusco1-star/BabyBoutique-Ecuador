@@ -6,6 +6,14 @@ const detalleProducto = document.getElementById("detalle-producto");
 let productoActual = null;
 let colorSeleccionado = null;
 
+// Lista estándar de tallas requerida
+const TALLAS_ESTANDAR = [
+    { edad: "0 a 3 meses", numero: "0" },
+    { edad: "3 a 6 meses", numero: "1" },
+    { edad: "6 a 9 meses", numero: "2" },
+    { edad: "9 a 12 meses", numero: "3" }
+];
+
 async function cargarProducto() {
     if (!detalleProducto) return;
 
@@ -47,19 +55,22 @@ async function cargarProducto() {
 
 function renderizarDetalle() {
     const prod = productoActual;
-    colorSeleccionado = (prod.colores && prod.colores.length > 0) 
-        ? (typeof prod.colores[0] === 'string' ? { nombre: prod.colores[0], imagen: prod.imagen } : prod.colores[0])
-        : { nombre: 'Único', imagen: prod.imagen || '' };
-    
-    const imagenInicial = colorSeleccionado.imagen || prod.imagen || './img/placeholder.jpg';
-    const listaTallas = prod.tallas || ["0 a 3 meses", "3 a 6 meses", "6 a 9 meses", "9 a 12 meses"];
+
+    // Configurar color e imagen inicial directa
+    if (prod.colores && prod.colores.length > 0) {
+        colorSeleccionado = typeof prod.colores[0] === 'object' ? prod.colores[0].nombre : prod.colores[0];
+    } else {
+        colorSeleccionado = 'Único';
+    }
+
+    const imagenCargar = prod.imagen || './img/placeholder.jpg';
 
     detalleProducto.innerHTML = `
         <div class="product-card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; text-align: left; padding: 25px;">
             <div>
-                <div class="product-image-container" style="height: 350px;">
+                <div class="product-image-container" style="height: 350px; text-align: center;">
                     <span class="product-badge">${prod.categoria || 'Boutique'}</span>
-                    <img src="${imagenInicial}" id="img-detalle" alt="${prod.nombre}" style="width:100%; height:100%; object-fit: contain;" onerror="this.src='./img/placeholder.jpg'">
+                    <img src="${imagenCargar}" id="img-detalle" alt="${prod.nombre}" style="width:100%; height:100%; object-fit: contain;" onerror="this.src='./img/placeholder.jpg'">
                 </div>
             </div>
 
@@ -71,29 +82,32 @@ function renderizarDetalle() {
                 <div class="product-options">
                     ${prod.colores && prod.colores.length > 0 ? `
                     <div class="option-group">
-                        <label class="option-label">Color: <strong id="nombre-color-det" style="color: #831843;">${colorSeleccionado.nombre || colorSeleccionado}</strong></label>
+                        <label class="option-label">Color: <strong id="nombre-color-det" style="color: #831843;">${colorSeleccionado}</strong></label>
                         <select id="color-select-det" class="size-select" style="width:100%; margin-bottom:10px;" onchange="cambiarColorCombo(this.value)">
-                            ${prod.colores.map(c => `<option value="${c.nombre || c}">${c.nombre || c}</option>`).join('')}
+                            ${prod.colores.map(c => {
+                                const val = typeof c === 'object' ? c.nombre : c;
+                                return `<option value="${val}">${val}</option>`;
+                            }).join('')}
                         </select>
                     </div>` : ''}
 
                     <div class="option-group">
                         <label class="option-label">Seleccionar Talla:</label>
                         <select class="size-select" id="talla-detalle" style="width:100%; margin-bottom:10px;">
-                            ${listaTallas.map(t => `<option value="${t.edad || t}">${t.edad ? `${t.numero ? 'Talla ' + t.numero + ' - ' : ''}${t.edad}` : t}</option>`).join('')}
+                            ${TALLAS_ESTANDAR.map(t => `<option value="${t.edad} (Talla ${t.numero})">${t.edad} - Talla ${t.numero}</option>`).join('')}
                         </select>
                     </div>
 
                     <div class="option-group">
                         <label class="option-label">Cantidad:</label>
-                        <input type="number" class="qty-select" id="cantidad-detalle" value="1" min="1" max="100" style="width:100%; padding:6px;"
+                        <input type="number" class="qty-select" id="cantidad-detalle" value="0" min="0" max="100" style="width:100%; padding:6px;"
                                onchange="actualizarPrecioDetalle()" onkeyup="actualizarPrecioDetalle()">
                     </div>
                 </div>
 
                 <div class="price-box" style="margin: 20px 0; background:#fff1f2; padding:15px; border-radius:8px;">
-                    <div class="price-main" id="precio-detalle" style="font-size:1.8rem; font-weight:bold; color:#db2777;">$${(prod.precio || 0).toFixed(2)}</div>
-                    <div class="price-tier-info" id="info-escala-detalle" style="color:#e11d48; font-size:0.9rem;">Precio Unitario</div>
+                    <div class="price-main" id="precio-detalle" style="font-size:1.8rem; font-weight:bold; color:#db2777;">$0.00</div>
+                    <div class="price-tier-info" id="info-escala-detalle" style="color:#e11d48; font-size:0.9rem;">Ingresa una cantidad de prendas</div>
                 </div>
 
                 <button class="add-to-cart-btn" onclick="agregarAlCarritoDetalle()" style="width:100%; background:#db2777; color:white; border:none; font-size: 1.1rem; padding: 14px; border-radius:8px; cursor:pointer;">
@@ -119,8 +133,13 @@ function actualizarPrecioDetalle() {
     const displayPrecio = document.getElementById("precio-detalle");
     const displayInfo = document.getElementById("info-escala-detalle");
 
-    let cantidad = parseInt(inputCantidad ? inputCantidad.value : 1) || 1;
-    if (cantidad < 1) cantidad = 1;
+    let cantidad = parseInt(inputCantidad ? inputCantidad.value : 0) || 0;
+
+    if (cantidad <= 0) {
+        if (displayPrecio) displayPrecio.textContent = "$0.00";
+        if (displayInfo) displayInfo.textContent = "Ingresa una cantidad de prendas";
+        return;
+    }
 
     const pUnidad = productoActual.precio || 0;
     const pMedia = productoActual.precioMediaDocena || pUnidad;
@@ -146,13 +165,19 @@ function actualizarPrecioDetalle() {
 function agregarAlCarritoDetalle() {
     if (!productoActual) return;
 
-    const selectTalla = document.getElementById("talla-detalle");
     const inputCantidad = document.getElementById("cantidad-detalle");
+    const cantidad = parseInt(inputCantidad ? inputCantidad.value : 0) || 0;
+
+    if (cantidad <= 0) {
+        alert("Por favor selecciona al menos 1 prenda para agregar al carrito.");
+        return;
+    }
+
+    const selectTalla = document.getElementById("talla-detalle");
     const imgDetalle = document.getElementById("img-detalle");
 
-    const talla = selectTalla ? selectTalla.value : 'Única';
-    const cantidad = parseInt(inputCantidad ? inputCantidad.value : 1) || 1;
-    const color = typeof colorSeleccionado === 'object' ? colorSeleccionado.nombre : (colorSeleccionado || 'Único');
+    const talla = selectTalla ? selectTalla.value : '0 a 3 meses (Talla 0)';
+    const color = colorSeleccionado || 'Único';
     const imagen = imgDetalle ? imgDetalle.src : productoActual.imagen;
 
     const item = {
