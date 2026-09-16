@@ -1,172 +1,156 @@
-/* ==========================================================================
-   Catálogo de Productos para Baby Boutique
-   ========================================================================== */
+var listaProductos = [];
 
-let listaProductos = [];
-
-// 1. Cargar el JSON
-async function obtenerProductos() {
-    try {
-        const respuesta = await fetch("data/productos.json");
-        if (respuesta.ok) {
-            listaProductos = await respuesta.json();
+function obtenerProductos() {
+    fetch("data/productos.json")
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            listaProductos = data;
             renderizarProductos(listaProductos);
-        } else {
-            console.error("No se pudo cargar data/productos.json");
-        }
-    } catch (error) {
-        console.error("Error al leer productos.json:", error);
-    }
+        })
+        .catch(function(err) {
+            console.error("Error al cargar productos.json:", err);
+        });
 }
 
-// 2. Obtener la imagen inicial del producto
 function obtenerRutaImagen(prod) {
     if (prod.colores && prod.colores.length > 0 && prod.colores[0].imagen) {
         return prod.colores[0].imagen;
     }
-    if (prod.imagen) return prod.imagen;
+    if (prod.imagen) {
+        return prod.imagen;
+    }
     return "assets/placeholder.jpg";
 }
 
-// 3. Renderizar catálogo en HTML
-function renderizarProductos(productosAMostrar = []) {
-    const contenedor = document.getElementById('products-container') || document.getElementById('grid-productos');
+function renderizarProductos(productos) {
+    var contenedor = document.getElementById("products-container") || document.getElementById("grid-productos");
     if (!contenedor) return;
 
     contenedor.innerHTML = "";
 
-    if (productosAMostrar.length === 0) {
-        contenedor.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #6b7280; padding: 40px;">No se encontraron productos en esta categoría.</p>';
+    if (!productos || productos.length === 0) {
+        contenedor.innerHTML = "<p>No hay productos disponibles.</p>";
         return;
     }
 
-    productosAMostrar.forEach(prod => {
-        const tarjeta = document.createElement('div');
-        tarjeta.className = 'product-card';
+    productos.forEach(function(prod) {
+        var idUnico = prod.id || prod.codigo;
+        var imagenInicial = obtenerRutaImagen(prod);
+        var tallas = (prod.tallas && prod.tallas.length > 0) ? prod.tallas : ["Talla Única"];
 
-        const idUnico = prod.id || prod.codigo;
-        const imagenRuta = obtenerRutaImagen(prod);
-        const listaTallas = (prod.tallas && prod.tallas.length > 0) ? prod.tallas : ["Talla Única"];
+        var tarjeta = document.createElement("div");
+        tarjeta.className = "product-card";
 
-        // Construcción de opciones para colores
-        let opcionesColores = '';
+        var html = "";
+        html += "<a href='producto.html?id=" + idUnico + "'>";
+        html += "<img id='img-" + idUnico + "' src='" + imagenInicial + "' alt='" + prod.nombre + "' style='width:100%; height:220px; object-fit:cover; border-radius:8px;' onerror='this.src=\"assets/placeholder.jpg\"'>";
+        html += "</a>";
+        html += "<div class='producto-info' style='padding: 15px;'>";
+        html += "<span style='font-size: 0.8rem; color: #9ca3af; font-weight: bold;'>CÓDIGO: " + prod.codigo + "</span>";
+        html += "<h3 style='font-size: 1rem; color: #1f2937; margin: 5px 0;'>" + prod.nombre + "</h3>";
+
         if (prod.colores && prod.colores.length > 0) {
-            prod.colores.forEach(c => {
-                opcionesColores += '<option value="' + c.nombre + '" data-img="' + c.imagen + '">' + c.nombre + '</option>';
+            html += "<label style='display:block; font-size: 0.8rem; margin-top: 8px;'>Color:</label>";
+            html += "<select id='color-" + idUnico + "' onchange='cambiarImagenColor(\"" + idUnico + "\")' style='width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;'>";
+            prod.colores.forEach(function(c) {
+                html += "<option value='" + c.nombre + "' data-img='" + c.imagen + "'>" + c.nombre + "</option>";
             });
+            html += "</select>";
         }
 
-        // Construcción de opciones para tallas
-        let opcionesTallas = '';
-        listaTallas.forEach(t => {
-            opcionesTallas += '<option value="' + t + '">' + t + '</option>';
+        html += "<label style='display:block; font-size: 0.8rem;'>Talla:</label>";
+        html += "<select id='talla-" + idUnico + "' style='width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;'>";
+        tallas.forEach(function(t) {
+            html += "<option value='" + t + "'>" + t + "</option>";
         });
+        html += "</select>";
 
-        // HTML interno de la tarjeta
-        let htmlTarjeta = '';
-        htmlTarjeta += '<a href="producto.html?id=' + idUnico + '">';
-        htmlTarjeta += '  <img id="img-' + idUnico + '" src="' + imagenRuta + '" alt="' + prod.nombre + '" style="width:100%; height:220px; object-fit:cover; border-radius:8px;" onerror="this.src=\'assets/placeholder.jpg\'">';
-        htmlTarjeta += '</a>';
-        htmlTarjeta += '<div class="producto-info" style="padding: 15px;">';
-        htmlTarjeta += '  <span style="font-size: 0.8rem; color: #9ca3af; font-weight: bold;">CÓDIGO: ' + prod.codigo + '</span>';
-        htmlTarjeta += '  <h3 style="font-size: 1rem; color: #1f2937; margin: 5px 0;">' + prod.nombre + '</h3>';
+        html += "<label style='display:block; font-size: 0.8rem;'>Cantidad:</label>";
+        html += "<input type='number' id='cantidad-" + idUnico + "' min='0' value='0' style='width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 12px;'>";
 
-        if (opcionesColores !== '') {
-            htmlTarjeta += '  <label style="display:block; font-size: 0.8rem; margin-top: 8px;">Color:</label>';
-            htmlTarjeta += '  <select id="color-' + idUnico + '" onchange="cambiarImagenColor(\'' + idUnico + '\')" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">' + opcionesColores + '</select>';
-        }
-
-        htmlTarjeta += '  <label style="display:block; font-size: 0.8rem;">Talla:</label>';
-        htmlTarjeta += '  <select id="talla-' + idUnico + '" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">' + opcionesTallas + '</select>';
-
-        htmlTarjeta += '  <label style="display:block; font-size: 0.8rem;">Cantidad:</label>';
-        htmlTarjeta += '  <input type="number" id="cantidad-' + idUnico + '" min="0" value="0" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 12px;">';
-
-        htmlTarjeta += '  <div style="text-align: center; background: #fff1f2; padding: 8px; border-radius: 8px; margin-bottom: 12px;">';
-        htmlTarjeta += '    <span style="font-size: 1.2rem; font-weight: bold; color: #db2777;">$' + Number(prod.precio).toFixed(2) + '</span>';
+        html += "<div style='text-align: center; background: #fff1f2; padding: 8px; border-radius: 8px; margin-bottom: 12px;'>";
+        html += "<span style='font-size: 1.2rem; font-weight: bold; color: #db2777;'>$" + Number(prod.precio).toFixed(2) + "</span>";
         if (prod.precioMediaDocena) {
-            htmlTarjeta += '    <p style="font-size: 0.75rem; color: #e11d48; margin: 0;">P. Mayorista: $' + Number(prod.precioMediaDocena).toFixed(2) + '</p>';
+            html += "<p style='font-size: 0.75rem; color: #e11d48; margin: 0;'>P. Mayorista: $" + Number(prod.precioMediaDocena).toFixed(2) + "</p>";
         }
-        htmlTarjeta += '  </div>';
+        html += "</div>";
 
-        htmlTarjeta += '  <button onclick="prepararAgregar(\'' + idUnico + '\')" style="width: 100%; background: #db2777; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;">🛒 Añadir al Carrito</button>';
-        htmlTarjeta += '</div>';
+        html += "<button onclick='prepararAgregar(\"" + idUnico + "\")' style='width: 100%; background: #db2777; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;'>🛒 Añadir al Carrito</button>";
+        html += "</div>";
 
-        tarjeta.innerHTML = htmlTarjeta;
+        tarjeta.innerHTML = html;
         contenedor.appendChild(tarjeta);
     });
 }
 
-// 4. Cambiar foto según el color seleccionado
 function cambiarImagenColor(idProducto) {
-    const selectColor = document.getElementById('color-' + idProducto);
-    const imgElem = document.getElementById('img-' + idProducto);
+    var selectColor = document.getElementById("color-" + idProducto);
+    var imgElem = document.getElementById("img-" + idProducto);
     if (selectColor && imgElem) {
-        const opcion = selectColor.options[selectColor.selectedIndex];
-        const nuevaRuta = opcion.getAttribute('data-img');
+        var opcion = selectColor.options[selectColor.selectedIndex];
+        var nuevaRuta = opcion.getAttribute("data-img");
         if (nuevaRuta) {
             imgElem.src = nuevaRuta;
         }
     }
 }
 
-// 5. Función para mandar al carrito
 function prepararAgregar(idProducto) {
-    const prod = listaProductos.find(p => p.id === idProducto || p.codigo === idProducto);
+    var prod = listaProductos.find(function(p) { return (p.id === idProducto || p.codigo === idProducto); });
     if (!prod) return;
 
-    const colorSelect = document.getElementById('color-' + idProducto);
-    const tallaSelect = document.getElementById('talla-' + idProducto);
-    const cantidadInput = document.getElementById('cantidad-' + idProducto);
-
-    const cantidad = cantidadInput ? parseInt(cantidadInput.value) || 0 : 0;
+    var colorSelect = document.getElementById("color-" + idProducto);
+    var tallaSelect = document.getElementById("talla-" + idProducto);
+    var cantidadInput = document.getElementById("cantidad-" + idProducto);
+    var cantidad = cantidadInput ? parseInt(cantidadInput.value) || 0 : 0;
 
     if (cantidad <= 0) {
         alert("Selecciona al menos 1 unidad para agregar.");
         return;
     }
 
-    const imgElem = document.getElementById('img-' + idProducto);
+    var imgElem = document.getElementById("img-" + idProducto);
 
-    const productoAAgregar = {
+    var productoAAgregar = {
         id: prod.id,
         codigo: prod.codigo,
         nombre: prod.nombre,
         precio: prod.precio,
         precioMediaDocena: prod.precioMediaDocena,
         precioDocena: prod.precioDocena,
-        imagen: imgElem ? imgElem.src : '',
-        color: colorSelect ? colorSelect.value : 'Único',
-        talla: tallaSelect ? tallaSelect.value : 'Única',
+        imagen: imgElem ? imgElem.src : "",
+        color: colorSelect ? colorSelect.value : "Único",
+        talla: tallaSelect ? tallaSelect.value : "Única",
         cantidad: cantidad
     };
 
-    if (typeof agregarAlCarrito === 'function') {
+    if (typeof agregarAlCarrito === "function") {
         agregarAlCarrito(productoAAgregar);
     }
 }
 
-// 6. Filtros por botones de categoría
 function inicializarFiltros() {
-    const botones = document.querySelectorAll('.cat-btn');
-    botones.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            botones.forEach(b => b.classList.remove('active'));
-            e.currentTarget.classList.add('active');
+    var botones = document.querySelectorAll(".cat-btn");
+    botones.forEach(function(btn) {
+        btn.addEventListener("click", function(e) {
+            botones.forEach(function(b) { b.classList.remove("active"); });
+            e.currentTarget.classList.add("active");
 
-            const categoriaFiltro = e.currentTarget.getAttribute('data-category').trim().toLowerCase();
+            var categoriaFiltro = e.currentTarget.getAttribute("data-category").trim().toLowerCase();
 
-            if (categoriaFiltro === 'todos' || categoriaFiltro === 'todas') {
+            if (categoriaFiltro === "todos" || categoriaFiltro === "todas") {
                 renderizarProductos(listaProductos);
             } else {
-                const filtrados = listaProductos.filter(p => (p.categoria || '').trim().toLowerCase() === categoriaFiltro);
+                var filtrados = listaProductos.filter(function(p) {
+                    return (p.categoria || "").trim().toLowerCase() === categoriaFiltro;
+                });
                 renderizarProductos(filtrados);
             }
         });
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", function() {
     obtenerProductos();
     inicializarFiltros();
 });
