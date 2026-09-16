@@ -1,188 +1,213 @@
-/* ==========================================================================
-   Baby Boutique Ecuador - Catálogo de Productos y Categorías
-   ========================================================================== */
+let listaProductos = [];
 
-const listaProductos = [
-    {
-        id: "001",
-        codigo: "001",
-        nombre: "Body para Bebé Algodón Premium",
-        categoria: "bodies",
-        colores: ["Rosado", "Fucsia", "Blanco"],
-        tallas: ["0 a 3 meses (Talla 0)", "3 a 6 meses (Talla 1)", "6 a 9 meses (Talla 2)", "9 a 12 meses (Talla 3)"],
-        precio: 4.50,
-        precioMediaDocena: 3.50,
-        precioDocena: 3.00,
-        imagen: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: "002",
-        codigo: "002",
-        nombre: "Enterizo Felpa Osito",
-        categoria: "enterizos",
-        colores: ["Blanco", "Celeste", "Beige"],
-        tallas: ["0 a 3 meses (Talla 0)", "3 a 6 meses (Talla 1)", "6 a 9 meses (Talla 2)", "9 a 12 meses (Talla 3)"],
-        precio: 8.00,
-        precioMediaDocena: 7.00,
-        precioDocena: 6.00,
-        imagen: "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: "003",
-        codigo: "003",
-        nombre: "Conjunto Algodón 2 Piezas",
-        categoria: "conjuntos",
-        colores: ["Azul", "Gris"],
-        tallas: ["0 a 3 meses (Talla 0)", "3 a 6 meses (Talla 1)", "6 a 9 meses (Talla 2)", "9 a 12 meses (Talla 3)"],
-        precio: 10.00,
-        precioMediaDocena: 8.50,
-        precioDocena: 7.50,
-        imagen: "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: "004",
-        codigo: "004",
-        nombre: "Pack Medias Antideslizantes",
-        categoria: "medias",
-        colores: ["Variados"],
-        tallas: ["0 a 3 meses (Talla 0)", "3 a 6 meses (Talla 1)"],
-        precio: 3.00,
-        precioMediaDocena: 2.50,
-        precioDocena: 2.00,
-        imagen: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: "005",
-        codigo: "005",
-        nombre: "Toalla con Capucha Oso",
-        categoria: "toallas",
-        colores: ["Rosa", "Amarillo"],
-        tallas: ["Única"],
-        precio: 12.00,
-        precioMediaDocena: 10.00,
-        precioDocena: 9.00,
-        imagen: "https://images.unsplash.com/photo-1616844868137-7ffaf43c2d80?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: "006",
-        codigo: "006",
-        nombre: "Gorrito y Guantes Térmicos",
-        categoria: "accesorios",
-        colores: ["Blanco", "Verde Menta"],
-        tallas: ["0 a 3 meses (Talla 0)"],
-        precio: 5.00,
-        precioMediaDocena: 4.00,
-        precioDocena: 3.50,
-        imagen: "https://images.unsplash.com/photo-1522771930-78848d9293e8?auto=format&fit=crop&w=600&q=80"
-    }
-];
+// Cargar productos desde el JSON
+function obtenerProductos() {
+    fetch("data/productos.json")
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(datos) {
+            listaProductos = datos;
+            renderizarProductos(listaProductos);
+        })
+        .catch(function(error) {
+            console.error("Error al cargar JSON:", error);
+        });
+}
 
-function renderizarProductos(productosAMostrar = listaProductos) {
-    const contenedor = document.getElementById('products-container') || document.getElementById('grid-productos');
+// Renderizar las tarjetas
+function renderizarProductos(productos) {
+    const contenedor = document.getElementById("products-container") || document.getElementById("grid-productos");
     if (!contenedor) return;
 
-    contenedor.innerHTML = '';
+    contenedor.innerHTML = "";
 
-    if (productosAMostrar.length === 0) {
-        contenedor.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #6b7280; padding: 40px; font-size: 1.1rem;">No se encontraron productos disponibles en esta categoría.</p>`;
+    if (!productos || productos.length === 0) {
+        const mensajeVacio = document.createElement("p");
+        mensajeVacio.textContent = "No se encontraron productos en esta categoría.";
+        mensajeVacio.style.cssText = "grid-column: 1/-1; text-align: center; padding: 30px; color: #6b7280;";
+        contenedor.appendChild(mensajeVacio);
         return;
     }
 
-    productosAMostrar.forEach(prod => {
-        const tarjeta = document.createElement('div');
-        tarjeta.className = 'product-card';
-        tarjeta.style.cssText = "border: 1px solid #eee; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);";
+    productos.forEach(function(prod) {
+        const idUnico = prod.id || prod.codigo;
+        const tarjeta = document.createElement("div");
+        tarjeta.className = "product-card";
+        tarjeta.style.cssText = "border: 1px solid #eee; border-radius: 12px; padding: 15px; background: #fff;";
 
-        tarjeta.innerHTML = `
-            <a href="producto.html?id=${prod.id}" style="text-decoration: none; color: inherit; display: block; overflow: hidden; height: 220px; background: #f9fafb;">
-                <img src="${prod.imagen}" alt="${prod.nombre}" style="width:100%; height:100%; object-fit:cover; transition: transform 0.3s;" onerror="this.src='https://via.placeholder.com/300x300?text=Sin+Imagen'">
-            </a>
-            <div class="producto-info" style="padding: 15px;">
-                <span style="font-size: 0.75rem; color: #9ca3af; font-weight: 600;">CÓDIGO: ${prod.codigo}</span>
-                <a href="producto.html?id=${prod.id}" style="text-decoration: none;">
-                    <h3 style="font-size: 1rem; color: #1f2937; margin: 5px 0 10px 0; height: 42px; overflow: hidden;">${prod.nombre}</h3>
-                </a>
-                
-                <label style="display:block; font-size: 0.8rem; color: #4b5563;">Color:</label>
-                <select id="color-${prod.id}" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
-                    ${prod.colores.map(c => `<option value="${c}">${c}</option>`).join('')}
-                </select>
+        // Imagen
+        const enlaceImg = document.createElement("a");
+        enlaceImg.href = "producto.html?id=" + idUnico;
 
-                <label style="display:block; font-size: 0.8rem; color: #4b5563;">Talla:</label>
-                <select id="talla-${prod.id}" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
-                    ${prod.tallas.map(t => `<option value="${t}">${t}</option>`).join('')}
-                </select>
+        const img = document.createElement("img");
+        img.id = "img-" + idUnico;
+        img.src = (prod.colores && prod.colores.length > 0) ? prod.colores[0].imagen : "assets/placeholder.jpg";
+        img.alt = prod.nombre;
+        img.style.cssText = "width: 100%; height: 200px; object-fit: cover; border-radius: 8px;";
+        img.onerror = function() { this.src = "assets/placeholder.jpg"; };
+        enlaceImg.appendChild(img);
+        tarjeta.appendChild(enlaceImg);
 
-                <label style="display:block; font-size: 0.8rem; color: #4b5563;">Cantidad:</label>
-                <input type="number" id="cantidad-${prod.id}" min="0" value="0" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 12px;">
+        // Código
+        const codigoSpan = document.createElement("span");
+        codigoSpan.textContent = "CÓDIGO: " + prod.codigo;
+        codigoSpan.style.cssText = "display: block; font-size: 0.75rem; color: #9ca3af; margin-top: 10px; font-weight: bold;";
+        tarjeta.appendChild(codigoSpan);
 
-                <div style="text-align: center; background: #fff1f2; padding: 10px; border-radius: 8px; margin-bottom: 12px;">
-                    <span style="font-size: 1.2rem; font-weight: bold; color: #db2777;">$${prod.precio.toFixed(2)}</span>
-                    <p style="font-size: 0.75rem; color: #e11d48; margin: 0;">Media Docena: $${prod.precioMediaDocena.toFixed(2)} c/u</p>
-                </div>
+        // Título
+        const titulo = document.createElement("h3");
+        titulo.textContent = prod.nombre;
+        titulo.style.cssText = "font-size: 1rem; color: #1f2937; margin: 5px 0 10px 0;";
+        tarjeta.appendChild(titulo);
 
-                <button onclick="prepararAgregar('${prod.id}')" class="btn-primary" style="width: 100%; background: #db2777; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                    🛒 Añadir al Carrito
-                </button>
-            </div>
-        `;
+        // Selector Color
+        if (prod.colores && prod.colores.length > 0) {
+            const lblColor = document.createElement("label");
+            lblColor.textContent = "Color:";
+            lblColor.style.cssText = "display: block; font-size: 0.8rem; color: #4b5563;";
+            tarjeta.appendChild(lblColor);
+
+            const selectColor = document.createElement("select");
+            selectColor.id = "color-" + idUnico;
+            selectColor.style.cssText = "width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;";
+            
+            prod.colores.forEach(function(c) {
+                const opt = document.createElement("option");
+                opt.value = c.nombre;
+                opt.textContent = c.nombre;
+                opt.setAttribute("data-img", c.imagen);
+                selectColor.appendChild(opt);
+            });
+
+            selectColor.addEventListener("change", function() {
+                const optSeleccionada = selectColor.options[selectColor.selectedIndex];
+                const nuevaRuta = optSeleccionada.getAttribute("data-img");
+                if (nuevaRuta) img.src = nuevaRuta;
+            });
+
+            tarjeta.appendChild(selectColor);
+        }
+
+        // Selector Talla
+        const lblTalla = document.createElement("label");
+        lblTalla.textContent = "Talla:";
+        lblTalla.style.cssText = "display: block; font-size: 0.8rem; color: #4b5563;";
+        tarjeta.appendChild(lblTalla);
+
+        const selectTalla = document.createElement("select");
+        selectTalla.id = "talla-" + idUnico;
+        selectTalla.style.cssText = "width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;";
+        
+        const listaTallas = (prod.tallas && prod.tallas.length > 0) ? prod.tallas : ["Talla Única"];
+        listaTallas.forEach(function(t) {
+            const opt = document.createElement("option");
+            opt.value = t;
+            opt.textContent = t;
+            selectTalla.appendChild(opt);
+        });
+        tarjeta.appendChild(selectTalla);
+
+        // Cantidad
+        const lblCantidad = document.createElement("label");
+        lblCantidad.textContent = "Cantidad:";
+        lblCantidad.style.cssText = "display: block; font-size: 0.8rem; color: #4b5563;";
+        tarjeta.appendChild(lblCantidad);
+
+        const inputCantidad = document.createElement("input");
+        inputCantidad.type = "number";
+        inputCantidad.id = "cantidad-" + idUnico;
+        inputCantidad.value = "0";
+        inputCantidad.min = "0";
+        inputCantidad.style.cssText = "width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 12px;";
+        tarjeta.appendChild(inputCantidad);
+
+        // Precio
+        const cajaPrecio = document.createElement("div");
+        cajaPrecio.style.cssText = "text-align: center; background: #fff1f2; padding: 8px; border-radius: 8px; margin-bottom: 12px;";
+
+        const txtPrecio = document.createElement("span");
+        txtPrecio.textContent = "$" + Number(prod.precio).toFixed(2);
+        txtPrecio.style.cssText = "font-size: 1.2rem; font-weight: bold; color: #db2777;";
+        cajaPrecio.appendChild(txtPrecio);
+
+        if (prod.precioMediaDocena) {
+            const txtMayor = document.createElement("p");
+            txtMayor.textContent = "Media Docena: $" + Number(prod.precioMediaDocena).toFixed(2);
+            txtMayor.style.cssText = "font-size: 0.75rem; color: #e11d48; margin: 0;";
+            cajaPrecio.appendChild(txtMayor);
+        }
+        tarjeta.appendChild(cajaPrecio);
+
+        // Botón Añadir
+        const btnAgregar = document.createElement("button");
+        btnAgregar.textContent = "🛒 Añadir al Carrito";
+        btnAgregar.style.cssText = "width: 100%; background: #db2777; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;";
+        btnAgregar.addEventListener("click", function() {
+            prepararAgregar(idUnico);
+        });
+        tarjeta.appendChild(btnAgregar);
+
         contenedor.appendChild(tarjeta);
     });
 }
 
+// Preparar producto para agregar al carrito
 function prepararAgregar(idProducto) {
-    const prod = listaProductos.find(p => p.id === idProducto);
+    const prod = listaProductos.find(function(p) { return (p.id === idProducto || p.codigo === idProducto); });
     if (!prod) return;
 
-    const colorSelect = document.getElementById(`color-${idProducto}`);
-    const tallaSelect = document.getElementById(`talla-${idProducto}`);
-    const cantidadInput = document.getElementById(`cantidad-${idProducto}`);
-
-    const cantidad = cantidadInput ? parseInt(cantidadInput.value) || 0 : 0;
+    const inputCant = document.getElementById("cantidad-" + idProducto);
+    const cantidad = inputCant ? parseInt(inputCant.value) || 0 : 0;
 
     if (cantidad <= 0) {
-        alert("Por favor indica al menos 1 prenda en la cantidad.");
+        alert("Selecciona al menos 1 unidad.");
         return;
     }
 
-    const productoAAgregar = {
+    const selectColor = document.getElementById("color-" + idProducto);
+    const selectTalla = document.getElementById("talla-" + idProducto);
+    const imgElem = document.getElementById("img-" + idProducto);
+
+    const item = {
         id: prod.id,
         codigo: prod.codigo,
         nombre: prod.nombre,
         precio: prod.precio,
-        precioMediaDocena: prod.precioMediaDocena,
-        precioDocena: prod.precioDocena,
-        imagen: prod.imagen,
-        color: colorSelect ? colorSelect.value : prod.colores[0],
-        talla: tallaSelect ? tallaSelect.value : prod.tallas[0],
+        imagen: imgElem ? imgElem.src : "",
+        color: selectColor ? selectColor.value : "Único",
+        talla: selectTalla ? selectTalla.value : "Única",
         cantidad: cantidad
     };
 
-    if (typeof agregarAlCarrito === 'function') {
-        agregarAlCarrito(productoAAgregar);
+    if (typeof agregarAlCarrito === "function") {
+        agregarAlCarrito(item);
     }
 }
 
+// Filtros por Categoría
 function inicializarFiltros() {
-    const botones = document.querySelectorAll('.cat-btn');
-    botones.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            botones.forEach(b => b.classList.remove('active'));
-            e.currentTarget.classList.add('active');
+    const botones = document.querySelectorAll(".cat-btn");
+    botones.forEach(function(btn) {
+        btn.addEventListener("click", function(e) {
+            botones.forEach(function(b) { b.classList.remove("active"); });
+            e.currentTarget.classList.add("active");
 
-            const categoria = e.currentTarget.getAttribute('data-category').trim().toLowerCase();
+            const cat = e.currentTarget.getAttribute("data-category").trim().toLowerCase();
 
-            if (categoria === 'todos') {
+            if (cat === "todos" || cat === "todas") {
                 renderizarProductos(listaProductos);
             } else {
-                const filtrados = listaProductos.filter(p => p.categoria.trim().toLowerCase() === categoria);
+                const filtrados = listaProductos.filter(function(p) {
+                    return (p.categoria || "").trim().toLowerCase() === cat;
+                });
                 renderizarProductos(filtrados);
             }
         });
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    renderizarProductos();
+document.addEventListener("DOMContentLoaded", function() {
+    obtenerProductos();
     inicializarFiltros();
 });
