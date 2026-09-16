@@ -1,105 +1,347 @@
-<!DOCTYPE html>  <html lang="es">  <head>  
-    <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-    <title>Carrito de Compras | Baby Boutique Ecuador</title>  <!-- Estilos Unificados -->  
-<link rel="stylesheet" href="./css/style.css">  
+<!DOCTYPE html>
+<html lang="es">
 
-<!-- Tipografía Google Fonts -->  
-<link rel="preconnect" href="https://fonts.googleapis.com">  
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>  
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-</head>  <body>  <div class="main-wrapper">  
-    <!-- Banner de Envío Gratis Dinámico -->  
-    <div class="shipping-banner">  
-        <div id="shipping-text">🚚 ¡Agrega <strong>12 prendas</strong> para obtener <strong>ENVÍO GRATIS</strong> en Ecuador!</div>  
-        <div class="shipping-progress-bar">  
-            <div class="shipping-progress-fill" id="shipping-fill"></div>  
-        </div>  
-    </div>  
+    <title>Carrito de Compras | Baby Boutique Ecuador</title>
 
-    <!-- Encabezado / Navegación -->  
-    <header>  
-        <div class="header-container">  
-            <a href="index.html" class="logo">  
-                👶 <span>Baby Boutique</span>  
-            </a>  
+    <!-- Estilos principales -->
+    <link rel="stylesheet" href="./css/style.css">
 
-            <nav>  
-                <ul>  
-                    <li><a href="index.html">Inicio</a></li>  
-                    <li><a href="productos.html">Productos</a></li>  
-                    <li><a href="nosotros.html">Nosotros</a></li>  
-                    <li><a href="contacto.html">Contacto</a></li>  
-                </ul>  
-            </nav>  
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-            <div class="acciones">  
-                <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito">  
-                    🛒 Carrito <span class="cart-badge" id="contadorCarrito">0</span>  
-                </a>  
-            </div>  
-        </div>  
-    </header>  
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+</head>
 
-    <!-- Contenido Principal - Carrito -->  
-    <main class="container">  
-        <h1 style="color: #db2777; margin-bottom: 20px;">Tu Carrito de Compras</h1>  
+<body>
 
-        <div class="cart-table-container">  
-            <table class="cart-table">  
-                <thead>  
-                    <tr>  
-                        <th>Imagen</th>  
-                        <th>Producto</th>  
-                        <th>Código</th>  
-                        <th>Color</th>  
-                        <th>Talla</th>  
-                        <th>Cantidad</th>  
-                        <th>Precio U.</th>  
-                        <th>Subtotal</th>  
-                        <th>Acción</th>  
-                    </tr>  
-                </thead>  
-                <tbody id="cart-items-container">  
-                    <!-- Renderizado dinámico desde carrito.js -->  
-                </tbody>  
-            </table>  
-        </div>  
+    <div class="main-wrapper">
 
-        <!-- Resumen y Acción de WhatsApp -->  
-        <div class="cart-summary">  
-            <div>  
-                <h3>Total de prendas: <span id="cart-total-items" style="color: #db2777;">0</span></h3>  
-                <h2 style="text-align: left; margin: 5px 0 0; color: #1f2937;">Total a pagar: <span id="cart-total-price" style="color: #db2777;">$0.00</span></h2>  
-            </div>  
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">  
-                <button onclick="vaciarCarrito()" class="btn-delete" style="padding: 12px 20px; font-size: 0.95rem;">🗑️ Vaciar Carrito</button>  
-                <button onclick="enviarWhatsApp()" class="btn-whatsapp">📲 Pedir por WhatsApp</button>  
-            </div>  
-        </div>  
-    </main>  
 
-    <!-- Pie de página -->  
-    <footer>  
-        <div class="container">  
-            <p>© 2026 Baby Boutique Ecuador. Todos los derechos reservados.</p>  
-        </div>  
-    </footer>  
-</div>  
+        <!-- =========================================================
+             BANNER DE ENVÍO GRATIS
+             ========================================================= -->
 
-<!-- Scripts del Sistema -->  
-<script src="./js/carrito.js"></script>  
-<script src="./js/productos.js"></script>  
+        <div class="shipping-banner">
 
-<!-- Inicialización de Sincronización Limpia -->  
-<script>  
-    document.addEventListener("DOMContentLoaded", () => {  
-        if (typeof sincronizarTodo === 'function') sincronizarTodo();  
-    });  
-    window.addEventListener("pageshow", () => {  
-        if (typeof sincronizarTodo === 'function') sincronizarTodo();  
-    });  
-</script>
+            <div id="shipping-text">
 
-</body>  </html>  
+                🚚 ¡Agrega
+                <strong>12 prendas</strong>
+                para obtener
+                <strong>ENVÍO GRATIS</strong>
+                en Ecuador!
+
+            </div>
+
+
+            <div class="shipping-progress-bar">
+
+                <div
+                    class="shipping-progress-fill"
+                    id="shipping-fill">
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================================================
+             ENCABEZADO
+             ========================================================= -->
+
+        <header>
+
+            <div class="header-container">
+
+
+                <!-- LOGO -->
+
+                <a
+                    href="index.html"
+                    class="logo">
+
+                    👶
+                    <span>Baby Boutique</span>
+
+                </a>
+
+
+                <!-- MENÚ -->
+
+                <nav>
+
+                    <ul>
+
+                        <li>
+                            <a href="index.html">
+                                Inicio
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="productos.html">
+                                Productos
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="nosotros.html">
+                                Nosotros
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="contacto.html">
+                                Contacto
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </nav>
+
+
+                <!-- CARRITO -->
+
+                <div class="acciones">
+
+                    <a
+                        href="carrito.html"
+                        class="cart-icon-btn"
+                        title="Ver Carrito">
+
+                        🛒 Carrito
+
+                        <span
+                            class="cart-badge"
+                            id="contadorCarrito">
+                            0
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================================================
+             CONTENIDO PRINCIPAL
+             ========================================================= -->
+
+        <main class="container">
+
+
+            <h1
+                style="
+                    color:#db2777;
+                    margin-bottom:20px;
+                ">
+
+                Tu Carrito de Compras
+
+            </h1>
+
+
+            <!-- =====================================================
+                 TABLA DEL CARRITO
+                 ===================================================== -->
+
+            <div class="cart-table-container">
+
+                <table class="cart-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Imagen
+                            </th>
+
+                            <th>
+                                Producto
+                            </th>
+
+                            <th>
+                                Código
+                            </th>
+
+                            <th>
+                                Color
+                            </th>
+
+                            <th>
+                                Talla
+                            </th>
+
+                            <th>
+                                Cantidad
+                            </th>
+
+                            <th>
+                                Precio U.
+                            </th>
+
+                            <th>
+                                Subtotal
+                            </th>
+
+                            <th>
+                                Acción
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="cart-items-container">
+
+                        <!--
+                            Los productos del carrito
+                            son generados por carrito.js
+                        -->
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- =====================================================
+                 RESUMEN DEL CARRITO
+                 ===================================================== -->
+
+            <div class="cart-summary">
+
+
+                <div>
+
+
+                    <h3>
+
+                        Total de prendas:
+
+                        <span
+                            id="cart-total-items"
+                            style="color:#db2777;">
+
+                            0
+
+                        </span>
+
+                    </h3>
+
+
+                    <h2
+                        style="
+                            text-align:left;
+                            margin:5px 0 0;
+                            color:#1f2937;
+                        ">
+
+                        Total a pagar:
+
+                        <span
+                            id="cart-total-price"
+                            style="color:#db2777;">
+
+                            $0.00
+
+                        </span>
+
+                    </h2>
+
+
+                </div>
+
+
+                <!-- =================================================
+                     BOTONES
+                     ================================================= -->
+
+                <div
+                    style="
+                        display:flex;
+                        gap:10px;
+                        flex-wrap:wrap;
+                    ">
+
+
+                    <button
+                        onclick="vaciarCarrito()"
+                        class="btn-delete"
+                        style="
+                            padding:12px 20px;
+                            font-size:0.95rem;
+                        ">
+
+                        🗑️ Vaciar Carrito
+
+                    </button>
+
+
+                    <button
+                        onclick="enviarWhatsApp()"
+                        class="btn-whatsapp">
+
+                        📲 Pedir por WhatsApp
+
+                    </button>
+
+
+                </div>
+
+            </div>
+
+        </main>
+
+
+        <!-- =========================================================
+             PIE DE PÁGINA
+             ========================================================= -->
+
+        <footer>
+
+            <div class="container">
+
+                <p>
+
+                    © 2026 Baby Boutique Ecuador.
+                    Todos los derechos reservados.
+
+                </p>
+
+            </div>
+
+        </footer>
+
+    </div>
+
+
+    <!-- =========================================================
+         JAVASCRIPT
+         
+         IMPORTANTE:
+         Aquí solamente se carga carrito.js.
+         NO cargar productos.js.
+         ========================================================= -->
+
+    <script src="./js/carrito.js"></script>
+
+</body>
+
+</html>
