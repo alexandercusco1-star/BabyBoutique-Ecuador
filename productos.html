@@ -1,104 +1,155 @@
-<!DOCTYPE html>
-<html lang="es">
+/* ==========================================================================
+   Baby Boutique Ecuador - Catálogo de Productos desde productos.json
+   ========================================================================== */
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo | Baby Boutique Ecuador</title>
+let listaProductos = [];
 
-    <!-- Estilos Unificados -->
-    <link rel="stylesheet" href="./css/style.css">
+async function obtenerProductos() {
+    try {
+        const respuesta = await fetch("data/productos.json");
+        if (respuesta.ok) {
+            listaProductos = await respuesta.json();
+            renderizarProductos(listaProductos);
+        } else {
+            console.error("No se pudo cargar data/productos.json");
+        }
+    } catch (error) {
+        console.error("Error al leer la base de datos local:", error);
+    }
+}
 
-    <!-- Tipografía Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
+function renderizarProductos(productosAMostrar = []) {
+    const contenedor = document.getElementById('products-container') || document.getElementById('grid-productos');
+    if (!contenedor) return;
 
-<body>
+    contenedor.innerHTML = '';
 
-    <div class="main-wrapper">
+    if (productosAMostrar.length === 0) {
+        contenedor.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #6b7280; padding: 40px; font-size: 1.1rem;">No se encontraron productos en esta categoría.</p>`;
+        return;
+    }
 
-        <!-- Banner de Envío Gratis -->
-        <div class="shipping-banner">
-            <div id="shipping-text">
-                🚚 ¡Agrega <strong>12 prendas</strong> para obtener <strong>ENVÍO GRATIS</strong> en Ecuador!
-            </div>
-            <div class="shipping-progress-bar">
-                <div class="shipping-progress-fill" id="shipping-fill"></div>
-            </div>
-        </div>
+    productosAMostrar.forEach(prod => {
+        const tarjeta = document.createElement('div');
+        tarjeta.className = 'product-card';
 
-        <!-- Encabezado / Navegación -->
-        <header>
-            <div class="header-container">
-                <a href="index.html" class="logo">
-                    👶 <span>Baby Boutique</span>
+        // Manejo flexible de imágenes (soporta array de imágenes o string directo)
+        let imagenRuta = './img/placeholder.jpg';
+        if (Array.isArray(prod.imagenes) && prod.imagenes.length > 0) {
+            imagenRuta = prod.imagenes[0];
+        } else if (prod.imagen) {
+            imagenRuta = prod.imagen;
+        }
+
+        // Tallas por defecto si el producto no tiene especificadas
+        const tallasEstandar = ["0 a 3 meses (Talla 0)", "3 a 6 meses (Talla 1)", "6 a 9 meses (Talla 2)", "9 a 12 meses (Talla 3)"];
+        const listaTallas = (prod.tallas && prod.tallas.length > 0) ? prod.tallas : tallasEstandar;
+
+        tarjeta.innerHTML = `
+            <a href="producto.html?id=${prod.id || prod.codigo}" style="text-decoration: none; color: inherit;">
+                <img src="${imagenRuta}" alt="${prod.nombre}" style="width:100%; height:220px; object-fit:cover; border-radius:8px;" onerror="this.src='./img/placeholder.jpg'">
+            </a>
+            <div class="producto-info" style="padding: 15px;">
+                <span style="font-size: 0.8rem; color: #9ca3af;">CÓDIGO: ${prod.codigo || prod.id}</span>
+                <a href="producto.html?id=${prod.id || prod.codigo}" style="text-decoration: none;">
+                    <h3 style="font-size: 1.1rem; color: #1f2937; margin: 5px 0;">${prod.nombre}</h3>
                 </a>
+                
+                ${prod.colores && prod.colores.length > 0 ? `
+                <label style="display:block; font-size: 0.85rem; margin-top: 10px;">Color:</label>
+                <select id="color-${prod.id || prod.codigo}" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
+                    ${prod.colores.map(c => {
+                        const val = typeof c === 'object' ? c.nombre : c;
+                        return `<option value="${val}">${val}</option>`;
+                    }).join('')}
+                </select>` : ''}
 
-                <nav>
-                    <ul>
-                        <li><a href="index.html">Inicio</a></li>
-                        <li><a href="productos.html" class="active">Productos</a></li>
-                        <li><a href="nosotros.html">Nosotros</a></li>
-                        <li><a href="contacto.html">Contacto</a></li>
-                    </ul>
-                </nav>
+                <label style="display:block; font-size: 0.85rem;">Talla:</label>
+                <select id="talla-${prod.id || prod.codigo}" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
+                    ${listaTallas.map(t => {
+                        const val = typeof t === 'object' ? `${t.edad} (Talla ${t.numero})` : t;
+                        return `<option value="${val}">${val}</option>`;
+                    }).join('')}
+                </select>
 
-                <div class="acciones">
-                    <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito">
-                        🛒 Carrito
-                        <span class="cart-badge" id="contadorCarrito">0</span>
-                    </a>
+                <label style="display:block; font-size: 0.85rem;">Cantidad:</label>
+                <input type="number" id="cantidad-${prod.id || prod.codigo}" min="0" value="0" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 12px;">
+
+                <div style="text-align: center; background: #fff1f2; padding: 10px; border-radius: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 1.3rem; font-weight: bold; color: #db2777;">$${(prod.precio || 0).toFixed(2)}</span>
+                    ${prod.precioMediaDocena ? `<p style="font-size: 0.75rem; color: #e11d48; margin: 0;">Media Docena: $${prod.precioMediaDocena.toFixed(2)} c/u</p>` : ''}
                 </div>
+
+                <button onclick="prepararAgregar('${prod.id || prod.codigo}')" class="btn-primary" style="width: 100%; background: #db2777; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    🛒 Añadir al Carrito
+                </button>
             </div>
-        </header>
+        `;
+        contenedor.appendChild(tarjeta);
+    });
+}
 
-        <!-- Contenido Principal -->
-        <main class="container">
+function prepararAgregar(idProducto) {
+    const prod = listaProductos.find(p => p.id == idProducto || p.codigo == idProducto);
+    if (!prod) return;
 
-            <!-- Filtros de Categorías -->
-            <section class="category-filter-section">
-                <h1 style="color:#db2777; font-size:2rem; margin-bottom:5px;">
-                    Nuestra Boutique
-                </h1>
-                <p style="color:#6b7280; margin-bottom:25px;">
-                    Ropa y accesorios para bebés de 0 a 24 meses
-                </p>
+    const colorSelect = document.getElementById(`color-${idProducto}`);
+    const tallaSelect = document.getElementById(`talla-${idProducto}`);
+    const cantidadInput = document.getElementById(`cantidad-${idProducto}`);
 
-                <div class="category-buttons">
-                    <button class="cat-btn active" data-category="Todos">✨ Todos</button>
-                    <button class="cat-btn" data-category="Bodies">👶 Bodies</button>
-                    <button class="cat-btn" data-category="Enterizos">🧸 Enterizos</button>
-                    <button class="cat-btn" data-category="Conjuntos">👔 Conjuntos</button>
-                    <button class="cat-btn" data-category="Medias">🧦 Medias</button>
-                    <button class="cat-btn" data-category="Toallas">🧴 Toallas</button>
-                    <button class="cat-btn" data-category="Accesorios">🎀 Accesorios</button>
-                </div>
-            </section>
+    const cantidad = cantidadInput ? parseInt(cantidadInput.value) || 0 : 0;
 
-            <!-- Grilla Dinámica de Productos -->
-            <section style="margin-bottom:60px;">
-                <div class="products-grid" id="products-container">
-                    <!-- Carga dinámica mediante JS -->
-                </div>
-            </section>
+    if (cantidad <= 0) {
+        alert("Por favor selecciona al menos 1 prenda en la cantidad.");
+        return;
+    }
 
-        </main>
+    let imagenRuta = prod.imagen || './img/placeholder.jpg';
+    if (Array.isArray(prod.imagenes) && prod.imagenes.length > 0) {
+        imagenRuta = prod.imagenes[0];
+    }
 
-        <!-- Pie de Página -->
-        <footer>
-            <div class="container">
-                <p>© 2026 Baby Boutique Ecuador. Todos los derechos reservados.</p>
-            </div>
-        </footer>
+    const productoAAgregar = {
+        id: prod.id || prod.codigo,
+        codigo: prod.codigo || prod.id,
+        nombre: prod.nombre,
+        precio: prod.precio,
+        precioMediaDocena: prod.precioMediaDocena || prod.precio,
+        precioDocena: prod.precioDocena || prod.precio,
+        imagen: imagenRuta,
+        color: colorSelect ? colorSelect.value : 'Único',
+        talla: tallaSelect ? tallaSelect.value : 'Única',
+        cantidad: cantidad
+    };
 
-    </div>
+    if (typeof agregarAlCarrito === 'function') {
+        agregarAlCarrito(productoAAgregar);
+    }
+}
 
-    <!-- Scripts del Sistema -->
-    <script src="./js/carrito.js"></script>
-    <script src="./js/productos.js"></script>
+function inicializarFiltros() {
+    const botones = document.querySelectorAll('.cat-btn');
+    botones.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            botones.forEach(b => b.classList.remove('active'));
+            e.currentTarget.classList.add('active');
 
-</body>
+            const categoriaFiltro = e.currentTarget.getAttribute('data-category').trim().toLowerCase();
 
-</html>
+            if (categoriaFiltro === 'todos') {
+                renderizarProductos(listaProductos);
+            } else {
+                const filtrados = listaProductos.filter(p => {
+                    const catProd = (p.categoria || '').trim().toLowerCase();
+                    return catProd === categoriaFiltro;
+                });
+                renderizarProductos(filtrados);
+            }
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    obtenerProductos();
+    inicializarFiltros();
+});
