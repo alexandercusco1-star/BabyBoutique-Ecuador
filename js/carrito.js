@@ -1,156 +1,128 @@
 /* ==========================================================================
-   Baby Boutique Ecuador - Módulo de Carrito de Compras
-   Archivo: js/carrito.js
+   Baby Boutique Ecuador - Carrito
+   Manejo completo del carrito, contador, cantidades, precios y WhatsApp
    ========================================================================== */
 
 const CART_STORAGE_KEY = 'carrito';
 
 
-// ==========================================================================
+// ============================================================
 // OBTENER CARRITO
-// ==========================================================================
+// ============================================================
 
 function getCart() {
-    try {
-        const cart = localStorage.getItem(CART_STORAGE_KEY);
 
-        if (!cart) {
+    try {
+
+        const datos = localStorage.getItem(CART_STORAGE_KEY);
+
+        if (!datos) {
             return [];
         }
 
-        const datos = JSON.parse(cart);
+        const carrito = JSON.parse(datos);
 
-        return Array.isArray(datos) ? datos : [];
+        return Array.isArray(carrito) ? carrito : [];
 
-    } catch (e) {
-        console.error('Error al leer carrito:', e);
+    } catch (error) {
+
+        console.error('Error al leer el carrito:', error);
+
         return [];
     }
 }
 
 
-// ==========================================================================
+// ============================================================
 // GUARDAR CARRITO
-// ==========================================================================
+// ============================================================
 
-function saveCart(cart) {
+function saveCart(carrito) {
 
     try {
 
         localStorage.setItem(
             CART_STORAGE_KEY,
-            JSON.stringify(cart)
+            JSON.stringify(carrito)
         );
 
         sincronizarTodo();
 
-    } catch (e) {
+    } catch (error) {
 
         console.error(
-            'Error al guardar carrito:',
-            e
+            'Error al guardar el carrito:',
+            error
         );
     }
 }
 
 
-// ==========================================================================
+// ============================================================
 // CONTADOR DEL CARRITO
-// ==========================================================================
-//
 // IMPORTANTE:
-// Este número representa productos/líneas diferentes.
-//
-// Ejemplo:
-// Body = 6
-// Enterizo = 6
-// Pantalón = 6
-//
-// Total prendas = 18
-// Contador carrito = 3
-//
-// ==========================================================================
+// Muestra PRODUCTOS/LÍNEAS diferentes,
+// NO la cantidad total de prendas.
+// ============================================================
 
 function actualizarContador() {
 
-    const cart = getCart();
+    const contador =
+        document.getElementById('contadorCarrito');
 
-    const productosDiferentes = cart.length;
+    if (!contador) return;
 
-    const elementosContador = document.querySelectorAll(
-        '#contadorCarrito, ' +
-        '#contador-carrito, ' +
-        '#cart-count, ' +
-        '#cartCount, ' +
-        '.cart-badge, ' +
-        '.cart-count, ' +
-        '.cart-icon-btn span'
-    );
+    const carrito = getCart();
 
-    elementosContador.forEach(el => {
-
-        el.textContent = productosDiferentes;
-
-    });
-
-    console.log(
-        '🛒 Productos diferentes en carrito:',
-        productosDiferentes
-    );
+    contador.textContent = carrito.length;
 }
 
 
-// ==========================================================================
-// PRECIO SEGÚN CANTIDAD
-// ==========================================================================
+// ============================================================
+// OBTENER PRECIO SEGÚN CANTIDAD
+// ============================================================
 
-function getPrecioPorTramo(producto, cantidadTotal) {
+function getPrecioPorTramo(producto, cantidad) {
 
-    if (!producto) {
-        return 0;
-    }
-
-    const precioUnidad =
+    const precioUnitario =
         Number(producto.precio) || 0;
 
-    const precioMedia =
+    const precioMediaDocena =
         Number(producto.precioMediaDocena) ||
-        precioUnidad;
+        precioUnitario;
 
     const precioDocena =
         Number(producto.precioDocena) ||
-        precioUnidad;
+        precioUnitario;
 
 
-    if (cantidadTotal >= 12) {
+    if (cantidad >= 12) {
 
         return precioDocena;
 
     }
 
+    if (cantidad >= 6) {
 
-    if (cantidadTotal >= 6) {
-
-        return precioMedia;
+        return precioMediaDocena;
 
     }
 
-
-    return precioUnidad;
+    return precioUnitario;
 }
 
 
-// ==========================================================================
-// CALCULAR TOTAL DE PRENDAS DEL CARRITO
-// ==========================================================================
+// ============================================================
+// TOTAL DE PRENDAS
+// ============================================================
 
-function obtenerTotalPrendas(cart) {
+function obtenerTotalPrendas(carrito) {
 
-    return cart.reduce(
+    return carrito.reduce(
         (total, item) => {
 
             return total +
-                (parseInt(item.cantidad) || 0);
+                (Number(item.cantidad) || 0);
 
         },
         0
@@ -158,131 +130,167 @@ function obtenerTotalPrendas(cart) {
 }
 
 
-// ==========================================================================
+// ============================================================
 // AGREGAR AL CARRITO
-// ==========================================================================
-//
-// Esta función queda disponible para cualquier página que la necesite.
-// El catálogo utiliza agregarProductoAlCarrito().
-//
-// ==========================================================================
+// FUNCIÓN GENERAL
+// ============================================================
 
 function agregarAlCarrito(producto) {
 
-    if (!producto || !producto.id) {
-        return;
-    }
+    if (!producto) return;
 
+    const carrito = getCart();
 
-    let cart = getCart();
-
-
-    const cantidadAAgregar =
-        parseInt(producto.cantidad) || 1;
+    const cantidadNueva =
+        Number(producto.cantidad) || 1;
 
 
     const indexExistente =
-        cart.findIndex(item =>
+        carrito.findIndex(item =>
+
             item.id === producto.id &&
             item.color === producto.color &&
             item.talla === producto.talla
+
         );
 
 
     if (indexExistente !== -1) {
 
-        cart[indexExistente].cantidad +=
-            cantidadAAgregar;
+        carrito[indexExistente].cantidad =
+            (Number(carrito[indexExistente].cantidad) || 0)
+            + cantidadNueva;
 
     } else {
 
-        cart.push({
-            ...producto,
-            cantidad: cantidadAAgregar
+        carrito.push({
+
+            id: producto.id,
+
+            codigo:
+                producto.codigo ||
+                producto.id,
+
+            nombre:
+                producto.nombre,
+
+            categoria:
+                producto.categoria || '',
+
+            precio:
+                Number(producto.precio) || 0,
+
+            precioMediaDocena:
+                Number(producto.precioMediaDocena) ||
+                Number(producto.precio) ||
+                0,
+
+            precioDocena:
+                Number(producto.precioDocena) ||
+                Number(producto.precio) ||
+                0,
+
+            color:
+                producto.color || 'Único',
+
+            talla:
+                producto.talla || 'Única',
+
+            cantidad:
+                cantidadNueva,
+
+            imagen:
+                producto.imagen || ''
+
         });
 
     }
 
+    saveCart(carrito);
+}
 
-    saveCart(cart);
 
+// ============================================================
+// ELIMINAR PRODUCTO
+// ============================================================
+
+function eliminarProducto(index) {
+
+    const carrito = getCart();
+
+    if (
+        index < 0 ||
+        index >= carrito.length
+    ) {
+        return;
+    }
+
+
+    carrito.splice(index, 1);
+
+    saveCart(carrito);
 
     mostrarNotificacion(
-        `¡${producto.nombre || 'Producto'} añadido al carrito!`
+        'Producto eliminado del carrito.'
     );
 }
 
 
-// ==========================================================================
-// ELIMINAR PRODUCTO
-// ==========================================================================
-
-function eliminarProducto(index) {
-
-    let cart = getCart();
-
-
-    if (
-        index >= 0 &&
-        index < cart.length
-    ) {
-
-        cart.splice(index, 1);
-
-        saveCart(cart);
-    }
-}
-
-
-// ==========================================================================
+// ============================================================
 // ACTUALIZAR CANTIDAD
-// ==========================================================================
+// ============================================================
 
 function actualizarCantidad(index, nuevaCantidad) {
 
-    let cart = getCart();
-
+    const carrito = getCart();
 
     if (
         index < 0 ||
-        index >= cart.length
+        index >= carrito.length
     ) {
         return;
     }
 
 
-    const cantidad =
-        parseInt(nuevaCantidad);
+    nuevaCantidad =
+        parseInt(nuevaCantidad) || 0;
 
 
-    if (
-        isNaN(cantidad) ||
-        cantidad <= 0
-    ) {
+    if (nuevaCantidad <= 0) {
 
-        eliminarProducto(index);
+        carrito.splice(index, 1);
 
-        return;
+    } else {
+
+        carrito[index].cantidad =
+            nuevaCantidad;
     }
 
 
-    cart[index].cantidad = cantidad;
-
-    saveCart(cart);
+    saveCart(carrito);
 }
 
 
-// ==========================================================================
+// ============================================================
 // VACIAR CARRITO
-// ==========================================================================
+// ============================================================
 
 function vaciarCarrito() {
 
-    if (
-        !confirm(
-            '¿Estás seguro de que deseas vaciar el carrito?'
-        )
-    ) {
+    const carrito = getCart();
+
+    if (carrito.length === 0) {
+        return;
+    }
+
+
+    const confirmar =
+        confirm(
+            '¿Estás seguro de que deseas vaciar todo el carrito?'
+        );
+
+
+    if (!confirmar) {
         return;
     }
 
@@ -294,221 +302,214 @@ function vaciarCarrito() {
 
     sincronizarTodo();
 
-
     mostrarNotificacion(
-        '🛒 El carrito ha sido vaciado.'
+        'El carrito ha sido vaciado.'
     );
 }
 
 
-// ==========================================================================
+// ============================================================
 // BANNER DE ENVÍO GRATIS
-// ==========================================================================
+// ============================================================
 
 function actualizarBannerEnvio() {
 
-    const cart = getCart();
-
-    const totalPrendas =
-        obtenerTotalPrendas(cart);
-
-
-    const textoBanner =
+    const texto =
         document.getElementById(
             'shipping-text'
         );
 
-
-    const barraProgreso =
+    const relleno =
         document.getElementById(
             'shipping-fill'
         );
 
 
-    if (
-        !textoBanner ||
-        !barraProgreso
-    ) {
+    if (!texto && !relleno) {
         return;
     }
 
 
-    const META_ENVIO_GRATIS = 12;
+    const carrito = getCart();
+
+    const totalPrendas =
+        obtenerTotalPrendas(carrito);
 
 
-    if (totalPrendas === 0) {
+    const objetivo = 12;
 
-        textoBanner.innerHTML =
-            '🚚 ¡Agrega <strong>12 prendas</strong> para obtener <strong>ENVÍO GRATIS</strong> en Ecuador!';
 
-        barraProgreso.style.width = '0%';
+    if (totalPrendas >= objetivo) {
 
-        return;
+        if (texto) {
+
+            texto.innerHTML =
+                '🚚 ¡Felicidades! Tienes <strong>ENVÍO GRATIS</strong> en Ecuador 🎉';
+
+        }
+
+    } else {
+
+        const faltan =
+            objetivo - totalPrendas;
+
+
+        if (texto) {
+
+            texto.innerHTML =
+                `🚚 ¡Agrega <strong>${faltan} prendas</strong> para obtener <strong>ENVÍO GRATIS</strong> en Ecuador!`;
+
+        }
+
     }
 
 
-    if (
-        totalPrendas >=
-        META_ENVIO_GRATIS
-    ) {
+    if (relleno) {
 
-        textoBanner.innerHTML =
-            '🎉 <strong>¡Tu pedido tiene envío GRATIS!</strong>';
+        const porcentaje =
+            Math.min(
+                (totalPrendas / objetivo) * 100,
+                100
+            );
 
-        barraProgreso.style.width =
-            '100%';
 
-        return;
+        relleno.style.width =
+            `${porcentaje}%`;
+
     }
-
-
-    const faltantes =
-        META_ENVIO_GRATIS -
-        totalPrendas;
-
-
-    const porcentaje =
-        Math.round(
-            (
-                totalPrendas /
-                META_ENVIO_GRATIS
-            ) * 100
-        );
-
-
-    textoBanner.innerHTML =
-        `🚚 Te faltan <strong>${faltantes} ${faltantes === 1 ? 'prenda' : 'prendas'}</strong> para obtener <strong>ENVÍO GRATIS</strong>`;
-
-
-    barraProgreso.style.width =
-        `${porcentaje}%`;
 }
 
 
-// ==========================================================================
+// ============================================================
 // MOSTRAR CARRITO
-// ==========================================================================
+// ============================================================
 
 function mostrarCarrito() {
 
-    const cart = getCart();
-
-
-    const contenedorTabla =
+    const contenedor =
         document.getElementById(
             'cart-items-container'
         );
 
 
-    const totalPrendasElement =
+    if (!contenedor) {
+        return;
+    }
+
+
+    const carrito = getCart();
+
+
+    const totalPrendas =
+        obtenerTotalPrendas(carrito);
+
+
+    const totalPrendasElemento =
         document.getElementById(
             'cart-total-items'
         );
 
 
-    const totalPrecioElement =
+    const totalPrecioElemento =
         document.getElementById(
             'cart-total-price'
         );
 
 
-    let totalPrendas = 0;
-
-    let totalPagar = 0;
-
-
-    // ----------------------------------------------------------------------
-    // SI NO ESTAMOS EN carrito.html
-    // ----------------------------------------------------------------------
-
-    if (!contenedorTabla) {
-
-        actualizarContador();
-
-        actualizarBannerEnvio();
-
-        return;
-    }
-
-
-    // ----------------------------------------------------------------------
+    // --------------------------------------------------------
     // CARRITO VACÍO
-    // ----------------------------------------------------------------------
+    // --------------------------------------------------------
 
-    if (cart.length === 0) {
+    if (carrito.length === 0) {
 
-        contenedorTabla.innerHTML = `
+        contenedor.innerHTML = `
+
             <tr>
+
                 <td
                     colspan="9"
                     style="
                         text-align:center;
-                        padding:40px;
+                        padding:50px 20px;
                         color:#6b7280;
                     "
                 >
-                    🛒 Tu carrito está vacío.
 
-                    <br><br>
+                    <div
+                        style="
+                            font-size:3rem;
+                            margin-bottom:15px;
+                        "
+                    >
+                        🛒
+                    </div>
+
+                    <h3
+                        style="
+                            color:#374151;
+                            margin-bottom:10px;
+                        "
+                    >
+                        Tu carrito está vacío
+                    </h3>
+
+                    <p>
+                        Agrega productos desde nuestra boutique.
+                    </p>
 
                     <a
                         href="productos.html"
                         style="
-                            color:#db2777;
-                            font-weight:600;
+                            display:inline-block;
+                            margin-top:15px;
+                            padding:10px 20px;
+                            background:#db2777;
+                            color:white;
                             text-decoration:none;
+                            border-radius:8px;
                         "
                     >
-                        Ver catálogo
+                        Ver Productos
                     </a>
+
                 </td>
+
             </tr>
+
         `;
 
 
-        if (totalPrendasElement) {
-            totalPrendasElement.textContent =
-                '0';
+        if (totalPrendasElemento) {
+            totalPrendasElemento.textContent = '0';
         }
 
 
-        if (totalPrecioElement) {
-            totalPrecioElement.textContent =
+        if (totalPrecioElemento) {
+            totalPrecioElemento.textContent =
                 '$0.00';
         }
 
-
-        actualizarContador();
-
-        actualizarBannerEnvio();
 
         return;
     }
 
 
-    // ----------------------------------------------------------------------
-    // TOTAL GENERAL DE PRENDAS
-    // ----------------------------------------------------------------------
+    // --------------------------------------------------------
+    // MOSTRAR PRODUCTOS
+    // --------------------------------------------------------
 
-    totalPrendas =
-        obtenerTotalPrendas(cart);
+    let totalGeneral = 0;
 
 
-    // ----------------------------------------------------------------------
-    // RENDERIZAR PRODUCTOS
-    // ----------------------------------------------------------------------
-
-    contenedorTabla.innerHTML =
-        cart.map((item, index) => {
+    contenedor.innerHTML =
+        carrito.map((item, index) => {
 
 
             const cantidad =
-                parseInt(item.cantidad) || 1;
+                Number(item.cantidad) || 0;
 
 
-            // El precio depende de la cantidad
-            // de prendas de ESTA línea.
-            const precioUnitario =
+            const precio =
                 getPrecioPorTramo(
                     item,
                     cantidad
@@ -516,30 +517,34 @@ function mostrarCarrito() {
 
 
             const subtotal =
-                precioUnitario *
-                cantidad;
+                precio * cantidad;
 
 
-            totalPagar += subtotal;
+            totalGeneral += subtotal;
+
+
+            const imagen =
+                item.imagen ||
+                'https://via.placeholder.com/100x100/fbcfe8/db2777?text=Baby';
 
 
             return `
+
                 <tr>
 
                     <td>
 
                         <img
-                            src="${item.imagen || 'https://via.placeholder.com/65x65/fbcfe8/db2777'}"
-                            class="cart-thumb"
+                            src="${imagen}"
                             alt="${item.nombre || 'Producto'}"
                             style="
-                                width:65px;
-                                height:65px;
+                                width:70px;
+                                height:70px;
                                 object-fit:cover;
                                 border-radius:8px;
                             "
                             onerror="
-                                this.src='https://via.placeholder.com/65x65/fbcfe8/db2777'
+                                this.src='https://via.placeholder.com/100x100/fbcfe8/db2777?text=Baby'
                             "
                         >
 
@@ -549,87 +554,52 @@ function mostrarCarrito() {
                     <td>
 
                         <strong>
-                            ${item.nombre || 'Producto'}
+                            ${item.nombre || ''}
                         </strong>
 
                     </td>
 
 
                     <td>
-
-                        <code>
-                            ${item.codigo || item.id || '-'}
-                        </code>
-
+                        ${item.codigo || item.id || ''}
                     </td>
 
 
                     <td>
-                        ${item.color || '-'}
+                        ${item.color || 'Único'}
                     </td>
 
 
                     <td>
-                        ${item.talla || '-'}
+                        ${item.talla || 'Única'}
                     </td>
 
 
                     <td>
 
-                        <div
-                            class="qty-control"
+                        <input
+                            type="number"
+                            min="1"
+                            max="100"
+                            value="${cantidad}"
                             style="
-                                display:flex;
-                                align-items:center;
-                                justify-content:center;
-                                gap:8px;
+                                width:65px;
+                                padding:6px;
+                                text-align:center;
+                            "
+                            onchange="
+                                actualizarCantidad(
+                                    ${index},
+                                    this.value
+                                )
                             "
                         >
 
-                            <button
-                                class="qty-btn"
-                                onclick="
-                                    actualizarCantidad(
-                                        ${index},
-                                        ${cantidad - 1}
-                                    )
-                                "
-                            >
-                                -
-                            </button>
-
-
-                            <span
-                                class="qty-val"
-                                style="
-                                    min-width:25px;
-                                    text-align:center;
-                                    font-weight:600;
-                                "
-                            >
-                                ${cantidad}
-                            </span>
-
-
-                            <button
-                                class="qty-btn"
-                                onclick="
-                                    actualizarCantidad(
-                                        ${index},
-                                        ${cantidad + 1}
-                                    )
-                                "
-                            >
-                                +
-                            </button>
-
-                        </div>
-
                     </td>
 
 
                     <td>
-                        $${precioUnitario.toFixed(2)}
+                        $${precio.toFixed(2)}
                     </td>
 
 
@@ -649,11 +619,6 @@ function mostrarCarrito() {
                                 eliminarProducto(${index})
                             "
                             class="btn-delete"
-                            style="
-                                background:none;
-                                border:none;
-                                cursor:pointer;
-                            "
                         >
                             🗑️
                         </button>
@@ -661,124 +626,71 @@ function mostrarCarrito() {
                     </td>
 
                 </tr>
+
             `;
 
         }).join('');
 
 
-    // ----------------------------------------------------------------------
-    // ACTUALIZAR RESUMEN
-    // ----------------------------------------------------------------------
+    // --------------------------------------------------------
+    // ACTUALIZAR TOTALES
+    // --------------------------------------------------------
 
-    if (totalPrendasElement) {
+    if (totalPrendasElemento) {
 
-        totalPrendasElement.textContent =
+        totalPrendasElemento.textContent =
             totalPrendas;
+
     }
 
 
-    if (totalPrecioElement) {
+    if (totalPrecioElemento) {
 
-        totalPrecioElement.textContent =
-            `$${totalPagar.toFixed(2)}`;
+        totalPrecioElemento.textContent =
+            `$${totalGeneral.toFixed(2)}`;
+
     }
-
-
-    // ----------------------------------------------------------------------
-    // ACTUALIZAR CABECERA Y ENVÍO
-    // ----------------------------------------------------------------------
-
-    actualizarContador();
-
-    actualizarBannerEnvio();
 }
 
 
-// ==========================================================================
-// ENVIAR PEDIDO POR WHATSAPP
-// ==========================================================================
+// ============================================================
+// WHATSAPP
+// ============================================================
 
 function enviarWhatsApp() {
 
-    const cart = getCart();
+    const carrito = getCart();
 
 
-    if (cart.length === 0) {
+    if (carrito.length === 0) {
 
         alert(
-            'Tu carrito está vacío. Agrega productos antes de enviar el pedido.'
+            'Tu carrito está vacío.'
         );
 
         return;
     }
 
 
-    const codigoPedido =
-        'BB-' +
-        Math.floor(
-            10000 +
-            Math.random() * 90000
-        );
-
-
-    const ahora =
-        new Date();
-
-
-    const fecha =
-        ahora.toLocaleDateString(
-            'es-EC'
-        );
-
-
-    const hora =
-        ahora.toLocaleTimeString(
-            'es-EC',
-            {
-                hour: '2-digit',
-                minute: '2-digit'
-            }
-        );
-
-
-    const totalPrendas =
-        obtenerTotalPrendas(cart);
-
-
-    let totalPagar = 0;
+    const telefono =
+        '593984391581';
 
 
     let mensaje =
-        '🛍️ *NUEVO PEDIDO - BABY BOUTIQUE ECUADOR* 🛍️\n';
+        '🛍️ *PEDIDO - BABY BOUTIQUE ECUADOR*%0A%0A';
 
 
-    mensaje +=
-        '━━━━━━━━━━━━━━━━━━━━━\n';
+    let totalPrendas = 0;
+    let totalGeneral = 0;
 
 
-    mensaje +=
-        `📌 *Código de Pedido:* #${codigoPedido}\n`;
-
-
-    mensaje +=
-        `📅 *Fecha:* ${fecha} - ${hora}\n`;
-
-
-    mensaje +=
-        '━━━━━━━━━━━━━━━━━━━━━\n\n';
-
-
-    mensaje +=
-        '📦 *DETALLE DE PRODUCTOS:*\n\n';
-
-
-    cart.forEach((item, index) => {
+    carrito.forEach((item, index) => {
 
         const cantidad =
-            parseInt(item.cantidad) || 1;
+            Number(item.cantidad) || 0;
 
 
-        const precioUnitario =
+        const precio =
             getPrecioPorTramo(
                 item,
                 cantidad
@@ -786,82 +698,50 @@ function enviarWhatsApp() {
 
 
         const subtotal =
-            precioUnitario *
-            cantidad;
+            precio * cantidad;
 
 
-        totalPagar += subtotal;
+        totalPrendas += cantidad;
 
-
-        mensaje +=
-            `${index + 1}. *${item.nombre || 'Producto'}*\n`;
+        totalGeneral += subtotal;
 
 
         mensaje +=
-            `   • Código: ${item.codigo || item.id || '-'}\n`;
-
-
-        mensaje +=
-            `   • Color: ${item.color || 'N/A'}\n`;
-
+            `*${index + 1}. ${item.nombre || ''}*%0A`;
 
         mensaje +=
-            `   • Talla: ${item.talla || 'N/A'}\n`;
-
-
-        mensaje +=
-            `   • Cantidad: ${cantidad} u.\n`;
-
+            `Código: ${item.codigo || item.id || ''}%0A`;
 
         mensaje +=
-            `   • Precio U.: $${precioUnitario.toFixed(2)}\n`;
-
+            `Color: ${item.color || 'Único'}%0A`;
 
         mensaje +=
-            `   • Subtotal: *$${subtotal.toFixed(2)}*\n\n`;
+            `Talla: ${item.talla || 'Única'}%0A`;
+
+        mensaje +=
+            `Cantidad: ${cantidad}%0A`;
+
+        mensaje +=
+            `Precio: $${precio.toFixed(2)} c/u%0A`;
+
+        mensaje +=
+            `Subtotal: $${subtotal.toFixed(2)}%0A%0A`;
 
     });
 
 
-    const envioGratis =
-        totalPrendas >= 12;
-
+    mensaje +=
+        `*TOTAL DE PRENDAS: ${totalPrendas}*%0A`;
 
     mensaje +=
-        '━━━━━━━━━━━━━━━━━━━━━\n';
-
-
-    mensaje +=
-        `👕 *Total Prendas:* ${totalPrendas}\n`;
-
+        `*TOTAL A PAGAR: $${totalGeneral.toFixed(2)}*%0A%0A`;
 
     mensaje +=
-        `🚚 *Envío:* ${
-            envioGratis
-                ? '✅ *GRATIS*'
-                : '📦 Por calcular'
-        }\n`;
-
-
-    mensaje +=
-        `💰 *TOTAL A PAGAR:* *$${totalPagar.toFixed(2)}*\n`;
-
-
-    mensaje +=
-        '━━━━━━━━━━━━━━━━━━━━━\n\n';
-
-
-    mensaje +=
-        'Por favor me confirman la disponibilidad de los artículos para realizar el pago.';
-
-
-    // Número de WhatsApp
-    const telefono =
-        '593984391581';
+        'Hola, deseo realizar este pedido.';
 
 
     const url =
-        `https://api.whatsapp.com/send?phone=${telefono}&text=${encodeURIComponent(mensaje)}`;
+        `https://wa.me/${telefono}?text=${mensaje}`;
 
 
     window.open(
@@ -871,81 +751,75 @@ function enviarWhatsApp() {
 }
 
 
-// ==========================================================================
+// ============================================================
 // NOTIFICACIÓN
-// ==========================================================================
+// ============================================================
 
 function mostrarNotificacion(mensaje) {
 
-    let toast =
+    const existente =
         document.getElementById(
-            'toast-notification'
+            'cart-notification'
         );
 
 
-    if (!toast) {
-
-        toast =
-            document.createElement(
-                'div'
-            );
-
-
-        toast.id =
-            'toast-notification';
-
-
-        toast.style.cssText = `
-            position:fixed;
-            bottom:20px;
-            right:20px;
-            left:20px;
-            max-width:400px;
-            margin:auto;
-            background:#db2777;
-            color:white;
-            padding:14px 20px;
-            border-radius:25px;
-            box-shadow:0 4px 15px rgba(0,0,0,0.2);
-            z-index:9999;
-            font-weight:600;
-            text-align:center;
-            transition:opacity 0.3s;
-        `;
-
-
-        document.body.appendChild(
-            toast
-        );
+    if (existente) {
+        existente.remove();
     }
 
 
-    toast.textContent =
+    const notificacion =
+        document.createElement('div');
+
+
+    notificacion.id =
+        'cart-notification';
+
+
+    notificacion.textContent =
         mensaje;
 
 
-    toast.style.opacity =
-        '1';
+    notificacion.style.cssText = `
+
+        position:fixed;
+        top:20px;
+        right:20px;
+        z-index:9999;
+
+        background:#db2777;
+        color:white;
+
+        padding:14px 20px;
+
+        border-radius:8px;
+
+        box-shadow:
+            0 4px 15px rgba(0,0,0,0.2);
+
+        font-family:Poppins,sans-serif;
+
+        font-size:14px;
+
+    `;
 
 
-    clearTimeout(
-        toast._timer
+    document.body.appendChild(
+        notificacion
     );
 
 
-    toast._timer =
-        setTimeout(() => {
+    setTimeout(() => {
 
-            toast.style.opacity =
-                '0';
+        notificacion.remove();
 
-        }, 2500);
+    }, 2500);
 }
 
 
-// ==========================================================================
-// SINCRONIZACIÓN GENERAL
-// ==========================================================================
+// ============================================================
+// SINCRONIZAR TODO
+// ============================================================
 
 function sincronizarTodo() {
 
@@ -957,23 +831,49 @@ function sincronizarTodo() {
 }
 
 
-// ==========================================================================
-// EVENTOS
-// ==========================================================================
+// ============================================================
+// INICIAR
+// ============================================================
 
 document.addEventListener(
     'DOMContentLoaded',
-    sincronizarTodo
+    () => {
+
+        sincronizarTodo();
+
+    }
 );
 
+
+// ============================================================
+// ACTUALIZAR AL VOLVER A LA PÁGINA
+// ============================================================
 
 window.addEventListener(
     'pageshow',
-    sincronizarTodo
+    () => {
+
+        sincronizarTodo();
+
+    }
 );
 
 
+// ============================================================
+// ACTUALIZAR SI CAMBIA EL LOCALSTORAGE
+// ============================================================
+
 window.addEventListener(
     'storage',
-    sincronizarTodo
+    event => {
+
+        if (
+            event.key === CART_STORAGE_KEY
+        ) {
+
+            sincronizarTodo();
+
+        }
+
+    }
 );
