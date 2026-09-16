@@ -1,491 +1,123 @@
 /* ==========================================================================
-   Baby Boutique Ecuador - Productos
-   Catálogo, filtros, precios y agregado al carrito
+   Baby Boutique Ecuador - Catálogo de Productos
    ========================================================================== */
 
-let productos = [];
-let categoriaActiva = 'Todos';
-
-
-// ============================================================
-// CARRITO
-// ============================================================
-
-const CARRITO_STORAGE_KEY = 'carrito';
-
-
-// ============================================================
-// OBTENER CARRITO
-// ============================================================
-
-function obtenerCarritoCliente() {
-
-    try {
-
-        const carrito =
-            localStorage.getItem(CARRITO_STORAGE_KEY);
-
-        return carrito
-            ? JSON.parse(carrito)
-            : [];
-
-    } catch (error) {
-
-        console.error(
-            'Error al leer carrito:',
-            error
-        );
-
-        return [];
+const listaProductos = [
+    {
+        id: "001",
+        codigo: "001",
+        nombre: "Body para Bebé Algodón Premium",
+        categoria: "bodies",
+        colores: ["Rosado", "Fucsia"],
+        tallas: ["0 a 3 meses", "3 a 6 meses", "6 a 12 meses"],
+        precio: 4.50,
+        precioMediaDocena: 3.50,
+        precioDocena: 3.00,
+        imagen: "./img/body-rosado.jpg"
+    },
+    {
+        id: "002",
+        codigo: "002",
+        nombre: "Enterizo Felpa Osito",
+        categoria: "enterizos",
+        colores: ["Blanco", "Celeste"],
+        tallas: ["0 a 3 meses", "3 a 6 meses"],
+        precio: 8.00,
+        precioMediaDocena: 7.00,
+        precioDocena: 6.00,
+        imagen: "./img/enterizo-osito.jpg"
     }
-}
+    // Agrega aquí tus otros productos...
+];
 
+function renderizarProductos(productosAMostrar = listaProductos) {
+    const contenedor = document.getElementById('grid-productos');
+    if (!contenedor) return;
 
-// ============================================================
-// GUARDAR CARRITO
-// ============================================================
+    contenedor.innerHTML = '';
 
-function guardarCarritoCliente(carrito) {
-
-    try {
-
-        localStorage.setItem(
-            CARRITO_STORAGE_KEY,
-            JSON.stringify(carrito)
-        );
-
-        if (
-            typeof actualizarContador ===
-            'function'
-        ) {
-            actualizarContador();
-        }
-
-        if (
-            typeof actualizarBannerEnvio ===
-            'function'
-        ) {
-            actualizarBannerEnvio();
-        }
-
-    } catch (error) {
-
-        console.error(
-            'Error al guardar carrito:',
-            error
-        );
-
-    }
-}
-
-
-// ============================================================
-// CARGAR PRODUCTOS
-// ============================================================
-
-async function cargarProductos() {
-
-    const contenedorCatalogo =
-        document.getElementById(
-            'products-container'
-        ) ||
-        document.getElementById(
-            'lista-productos'
-        );
-
-
-    const contenedorDetalle =
-        document.getElementById(
-            'detalle-producto'
-        );
-
-
-    if (
-        !contenedorCatalogo &&
-        !contenedorDetalle
-    ) {
+    if (productosAMostrar.length === 0) {
+        contenedor.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #6b7280;">No se encontraron productos en esta categoría.</p>`;
         return;
     }
 
-
-    try {
-
-        const respuesta =
-            await fetch(
-                './data/productos.json'
-            );
-
-
-        if (!respuesta.ok) {
-
-            throw new Error(
-                'No se pudo cargar productos.json'
-            );
-
-        }
-
-
-        productos =
-            await respuesta.json();
-
-
-    } catch (error) {
-
-        console.warn(
-            'Cargando datos de respaldo para visualización local:',
-            error
-        );
-
-        productos =
-            getProductosRespaldo();
-
-    }
-
-
-    if (contenedorCatalogo) {
-
-        mostrarProductos(productos);
-
-        inicializarFiltrosCategorias();
-
-    }
-
-
-    if (contenedorDetalle) {
-
-        if (
-            typeof mostrarDetalleProducto ===
-            'function'
-        ) {
-
-            mostrarDetalleProducto();
-
-        }
-
-    }
-
-}
-
-
-// ============================================================
-// FILTROS DE CATEGORÍAS
-// ============================================================
-
-function inicializarFiltrosCategorias() {
-
-    const botones =
-        document.querySelectorAll(
-            '.cat-btn'
-        );
-
-
-    if (!botones.length) {
-        return;
-    }
-
-
-    botones.forEach(btn => {
-
-        btn.addEventListener(
-            'click',
-            e => {
-
-                botones.forEach(b => {
-
-                    b.classList.remove(
-                        'active'
-                    );
-
-                });
-
-
-                e.currentTarget.classList.add(
-                    'active'
-                );
-
-
-                const catSeleccionada =
-                    e.currentTarget.getAttribute(
-                        'data-category'
-                    ) ||
-                    'Todos';
-
-
-                categoriaActiva =
-                    catSeleccionada;
-
-
-                if (
-                    catSeleccionada ===
-                    'Todos'
-                ) {
-
-                    mostrarProductos(
-                        productos
-                    );
-
-                } else {
-
-                    const filtrados =
-                        productos.filter(
-                            p =>
-                                p.categoria &&
-                                p.categoria
-                                    .toLowerCase() ===
-                                catSeleccionada
-                                    .toLowerCase()
-                        );
-
-
-                    mostrarProductos(
-                        filtrados
-                    );
-
-                }
-
-            }
-        );
-
-    });
-
-}
-
-
-// ============================================================
-// MOSTRAR PRODUCTOS
-// ============================================================
-
-function mostrarProductos(lista) {
-
-    const contenedor =
-        document.getElementById(
-            'products-container'
-        ) ||
-        document.getElementById(
-            'lista-productos'
-        );
-
-
-    if (!contenedor) {
-        return;
-    }
-
-
-    if (
-        !Array.isArray(lista) ||
-        lista.length === 0
-    ) {
-
-        contenedor.innerHTML = `
-
-            <div
-                style="
-                    grid-column:1/-1;
-                    text-align:center;
-                    padding:40px;
-                    color:#6b7280;
-                "
-            >
-
-                No se encontraron productos
-                en la categoría
-                "${categoriaActiva}".
-
+    productosAMostrar.forEach(prod => {
+        const tarjeta = document.createElement('div');
+        tarjeta.className = 'producto-card';
+        tarjeta.innerHTML = `
+            <img src="${prod.imagen || './img/placeholder.jpg'}" alt="${prod.nombre}">
+            <div class="producto-info" style="padding: 15px;">
+                <span style="font-size: 0.8rem; color: #9ca3af;">CÓDIGO: ${prod.codigo}</span>
+                <h3 style="font-size: 1.1rem; color: #1f2937; margin: 5px 0;">${prod.nombre}</h3>
+                
+                <label style="display:block; font-size: 0.85rem; margin-top: 10px;">Color:</label>
+                <select id="color-${prod.id}" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
+                    ${prod.colores.map(c => `<option value="${c}">${c}</option>`).join('')}
+                </select>
+
+                <label style="display:block; font-size: 0.85rem;">Talla:</label>
+                <select id="talla-${prod.id}" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
+                    ${prod.tallas.map(t => `<option value="${t}">${t}</option>`).join('')}
+                </select>
+
+                <label style="display:block; font-size: 0.85rem;">Cantidad:</label>
+                <input type="number" id="cantidad-${prod.id}" min="1" value="1" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 12px;">
+
+                <div style="text-align: center; background: #fff1f2; padding: 10px; border-radius: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 1.3rem; font-weight: bold; color: #db2777;">$${prod.precio.toFixed(2)}</span>
+                    <p style="font-size: 0.75rem; color: #e11d48; margin: 0;">Media Docena: $${prod.precioMediaDocena.toFixed(2)} c/u</p>
+                </div>
+
+                <button onclick="prepararAgregar('${prod.id}')" class="btn-primary" style="width: 100%; background: #db2777; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    🛒 Añadir al Carrito
+                </button>
             </div>
-
         `;
+        contenedor.appendChild(tarjeta);
+    });
+}
 
-        return;
+function prepararAgregar(idProducto) {
+    const prod = listaProductos.find(p => p.id === idProducto);
+    if (!prod) return;
+
+    const colorSelect = document.getElementById(`color-${idProducto}`);
+    const tallaSelect = document.getElementById(`talla-${idProducto}`);
+    const cantidadInput = document.getElementById(`cantidad-${idProducto}`);
+
+    const productoAAgregar = {
+        id: prod.id,
+        codigo: prod.codigo,
+        nombre: prod.nombre,
+        precio: prod.precio,
+        precioMediaDocena: prod.precioMediaDocena,
+        precioDocena: prod.precioDocena,
+        imagen: prod.imagen,
+        color: colorSelect ? colorSelect.value : '',
+        talla: tallaSelect ? tallaSelect.value : '',
+        cantidad: cantidadInput ? parseInt(cantidadInput.value) || 1 : 1
+    };
+
+    agregarAlCarrito(productoAAgregar);
+}
+
+function filtrarProductos(categoria) {
+    const botones = document.querySelectorAll('.filter-btn');
+    botones.forEach(b => b.classList.remove('active'));
+    
+    // Activa el botón seleccionado
+    if (event && event.target) {
+        event.target.classList.add('active');
     }
 
+    if (categoria === 'todos') {
+        renderizarProductos(listaProductos);
+    } else {
+        const filtrados = listaProductos.filter(p => p.categoria === categoria);
+        renderizarProductos(filtrados);
+    }
+}
 
-    contenedor.innerHTML =
-        lista.map(prod => {
-
-            const colorInicial =
-                prod.colores &&
-                prod.colores.length > 0
-
-                    ? prod.colores[0]
-
-                    : {
-                        nombre: 'Único',
-                        imagen:
-                            prod.imagen || ''
-                    };
-
-
-            const imagenInicial =
-                colorInicial.imagen ||
-                prod.imagen ||
-                'https://via.placeholder.com/300x300/fbcfe8/db2777?text=Baby+Boutique';
-
-
-            const listaTallas =
-                prod.tallas ||
-                [
-                    '0 a 3 meses',
-                    '3 a 6 meses',
-                    '6 a 9 meses',
-                    '9 a 12 meses'
-                ];
-
-
-            return `
-
-                <div
-                    class="product-card"
-                    id="card-${prod.id}"
-                >
-
-                    <div>
-
-
-                        <!-- IMAGEN -->
-
-                        <div
-                            class="product-image-container"
-                        >
-
-                            <span
-                                class="product-badge"
-                            >
-                                ${prod.categoria || 'Boutique'}
-                            </span>
-
-
-                            <img
-                                src="${imagenInicial}"
-                                id="img-${prod.id}"
-                                alt="${prod.nombre}"
-                                onerror="
-                                    this.src='https://via.placeholder.com/300x300/fbcfe8/db2777?text=Baby+Boutique'
-                                "
-                            >
-
-                        </div>
-
-
-                        <!-- CÓDIGO -->
-
-                        <div
-                            class="product-code"
-                        >
-
-                            CÓDIGO:
-                            ${prod.codigo || prod.id}
-
-                        </div>
-
-
-                        <!-- NOMBRE -->
-
-                        <h3
-                            class="product-title"
-                        >
-
-                            ${prod.nombre}
-
-                        </h3>
-
-
-                        <!-- OPCIONES -->
-
-                        <div
-                            class="product-options"
-                        >
-
-
-                            ${
-                                prod.colores &&
-                                prod.colores.length > 0
-
-                                    ? `
-
-                                    <div
-                                        class="option-group"
-                                    >
-
-                                        <label
-                                            class="option-label"
-                                        >
-
-                                            Color:
-
-                                            <span
-                                                id="color-label-${prod.id}"
-                                                style="
-                                                    font-weight:bold;
-                                                    color:#1f2937;
-                                                "
-                                            >
-
-                                                ${colorInicial.nombre}
-
-                                            </span>
-
-                                        </label>
-
-
-                                        <div
-                                            class="color-picker"
-                                        >
-
-                                            ${
-                                                prod.colores
-                                                    .map(
-                                                        (c, i) => `
-
-                                                    <span
-                                                        class="color-dot ${
-                                                            i === 0
-                                                                ? 'active'
-                                                                : ''
-                                                        }"
-                                                        style="
-                                                            background-color:${
-                                                                c.hex ||
-                                                                '#f472b6'
-                                                            };
-                                                        "
-                                                        title="${c.nombre}"
-                                                        onclick="
-                                                            cambiarColorProducto(
-                                                                '${prod.id}',
-                                                                '${c.nombre}',
-                                                                '${c.imagen}',
-                                                                this
-                                                            )
-                                                        "
-                                                    ></span>
-
-                                                `
-                                                    )
-                                                    .join('')
-                                            }
-
-                                        </div>
-
-                                    </div>
-
-                                `
-
-                                    : ''
-                            }
-
-
-                            <!-- TALLA -->
-
-                            <div
-                                class="option-group"
-                            >
-
-                                <label
-                                    class="option-label"
-                                >
-                                    Talla:
-                                </label>
-
-
-                                <select
-                                    class="
+document.addEventListener('DOMContentLoaded', () => {
+    renderizarProductos();
+});
