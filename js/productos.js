@@ -23,7 +23,7 @@ function obtenerProductos() {
         });
 }
 
-// 2. RENDERIZAR LAS TARJETAS EN LA GRILLA
+// 2. RENDERIZAR LAS TARJETAS DE PRODUCTOS
 function renderizarProductos(productos) {
     const contenedor = document.getElementById("grid-productos") || document.getElementById("products-container");
     if (!contenedor) return;
@@ -40,7 +40,6 @@ function renderizarProductos(productos) {
         const tarjeta = document.createElement("div");
         tarjeta.className = "product-card";
 
-        // Obtener ruta de imagen
         let rutaImagen = "assets/placeholder.jpg";
         if (prod.colores && prod.colores.length > 0 && prod.colores[0].imagen) {
             rutaImagen = prod.colores[0].imagen;
@@ -50,11 +49,9 @@ function renderizarProductos(productos) {
             rutaImagen = prod.imagenes[0];
         }
 
-        // Tallas por defecto
         const tallasDefecto = ["0 a 3 meses", "3 a 6 meses", "6 a 9 meses", "9 a 12 meses"];
         const listaTallas = (prod.tallas && prod.tallas.length > 0) ? prod.tallas : tallasDefecto;
 
-        // Construir tarjeta
         let htmlTarjeta = `
             <div>
                 <img id="img-${idUnico}" src="${rutaImagen}" alt="${prod.nombre}" onerror="this.src='assets/placeholder.jpg'">
@@ -62,7 +59,6 @@ function renderizarProductos(productos) {
                 <h3 style="font-size:1.05rem; color:#1f2937; margin:5px 0 10px;">${prod.nombre}</h3>
         `;
 
-        // Selector de Colores
         if (prod.colores && prod.colores.length > 0) {
             htmlTarjeta += `
                 <label class="field-label">Color:</label>
@@ -76,7 +72,6 @@ function renderizarProductos(productos) {
             htmlTarjeta += `</select>`;
         }
 
-        // Selector de Tallas
         htmlTarjeta += `
             <label class="field-label">Talla:</label>
             <select id="talla-${idUnico}" class="select-input">
@@ -87,7 +82,6 @@ function renderizarProductos(productos) {
         });
         htmlTarjeta += `</select>`;
 
-        // Input Cantidad
         htmlTarjeta += `
             <label class="field-label">Cantidad:</label>
             <input type="number" id="cantidad-${idUnico}" class="number-input" min="0" value="0">
@@ -106,7 +100,6 @@ function renderizarProductos(productos) {
         tarjeta.innerHTML = htmlTarjeta;
         contenedor.appendChild(tarjeta);
 
-        // Listener cambio de color -> cambia imagen
         const selectColor = tarjeta.querySelector(`#color-${idUnico}`);
         if (selectColor) {
             selectColor.addEventListener("change", function(e) {
@@ -121,7 +114,7 @@ function renderizarProductos(productos) {
     });
 }
 
-// 3. SOLUCIÓN PROBLEMA 2: AÑADIR Y MARCAR EN EL CARRITO
+// 3. AÑADIR PRODUCTO AL CARRITO
 function agregarAlCarrito(idProducto) {
     const prod = listaProductos.find(function(p) { 
         return p.id == idProducto || p.codigo == idProducto; 
@@ -151,7 +144,6 @@ function agregarAlCarrito(idProducto) {
         cantidad: cantidad
     };
 
-    // Si ya existe en el carrito con el mismo color y talla, se suma la cantidad
     const indexExistente = carrito.findIndex(function(c) {
         return c.id === item.id && c.color === item.color && c.talla === item.talla;
     });
@@ -164,25 +156,19 @@ function agregarAlCarrito(idProducto) {
 
     if (inputCant) inputCant.value = 0;
 
-    // Actualizar el contador del botón del carrito en el HTML
     actualizarCarritoUI();
     alert(`¡Se añadieron ${cantidad} unidad(es) de "${prod.nombre}" al carrito!`);
 }
 
-// ACTUALIZAR CONTADOR Y MODAL DEL CARRITO
+// 4. CORRECCIÓN PROBLEMA 1: CONTADOR DE ITEMS Y DIBUJO DEL RESUMEN
 function actualizarCarritoUI() {
     const contador = document.getElementById("cart-counter") || document.getElementById("cart-count");
     const listaModal = document.getElementById("cart-items-container");
     const totalElem = document.getElementById("cart-total-price");
 
-    // Suma total de prendas agregadas
-    const totalPrendas = carrito.reduce(function(sum, item) { 
-        return sum + item.cantidad; 
-    }, 0);
-
-    // Actualiza el número que sale arriba en el icono del carrito
+    // SOLUCIÓN 1: Muestra el número de tipos de productos/variantes agregados, no la cantidad total de prendas.
     if (contador) {
-        contador.textContent = totalPrendas;
+        contador.textContent = carrito.length;
     }
 
     if (!listaModal) return;
@@ -208,9 +194,9 @@ function actualizarCarritoUI() {
             <div style="flex-grow:1;">
                 <h4 style="font-size:0.9rem; margin:0;">${item.nombre}</h4>
                 <p style="font-size:0.75rem; color:#6b7280; margin:0;">Color: ${item.color} | Talla: ${item.talla}</p>
-                <p style="font-size:0.8rem; margin:0;">${item.cantidad} x $${Number(item.precio).toFixed(2)} = <strong>$${subtotal.toFixed(2)}</strong></p>
+                <p style="font-size:0.8rem; margin:0;">${item.cantidad} unidades x $${Number(item.precio).toFixed(2)} = <strong>$${subtotal.toFixed(2)}</strong></p>
             </div>
-            <button onclick="eliminarDelCarrito(${index})" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
+            <button onclick="eliminarDelCarrito(${index})" style="background:none; border:none; color:red; cursor:pointer; font-size:1.1rem;" title="Eliminar">🗑️</button>
         `;
         listaModal.appendChild(div);
     });
@@ -223,7 +209,79 @@ function eliminarDelCarrito(index) {
     actualizarCarritoUI();
 }
 
-// 4. SOLUCIÓN PROBLEMA 1: FILTRO DE CATEGORÍAS FLEXIBLE
+// 5. CORRECCIÓN PROBLEMA 2: ABRIR EL CARRITO Y VER RESUMEN
+function toggleCarritoModal() {
+    let modal = document.getElementById("cart-modal");
+    
+    // Si la estructura del modal no existe en el HTML, se genera automáticamente de manera dinámica
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "cart-modal";
+        modal.className = "cart-modal";
+        modal.style.cssText = "display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:flex-end;";
+
+        modal.innerHTML = `
+            <div class="cart-content" style="background:#fff; width:100%; max-width:400px; height:100%; padding:20px; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
+                <div class="cart-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px;">
+                    <h3 style="margin:0; color:#db2777;">Tu Carrito</h3>
+                    <button class="close-cart" onclick="toggleCarritoModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">✕</button>
+                </div>
+                <div id="cart-items-container" class="cart-items-list" style="overflow-y:auto; flex-grow:1; margin:15px 0;">
+                    <p style="text-align: center; color: #9ca3af; margin-top: 20px;">El carrito está vacío.</p>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem; margin-bottom:10px;">
+                        <span>Total:</span>
+                        <span id="cart-total-price">$0.00</span>
+                    </div>
+                    <button class="btn-pedir-whatsapp" onclick="enviarPedidoWhatsApp()" style="width:100%; background-color:#25d366; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; font-size:1rem; cursor:pointer;">
+                        📱 Confirmar Pedido por WhatsApp
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    if (modal.style.display === "flex") {
+        modal.style.display = "none";
+    } else {
+        actualizarCarritoUI();
+        modal.style.display = "flex";
+    }
+}
+
+// CONECTAR CLICK AL BOTÓN "MI CARRITO" DE LA CABECERA
+function inicializarBotonCarrito() {
+    const btnCarrito = document.querySelector(".cart-icon-container, [onclick*='toggleCarritoModal']");
+    if (btnCarrito) {
+        btnCarrito.onclick = toggleCarritoModal;
+    }
+}
+
+// ENVIAR RESUMEN POR WHATSAPP
+function enviarPedidoWhatsApp() {
+    if (carrito.length === 0) {
+        alert("El carrito está vacío.");
+        return;
+    }
+
+    let mensaje = "¡Hola Baby Boutique! Quisiera realizar el siguiente pedido:\n\n";
+    let total = 0;
+
+    carrito.forEach((item, i) => {
+        const sub = item.precio * item.cantidad;
+        total += sub;
+        mensaje += `${i + 1}. *${item.nombre}* (Cód: ${item.codigo})\n`;
+        mensaje += `   - Color: ${item.color} | Talla: ${item.talla}\n`;
+        mensaje += `   - Cantidad: ${item.cantidad} unidades | Subtotal: $${sub.toFixed(2)}\n\n`;
+    });
+
+    mensaje += `*Total a Pagar:* $${total.toFixed(2)}`;
+    window.open("https://wa.me/593987654321?text=" + encodeURIComponent(mensaje), "_blank");
+}
+
+// FILTRADO DE CATEGORÍAS
 function inicializarFiltros() {
     const botones = document.querySelectorAll(".cat-btn, .btn-categoria");
     botones.forEach(function(btn) {
@@ -233,18 +291,15 @@ function inicializarFiltros() {
 
             let categoriaBuscada = (e.currentTarget.getAttribute("data-category") || e.currentTarget.textContent || "").trim().toLowerCase();
 
-            // Si es "todos", mostrar todo
             if (categoriaBuscada.includes("todo")) {
                 renderizarProductos(listaProductos);
                 return;
             }
 
-            // Normalización para coincidir plurales/singulares ("bodys", "body", "bodies", etc.)
             const filtrados = listaProductos.filter(function(p) {
                 const catProducto = (p.categoria || "").trim().toLowerCase();
                 const nombreProducto = (p.nombre || "").trim().toLowerCase();
 
-                // Busca coincidencia en el campo categoria o en el título del producto
                 return catProducto.includes(categoriaBuscada) || 
                        categoriaBuscada.includes(catProducto) ||
                        (categoriaBuscada.includes("body") && (catProducto.includes("body") || nombreProducto.includes("body"))) ||
@@ -260,8 +315,9 @@ function inicializarFiltros() {
     });
 }
 
-// INICIALIZACIÓN AUTOMÁTICA
+// INICIALIZACIÓN
 document.addEventListener("DOMContentLoaded", function() {
     obtenerProductos();
     inicializarFiltros();
+    inicializarBotonCarrito();
 });
