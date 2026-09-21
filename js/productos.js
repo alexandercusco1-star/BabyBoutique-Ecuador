@@ -1,6 +1,13 @@
-let listaProductos = [];
+/* ==========================================================================
+   Baby Boutique - productos.js
+   Carga desde data/productos.json y envía a WhatsApp con 14.99% de descuento
+   ========================================================================== */
 
-// Cargar productos desde el JSON
+let listaProductos = [];
+const PORCENTAJE_DESCUENTO = 14.99;
+const NUMERO_WHATSAPP = "593999999999"; // Cambia este número por el tuyo (sin signo +)
+
+// 1. Cargar el JSON de productos
 function obtenerProductos() {
     fetch("data/productos.json")
         .then(function(res) {
@@ -11,22 +18,19 @@ function obtenerProductos() {
             renderizarProductos(listaProductos);
         })
         .catch(function(error) {
-            console.error("Error al cargar JSON:", error);
+            console.error("Error al cargar data/productos.json:", error);
         });
 }
 
-// Renderizar las tarjetas
+// 2. Renderizar productos en pantalla
 function renderizarProductos(productos) {
-    const contenedor = document.getElementById("products-container") || document.getElementById("grid-productos");
+    const contenedor = document.getElementById("grid-productos") || document.getElementById("products-container");
     if (!contenedor) return;
 
     contenedor.innerHTML = "";
 
     if (!productos || productos.length === 0) {
-        const mensajeVacio = document.createElement("p");
-        mensajeVacio.textContent = "No se encontraron productos en esta categoría.";
-        mensajeVacio.style.cssText = "grid-column: 1/-1; text-align: center; padding: 30px; color: #6b7280;";
-        contenedor.appendChild(mensajeVacio);
+        contenedor.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #6b7280; padding: 30px;">No se encontraron productos en esta categoría.</p>';
         return;
     }
 
@@ -34,7 +38,7 @@ function renderizarProductos(productos) {
         const idUnico = prod.id || prod.codigo;
         const tarjeta = document.createElement("div");
         tarjeta.className = "product-card";
-        tarjeta.style.cssText = "border: 1px solid #eee; border-radius: 12px; padding: 15px; background: #fff;";
+        tarjeta.style.cssText = "border: 1px solid #eee; border-radius: 12px; padding: 15px; background: #fff; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);";
 
         // Imagen
         const enlaceImg = document.createElement("a");
@@ -42,7 +46,7 @@ function renderizarProductos(productos) {
 
         const img = document.createElement("img");
         img.id = "img-" + idUnico;
-        img.src = (prod.colores && prod.colores.length > 0) ? prod.colores[0].imagen : "assets/placeholder.jpg";
+        img.src = (prod.colores && prod.colores.length > 0 && prod.colores[0].imagen) ? prod.colores[0].imagen : "assets/placeholder.jpg";
         img.alt = prod.nombre;
         img.style.cssText = "width: 100%; height: 200px; object-fit: cover; border-radius: 8px;";
         img.onerror = function() { this.src = "assets/placeholder.jpg"; };
@@ -51,11 +55,11 @@ function renderizarProductos(productos) {
 
         // Código
         const codigoSpan = document.createElement("span");
-        codigoSpan.textContent = "CÓDIGO: " + prod.codigo;
+        codigoSpan.textContent = "CÓDIGO: " + (prod.codigo || idUnico);
         codigoSpan.style.cssText = "display: block; font-size: 0.75rem; color: #9ca3af; margin-top: 10px; font-weight: bold;";
         tarjeta.appendChild(codigoSpan);
 
-        // Título
+        // Nombre
         const titulo = document.createElement("h3");
         titulo.textContent = prod.nombre;
         titulo.style.cssText = "font-size: 1rem; color: #1f2937; margin: 5px 0 10px 0;";
@@ -71,7 +75,7 @@ function renderizarProductos(productos) {
             const selectColor = document.createElement("select");
             selectColor.id = "color-" + idUnico;
             selectColor.style.cssText = "width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;";
-            
+
             prod.colores.forEach(function(c) {
                 const opt = document.createElement("option");
                 opt.value = c.nombre;
@@ -81,8 +85,8 @@ function renderizarProductos(productos) {
             });
 
             selectColor.addEventListener("change", function() {
-                const optSeleccionada = selectColor.options[selectColor.selectedIndex];
-                const nuevaRuta = optSeleccionada.getAttribute("data-img");
+                const optSel = selectColor.options[selectColor.selectedIndex];
+                const nuevaRuta = optSel.getAttribute("data-img");
                 if (nuevaRuta) img.src = nuevaRuta;
             });
 
@@ -98,7 +102,7 @@ function renderizarProductos(productos) {
         const selectTalla = document.createElement("select");
         selectTalla.id = "talla-" + idUnico;
         selectTalla.style.cssText = "width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;";
-        
+
         const listaTallas = (prod.tallas && prod.tallas.length > 0) ? prod.tallas : ["Talla Única"];
         listaTallas.forEach(function(t) {
             const opt = document.createElement("option");
@@ -117,8 +121,8 @@ function renderizarProductos(productos) {
         const inputCantidad = document.createElement("input");
         inputCantidad.type = "number";
         inputCantidad.id = "cantidad-" + idUnico;
-        inputCantidad.value = "0";
-        inputCantidad.min = "0";
+        inputCantidad.value = "1";
+        inputCantidad.min = "1";
         inputCantidad.style.cssText = "width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 12px;";
         tarjeta.appendChild(inputCantidad);
 
@@ -127,24 +131,18 @@ function renderizarProductos(productos) {
         cajaPrecio.style.cssText = "text-align: center; background: #fff1f2; padding: 8px; border-radius: 8px; margin-bottom: 12px;";
 
         const txtPrecio = document.createElement("span");
-        txtPrecio.textContent = "$" + Number(prod.precio).toFixed(2);
+        txtPrecio.textContent = "$" + Number(prod.precio || 0).toFixed(2);
         txtPrecio.style.cssText = "font-size: 1.2rem; font-weight: bold; color: #db2777;";
         cajaPrecio.appendChild(txtPrecio);
 
-        if (prod.precioMediaDocena) {
-            const txtMayor = document.createElement("p");
-            txtMayor.textContent = "Media Docena: $" + Number(prod.precioMediaDocena).toFixed(2);
-            txtMayor.style.cssText = "font-size: 0.75rem; color: #e11d48; margin: 0;";
-            cajaPrecio.appendChild(txtMayor);
-        }
         tarjeta.appendChild(cajaPrecio);
 
-        // Botón Añadir
+        // Botón WhatsApp con Descuento
         const btnAgregar = document.createElement("button");
-        btnAgregar.textContent = "🛒 Añadir al Carrito";
+        btnAgregar.textContent = "📲 Pedir con 14.99% Desc.";
         btnAgregar.style.cssText = "width: 100%; background: #db2777; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;";
         btnAgregar.addEventListener("click", function() {
-            prepararAgregar(idUnico);
+            enviarPedidoIndividualWhatsApp(idUnico);
         });
         tarjeta.appendChild(btnAgregar);
 
@@ -152,62 +150,49 @@ function renderizarProductos(productos) {
     });
 }
 
-// Preparar producto para agregar al carrito
-function prepararAgregar(idProducto) {
+// 3. Enviar a WhatsApp con el mensaje estructurado y código de 24 horas
+function enviarPedidoIndividualWhatsApp(idProducto) {
     const prod = listaProductos.find(function(p) { return (p.id === idProducto || p.codigo === idProducto); });
     if (!prod) return;
 
-    const inputCant = document.getElementById("cantidad-" + idProducto);
-    const cantidad = inputCant ? parseInt(inputCant.value) || 0 : 0;
+    const cantInput = document.getElementById("cantidad-" + idProducto);
+    const cantidad = cantInput ? parseInt(cantInput.value) || 1 : 1;
 
-    if (cantidad <= 0) {
-        alert("Selecciona al menos 1 unidad.");
-        return;
-    }
+    const colorSelect = document.getElementById("color-" + idProducto);
+    const tallaSelect = document.getElementById("talla-" + idProducto);
 
-    const selectColor = document.getElementById("color-" + idProducto);
-    const selectTalla = document.getElementById("talla-" + idProducto);
-    const imgElem = document.getElementById("img-" + idProducto);
+    const colorElegido = colorSelect ? colorSelect.value : "Único";
+    const tallaElegida = tallaSelect ? tallaSelect.value : "Única";
 
-    const item = {
-        id: prod.id,
-        codigo: prod.codigo,
-        nombre: prod.nombre,
-        precio: prod.precio,
-        imagen: imgElem ? imgElem.src : "",
-        color: selectColor ? selectColor.value : "Único",
-        talla: selectTalla ? selectTalla.value : "Única",
-        cantidad: cantidad
-    };
+    // Cálculos
+    const subtotal = prod.precio * cantidad;
+    const montoDescuento = subtotal * (PORCENTAJE_DESCUENTO / 100);
+    const totalConDescuento = subtotal - montoDescuento;
 
-    if (typeof agregarAlCarrito === "function") {
-        agregarAlCarrito(item);
-    }
+    // Generar código de validación (24 horas)
+    const hoy = new Date();
+    const fechaStr = hoy.toISOString().slice(0, 10).replace(/-/g, "");
+    const numAleatorio = Math.floor(1000 + Math.random() * 9000);
+    const codigoDescuento = "WEB1499-" + fechaStr + "-" + numAleatorio;
+
+    // Construcción del mensaje
+    let msj = "¡Hola! Quiero realizar un pedido desde la página web:\n\n";
+    msj += "🛍️ *Producto:* " + prod.nombre + "\n";
+    msj += "📌 *Código:* " + (prod.codigo || idProducto) + "\n";
+    msj += "🎨 *Color:* " + colorElegido + "\n";
+    msj += "📏 *Talla:* " + tallaElegida + "\n";
+    msj += "🔢 *Cantidad:* " + cantidad + "\n\n";
+    msj += "💵 *Subtotal:* $" + subtotal.toFixed(2) + "\n";
+    msj += "🏷️ *Descuento Web (14.99%):* -$" + montoDescuento.toFixed(2) + "\n";
+    msj += "✅ *Total a Pagar:* $" + totalConDescuento.toFixed(2) + "\n\n";
+    msj += "🔑 *CÓDIGO DE DESCUENTO (24h):* `" + codigoDescuento + "`\n";
+    msj += "_(Generado automáticamente desde la web)_";
+
+    const url = "https://wa.me/" + NUMERO_WHATSAPP + "?text=" + encodeURIComponent(msj);
+    window.open(url, "_blank");
 }
 
-// Filtros por Categoría
-function inicializarFiltros() {
-    const botones = document.querySelectorAll(".cat-btn");
-    botones.forEach(function(btn) {
-        btn.addEventListener("click", function(e) {
-            botones.forEach(function(b) { b.classList.remove("active"); });
-            e.currentTarget.classList.add("active");
-
-            const cat = e.currentTarget.getAttribute("data-category").trim().toLowerCase();
-
-            if (cat === "todos" || cat === "todas") {
-                renderizarProductos(listaProductos);
-            } else {
-                const filtrados = listaProductos.filter(function(p) {
-                    return (p.categoria || "").trim().toLowerCase() === cat;
-                });
-                renderizarProductos(filtrados);
-            }
-        });
-    });
-}
-
+// 4. Iniciar al cargar la página
 document.addEventListener("DOMContentLoaded", function() {
     obtenerProductos();
-    inicializarFiltros();
 });
