@@ -1,13 +1,6 @@
-/* ==========================================================================
-   Baby Boutique - productos.js
-   Carga desde data/productos.json y envía a WhatsApp con 14.99% de descuento
-   ========================================================================== */
-
 let listaProductos = [];
-const PORCENTAJE_DESCUENTO = 14.99;
-const NUMERO_WHATSAPP = "593999999999"; // Cambia este número por el tuyo (sin signo +)
 
-// 1. Cargar el JSON de productos
+// Cargar productos desde el JSON
 function obtenerProductos() {
     fetch("data/productos.json")
         .then(function(res) {
@@ -18,19 +11,22 @@ function obtenerProductos() {
             renderizarProductos(listaProductos);
         })
         .catch(function(error) {
-            console.error("Error al cargar data/productos.json:", error);
+            console.error("Error al cargar JSON:", error);
         });
 }
 
-// 2. Renderizar productos en pantalla
+// Renderizar las tarjetas
 function renderizarProductos(productos) {
-    const contenedor = document.getElementById("grid-productos") || document.getElementById("products-container");
+    const contenedor = document.getElementById("products-container") || document.getElementById("grid-productos");
     if (!contenedor) return;
 
     contenedor.innerHTML = "";
 
     if (!productos || productos.length === 0) {
-        contenedor.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #6b7280; padding: 30px;">No se encontraron productos en esta categoría.</p>';
+        const mensajeVacio = document.createElement("p");
+        mensajeVacio.textContent = "No se encontraron productos en esta categoría.";
+        mensajeVacio.style.cssText = "grid-column: 1/-1; text-align: center; padding: 30px; color: #6b7280;";
+        contenedor.appendChild(mensajeVacio);
         return;
     }
 
@@ -38,7 +34,7 @@ function renderizarProductos(productos) {
         const idUnico = prod.id || prod.codigo;
         const tarjeta = document.createElement("div");
         tarjeta.className = "product-card";
-        tarjeta.style.cssText = "border: 1px solid #eee; border-radius: 12px; padding: 15px; background: #fff; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);";
+        tarjeta.style.cssText = "border: 1px solid #eee; border-radius: 12px; padding: 15px; background: #fff;";
 
         // Imagen
         const enlaceImg = document.createElement("a");
@@ -46,7 +42,17 @@ function renderizarProductos(productos) {
 
         const img = document.createElement("img");
         img.id = "img-" + idUnico;
-        img.src = (prod.colores && prod.colores.length > 0 && prod.colores[0].imagen) ? prod.colores[0].imagen : "assets/placeholder.jpg";
+        
+        let rutaImagen = "assets/placeholder.jpg";
+        if (prod.colores && prod.colores.length > 0 && prod.colores[0].imagen) {
+            rutaImagen = prod.colores[0].imagen;
+        } else if (prod.imagen) {
+            rutaImagen = prod.imagen;
+        } else if (Array.isArray(prod.imagenes) && prod.imagenes.length > 0) {
+            rutaImagen = prod.imagenes[0];
+        }
+
+        img.src = rutaImagen;
         img.alt = prod.nombre;
         img.style.cssText = "width: 100%; height: 200px; object-fit: cover; border-radius: 8px;";
         img.onerror = function() { this.src = "assets/placeholder.jpg"; };
@@ -55,11 +61,11 @@ function renderizarProductos(productos) {
 
         // Código
         const codigoSpan = document.createElement("span");
-        codigoSpan.textContent = "CÓDIGO: " + (prod.codigo || idUnico);
+        codigoSpan.textContent = "CÓDIGO: " + (prod.codigo || prod.id);
         codigoSpan.style.cssText = "display: block; font-size: 0.75rem; color: #9ca3af; margin-top: 10px; font-weight: bold;";
         tarjeta.appendChild(codigoSpan);
 
-        // Nombre
+        // Título
         const titulo = document.createElement("h3");
         titulo.textContent = prod.nombre;
         titulo.style.cssText = "font-size: 1rem; color: #1f2937; margin: 5px 0 10px 0;";
@@ -75,18 +81,20 @@ function renderizarProductos(productos) {
             const selectColor = document.createElement("select");
             selectColor.id = "color-" + idUnico;
             selectColor.style.cssText = "width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;";
-
+            
             prod.colores.forEach(function(c) {
                 const opt = document.createElement("option");
-                opt.value = c.nombre;
-                opt.textContent = c.nombre;
-                opt.setAttribute("data-img", c.imagen);
+                const nombreColor = typeof c === 'object' ? c.nombre : c;
+                const imgColor = typeof c === 'object' ? c.imagen : '';
+                opt.value = nombreColor;
+                opt.textContent = nombreColor;
+                if (imgColor) opt.setAttribute("data-img", imgColor);
                 selectColor.appendChild(opt);
             });
 
             selectColor.addEventListener("change", function() {
-                const optSel = selectColor.options[selectColor.selectedIndex];
-                const nuevaRuta = optSel.getAttribute("data-img");
+                const optSeleccionada = selectColor.options[selectColor.selectedIndex];
+                const nuevaRuta = optSeleccionada.getAttribute("data-img");
                 if (nuevaRuta) img.src = nuevaRuta;
             });
 
@@ -102,12 +110,15 @@ function renderizarProductos(productos) {
         const selectTalla = document.createElement("select");
         selectTalla.id = "talla-" + idUnico;
         selectTalla.style.cssText = "width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;";
-
-        const listaTallas = (prod.tallas && prod.tallas.length > 0) ? prod.tallas : ["Talla Única"];
+        
+        const tallasDefecto = ["0 a 3 meses (Talla 0)", "3 a 6 meses (Talla 1)", "6 a 9 meses (Talla 2)", "9 a 12 meses (Talla 3)"];
+        const listaTallas = (prod.tallas && prod.tallas.length > 0) ? prod.tallas : tallasDefecto;
+        
         listaTallas.forEach(function(t) {
             const opt = document.createElement("option");
-            opt.value = t;
-            opt.textContent = t;
+            const valTalla = typeof t === 'object' ? `${t.edad} (Talla ${t.numero})` : t;
+            opt.value = valTalla;
+            opt.textContent = valTalla;
             selectTalla.appendChild(opt);
         });
         tarjeta.appendChild(selectTalla);
@@ -121,8 +132,8 @@ function renderizarProductos(productos) {
         const inputCantidad = document.createElement("input");
         inputCantidad.type = "number";
         inputCantidad.id = "cantidad-" + idUnico;
-        inputCantidad.value = "1";
-        inputCantidad.min = "1";
+        inputCantidad.value = "0";
+        inputCantidad.min = "0";
         inputCantidad.style.cssText = "width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 12px;";
         tarjeta.appendChild(inputCantidad);
 
@@ -135,14 +146,20 @@ function renderizarProductos(productos) {
         txtPrecio.style.cssText = "font-size: 1.2rem; font-weight: bold; color: #db2777;";
         cajaPrecio.appendChild(txtPrecio);
 
+        if (prod.precioMediaDocena) {
+            const txtMayor = document.createElement("p");
+            txtMayor.textContent = "Media Docena: $" + Number(prod.precioMediaDocena).toFixed(2) + " c/u";
+            txtMayor.style.cssText = "font-size: 0.75rem; color: #e11d48; margin: 0;";
+            cajaPrecio.appendChild(txtMayor);
+        }
         tarjeta.appendChild(cajaPrecio);
 
-        // Botón WhatsApp con Descuento
+        // Botón Añadir
         const btnAgregar = document.createElement("button");
-        btnAgregar.textContent = "📲 Pedir con 14.99% Desc.";
+        btnAgregar.textContent = "🛒 Añadir al Carrito";
         btnAgregar.style.cssText = "width: 100%; background: #db2777; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;";
         btnAgregar.addEventListener("click", function() {
-            enviarPedidoIndividualWhatsApp(idUnico);
+            prepararAgregar(idUnico);
         });
         tarjeta.appendChild(btnAgregar);
 
@@ -150,49 +167,64 @@ function renderizarProductos(productos) {
     });
 }
 
-// 3. Enviar a WhatsApp con el mensaje estructurado y código de 24 horas
-function enviarPedidoIndividualWhatsApp(idProducto) {
-    const prod = listaProductos.find(function(p) { return (p.id === idProducto || p.codigo === idProducto); });
+// Preparar producto para agregar al carrito
+function prepararAgregar(idProducto) {
+    const prod = listaProductos.find(function(p) { return (p.id == idProducto || p.codigo == idProducto); });
     if (!prod) return;
 
-    const cantInput = document.getElementById("cantidad-" + idProducto);
-    const cantidad = cantInput ? parseInt(cantInput.value) || 1 : 1;
+    const inputCant = document.getElementById("cantidad-" + idProducto);
+    const cantidad = inputCant ? parseInt(inputCant.value) || 0 : 0;
 
-    const colorSelect = document.getElementById("color-" + idProducto);
-    const tallaSelect = document.getElementById("talla-" + idProducto);
+    if (cantidad <= 0) {
+        alert("Por favor selecciona al menos 1 prenda en la cantidad.");
+        return;
+    }
 
-    const colorElegido = colorSelect ? colorSelect.value : "Único";
-    const tallaElegida = tallaSelect ? tallaSelect.value : "Única";
+    const selectColor = document.getElementById("color-" + idProducto);
+    const selectTalla = document.getElementById("talla-" + idProducto);
+    const imgElem = document.getElementById("img-" + idProducto);
 
-    // Cálculos
-    const subtotal = prod.precio * cantidad;
-    const montoDescuento = subtotal * (PORCENTAJE_DESCUENTO / 100);
-    const totalConDescuento = subtotal - montoDescuento;
+    const item = {
+        id: prod.id || prod.codigo,
+        codigo: prod.codigo || prod.id,
+        nombre: prod.nombre,
+        precio: prod.precio,
+        precioMediaDocena: prod.precioMediaDocena || prod.precio,
+        precioDocena: prod.precioDocena || prod.precio,
+        imagen: imgElem ? imgElem.src : "assets/placeholder.jpg",
+        color: selectColor ? selectColor.value : "Único",
+        talla: selectTalla ? selectTalla.value : "Única",
+        cantidad: cantidad
+    };
 
-    // Generar código de validación (24 horas)
-    const hoy = new Date();
-    const fechaStr = hoy.toISOString().slice(0, 10).replace(/-/g, "");
-    const numAleatorio = Math.floor(1000 + Math.random() * 9000);
-    const codigoDescuento = "WEB1499-" + fechaStr + "-" + numAleatorio;
-
-    // Construcción del mensaje
-    let msj = "¡Hola! Quiero realizar un pedido desde la página web:\n\n";
-    msj += "🛍️ *Producto:* " + prod.nombre + "\n";
-    msj += "📌 *Código:* " + (prod.codigo || idProducto) + "\n";
-    msj += "🎨 *Color:* " + colorElegido + "\n";
-    msj += "📏 *Talla:* " + tallaElegida + "\n";
-    msj += "🔢 *Cantidad:* " + cantidad + "\n\n";
-    msj += "💵 *Subtotal:* $" + subtotal.toFixed(2) + "\n";
-    msj += "🏷️ *Descuento Web (14.99%):* -$" + montoDescuento.toFixed(2) + "\n";
-    msj += "✅ *Total a Pagar:* $" + totalConDescuento.toFixed(2) + "\n\n";
-    msj += "🔑 *CÓDIGO DE DESCUENTO (24h):* `" + codigoDescuento + "`\n";
-    msj += "_(Generado automáticamente desde la web)_";
-
-    const url = "https://wa.me/" + NUMERO_WHATSAPP + "?text=" + encodeURIComponent(msj);
-    window.open(url, "_blank");
+    if (typeof agregarAlCarrito === "function") {
+        agregarAlCarrito(item);
+    }
 }
 
-// 4. Iniciar al cargar la página
+// Filtros por Categoría
+function inicializarFiltros() {
+    const botones = document.querySelectorAll(".cat-btn");
+    botones.forEach(function(btn) {
+        btn.addEventListener("click", function(e) {
+            botones.forEach(function(b) { b.classList.remove("active"); });
+            e.currentTarget.classList.add("active");
+
+            const cat = e.currentTarget.getAttribute("data-category").trim().toLowerCase();
+
+            if (cat === "todos" || cat === "todas") {
+                renderizarProductos(listaProductos);
+            } else {
+                const filtrados = listaProductos.filter(function(p) {
+                    return (p.categoria || "").trim().toLowerCase() === cat;
+                });
+                renderizarProductos(filtrados);
+            }
+        });
+    });
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     obtenerProductos();
+    inicializarFiltros();
 });
