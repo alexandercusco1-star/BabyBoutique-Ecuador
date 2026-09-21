@@ -1,9 +1,17 @@
-let listaProductos = [];
+/* ==========================================================================
+   Baby Boutique Ecuador - js/productos.js
+   ========================================================================== */
 
-// Cargar productos desde el JSON
+let listaProductos = [];
+let carrito = [];
+
+// 1. CARGAR PRODUCTOS DESDE EL ARCHIVO JSON
 function obtenerProductos() {
     fetch("data/productos.json")
         .then(function(res) {
+            if (!res.ok) {
+                throw new Error("No se pudo cargar data/productos.json");
+            }
             return res.json();
         })
         .then(function(datos) {
@@ -11,22 +19,19 @@ function obtenerProductos() {
             renderizarProductos(listaProductos);
         })
         .catch(function(error) {
-            console.error("Error al cargar JSON:", error);
+            console.error("Error al cargar la base de datos:", error);
         });
 }
 
-// Renderizar las tarjetas
+// 2. RENDERIZAR LAS TARJETAS EN LA GRILLA
 function renderizarProductos(productos) {
-    const contenedor = document.getElementById("products-container") || document.getElementById("grid-productos");
+    const contenedor = document.getElementById("grid-productos") || document.getElementById("products-container");
     if (!contenedor) return;
 
     contenedor.innerHTML = "";
 
     if (!productos || productos.length === 0) {
-        const mensajeVacio = document.createElement("p");
-        mensajeVacio.textContent = "No se encontraron productos en esta categoría.";
-        mensajeVacio.style.cssText = "grid-column: 1/-1; text-align: center; padding: 30px; color: #6b7280;";
-        contenedor.appendChild(mensajeVacio);
+        contenedor.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #6b7280; padding: 40px; font-size: 1.1rem;">No se encontraron productos en esta categoría.</p>';
         return;
     }
 
@@ -34,15 +39,8 @@ function renderizarProductos(productos) {
         const idUnico = prod.id || prod.codigo;
         const tarjeta = document.createElement("div");
         tarjeta.className = "product-card";
-        tarjeta.style.cssText = "border: 1px solid #eee; border-radius: 12px; padding: 15px; background: #fff;";
 
-        // Imagen
-        const enlaceImg = document.createElement("a");
-        enlaceImg.href = "producto.html?id=" + idUnico;
-
-        const img = document.createElement("img");
-        img.id = "img-" + idUnico;
-        
+        // Obtener ruta de imagen
         let rutaImagen = "assets/placeholder.jpg";
         if (prod.colores && prod.colores.length > 0 && prod.colores[0].imagen) {
             rutaImagen = prod.colores[0].imagen;
@@ -52,178 +50,217 @@ function renderizarProductos(productos) {
             rutaImagen = prod.imagenes[0];
         }
 
-        img.src = rutaImagen;
-        img.alt = prod.nombre;
-        img.style.cssText = "width: 100%; height: 200px; object-fit: cover; border-radius: 8px;";
-        img.onerror = function() { this.src = "assets/placeholder.jpg"; };
-        enlaceImg.appendChild(img);
-        tarjeta.appendChild(enlaceImg);
-
-        // Código
-        const codigoSpan = document.createElement("span");
-        codigoSpan.textContent = "CÓDIGO: " + (prod.codigo || prod.id);
-        codigoSpan.style.cssText = "display: block; font-size: 0.75rem; color: #9ca3af; margin-top: 10px; font-weight: bold;";
-        tarjeta.appendChild(codigoSpan);
-
-        // Título
-        const titulo = document.createElement("h3");
-        titulo.textContent = prod.nombre;
-        titulo.style.cssText = "font-size: 1rem; color: #1f2937; margin: 5px 0 10px 0;";
-        tarjeta.appendChild(titulo);
-
-        // Selector Color
-        if (prod.colores && prod.colores.length > 0) {
-            const lblColor = document.createElement("label");
-            lblColor.textContent = "Color:";
-            lblColor.style.cssText = "display: block; font-size: 0.8rem; color: #4b5563;";
-            tarjeta.appendChild(lblColor);
-
-            const selectColor = document.createElement("select");
-            selectColor.id = "color-" + idUnico;
-            selectColor.style.cssText = "width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;";
-            
-            prod.colores.forEach(function(c) {
-                const opt = document.createElement("option");
-                const nombreColor = typeof c === 'object' ? c.nombre : c;
-                const imgColor = typeof c === 'object' ? c.imagen : '';
-                opt.value = nombreColor;
-                opt.textContent = nombreColor;
-                if (imgColor) opt.setAttribute("data-img", imgColor);
-                selectColor.appendChild(opt);
-            });
-
-            selectColor.addEventListener("change", function() {
-                const optSeleccionada = selectColor.options[selectColor.selectedIndex];
-                const nuevaRuta = optSeleccionada.getAttribute("data-img");
-                if (nuevaRuta) img.src = nuevaRuta;
-            });
-
-            tarjeta.appendChild(selectColor);
-        }
-
-        // Selector Talla
-        const lblTalla = document.createElement("label");
-        lblTalla.textContent = "Talla:";
-        lblTalla.style.cssText = "display: block; font-size: 0.8rem; color: #4b5563;";
-        tarjeta.appendChild(lblTalla);
-
-        const selectTalla = document.createElement("select");
-        selectTalla.id = "talla-" + idUnico;
-        selectTalla.style.cssText = "width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;";
-        
-        const tallasDefecto = ["0 a 3 meses (Talla 0)", "3 a 6 meses (Talla 1)", "6 a 9 meses (Talla 2)", "9 a 12 meses (Talla 3)"];
+        // Tallas por defecto
+        const tallasDefecto = ["0 a 3 meses", "3 a 6 meses", "6 a 9 meses", "9 a 12 meses"];
         const listaTallas = (prod.tallas && prod.tallas.length > 0) ? prod.tallas : tallasDefecto;
-        
-        listaTallas.forEach(function(t) {
-            const opt = document.createElement("option");
-            const valTalla = typeof t === 'object' ? `${t.edad} (Talla ${t.numero})` : t;
-            opt.value = valTalla;
-            opt.textContent = valTalla;
-            selectTalla.appendChild(opt);
-        });
-        tarjeta.appendChild(selectTalla);
 
-        // Cantidad
-        const lblCantidad = document.createElement("label");
-        lblCantidad.textContent = "Cantidad:";
-        lblCantidad.style.cssText = "display: block; font-size: 0.8rem; color: #4b5563;";
-        tarjeta.appendChild(lblCantidad);
+        // Construir tarjeta
+        let htmlTarjeta = `
+            <div>
+                <img id="img-${idUnico}" src="${rutaImagen}" alt="${prod.nombre}" onerror="this.src='assets/placeholder.jpg'">
+                <span class="field-label" style="font-weight:bold; color:#9ca3af; font-size:0.75rem;">CÓDIGO: ${prod.codigo || prod.id}</span>
+                <h3 style="font-size:1.05rem; color:#1f2937; margin:5px 0 10px;">${prod.nombre}</h3>
+        `;
 
-        const inputCantidad = document.createElement("input");
-        inputCantidad.type = "number";
-        inputCantidad.id = "cantidad-" + idUnico;
-        inputCantidad.value = "0";
-        inputCantidad.min = "0";
-        inputCantidad.style.cssText = "width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 12px;";
-        tarjeta.appendChild(inputCantidad);
-
-        // Precio
-        const cajaPrecio = document.createElement("div");
-        cajaPrecio.style.cssText = "text-align: center; background: #fff1f2; padding: 8px; border-radius: 8px; margin-bottom: 12px;";
-
-        const txtPrecio = document.createElement("span");
-        txtPrecio.textContent = "$" + Number(prod.precio || 0).toFixed(2);
-        txtPrecio.style.cssText = "font-size: 1.2rem; font-weight: bold; color: #db2777;";
-        cajaPrecio.appendChild(txtPrecio);
-
-        if (prod.precioMediaDocena) {
-            const txtMayor = document.createElement("p");
-            txtMayor.textContent = "Media Docena: $" + Number(prod.precioMediaDocena).toFixed(2) + " c/u";
-            txtMayor.style.cssText = "font-size: 0.75rem; color: #e11d48; margin: 0;";
-            cajaPrecio.appendChild(txtMayor);
+        // Selector de Colores
+        if (prod.colores && prod.colores.length > 0) {
+            htmlTarjeta += `
+                <label class="field-label">Color:</label>
+                <select id="color-${idUnico}" class="select-input">
+            `;
+            prod.colores.forEach(function(c) {
+                const nombreColor = typeof c === 'object' ? c.nombre : c;
+                const imgColor = typeof c === 'object' && c.imagen ? c.imagen : '';
+                htmlTarjeta += `<option value="${nombreColor}" data-img="${imgColor}">${nombreColor}</option>`;
+            });
+            htmlTarjeta += `</select>`;
         }
-        tarjeta.appendChild(cajaPrecio);
 
-        // Botón Añadir
-        const btnAgregar = document.createElement("button");
-        btnAgregar.textContent = "🛒 Añadir al Carrito";
-        btnAgregar.style.cssText = "width: 100%; background: #db2777; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;";
-        btnAgregar.addEventListener("click", function() {
-            prepararAgregar(idUnico);
+        // Selector de Tallas
+        htmlTarjeta += `
+            <label class="field-label">Talla:</label>
+            <select id="talla-${idUnico}" class="select-input">
+        `;
+        listaTallas.forEach(function(t) {
+            const valTalla = typeof t === 'object' ? `${t.edad || ''} (Talla ${t.numero || ''})` : t;
+            htmlTarjeta += `<option value="${valTalla}">${valTalla}</option>`;
         });
-        tarjeta.appendChild(btnAgregar);
+        htmlTarjeta += `</select>`;
 
+        // Input Cantidad
+        htmlTarjeta += `
+            <label class="field-label">Cantidad:</label>
+            <input type="number" id="cantidad-${idUnico}" class="number-input" min="0" value="0">
+            </div>
+            <div>
+                <div style="text-align: center; background: #fce7f3; padding: 8px; border-radius: 8px; margin: 10px 0;">
+                    <span style="font-size: 1.2rem; font-weight: bold; color: #db2777;">$${Number(prod.precio || 0).toFixed(2)}</span>
+                    ${prod.precioMediaDocena ? `<p style="font-size:0.75rem; color:#be185d; margin:0;">Media Docena: $${Number(prod.precioMediaDocena).toFixed(2)} c/u</p>` : ''}
+                </div>
+                <button class="btn-add-cart" onclick="agregarAlCarrito('${idUnico}')">
+                    🛒 Añadir al Carrito
+                </button>
+            </div>
+        `;
+
+        tarjeta.innerHTML = htmlTarjeta;
         contenedor.appendChild(tarjeta);
+
+        // Listener cambio de color -> cambia imagen
+        const selectColor = tarjeta.querySelector(`#color-${idUnico}`);
+        if (selectColor) {
+            selectColor.addEventListener("change", function(e) {
+                const opt = e.target.options[e.target.selectedIndex];
+                const nuevaImg = opt.getAttribute("data-img");
+                if (nuevaImg) {
+                    const imgElem = tarjeta.querySelector(`#img-${idUnico}`);
+                    if (imgElem) imgElem.src = nuevaImg;
+                }
+            });
+        }
     });
 }
 
-// Preparar producto para agregar al carrito
-function prepararAgregar(idProducto) {
-    const prod = listaProductos.find(function(p) { return (p.id == idProducto || p.codigo == idProducto); });
+// 3. SOLUCIÓN PROBLEMA 2: AÑADIR Y MARCAR EN EL CARRITO
+function agregarAlCarrito(idProducto) {
+    const prod = listaProductos.find(function(p) { 
+        return p.id == idProducto || p.codigo == idProducto; 
+    });
     if (!prod) return;
 
     const inputCant = document.getElementById("cantidad-" + idProducto);
-    const cantidad = inputCant ? parseInt(inputCant.value) || 0 : 0;
-
-    if (cantidad <= 0) {
-        alert("Por favor selecciona al menos 1 prenda en la cantidad.");
-        return;
-    }
-
     const selectColor = document.getElementById("color-" + idProducto);
     const selectTalla = document.getElementById("talla-" + idProducto);
     const imgElem = document.getElementById("img-" + idProducto);
+
+    const cantidad = inputCant ? parseInt(inputCant.value) || 0 : 0;
+
+    if (cantidad <= 0) {
+        alert("Por favor selecciona una cantidad mayor a 0.");
+        return;
+    }
 
     const item = {
         id: prod.id || prod.codigo,
         codigo: prod.codigo || prod.id,
         nombre: prod.nombre,
         precio: prod.precio,
-        precioMediaDocena: prod.precioMediaDocena || prod.precio,
-        precioDocena: prod.precioDocena || prod.precio,
         imagen: imgElem ? imgElem.src : "assets/placeholder.jpg",
         color: selectColor ? selectColor.value : "Único",
         talla: selectTalla ? selectTalla.value : "Única",
         cantidad: cantidad
     };
 
-    if (typeof agregarAlCarrito === "function") {
-        agregarAlCarrito(item);
+    // Si ya existe en el carrito con el mismo color y talla, se suma la cantidad
+    const indexExistente = carrito.findIndex(function(c) {
+        return c.id === item.id && c.color === item.color && c.talla === item.talla;
+    });
+
+    if (indexExistente !== -1) {
+        carrito[indexExistente].cantidad += cantidad;
+    } else {
+        carrito.push(item);
     }
+
+    if (inputCant) inputCant.value = 0;
+
+    // Actualizar el contador del botón del carrito en el HTML
+    actualizarCarritoUI();
+    alert(`¡Se añadieron ${cantidad} unidad(es) de "${prod.nombre}" al carrito!`);
 }
 
-// Filtros por Categoría
+// ACTUALIZAR CONTADOR Y MODAL DEL CARRITO
+function actualizarCarritoUI() {
+    const contador = document.getElementById("cart-counter") || document.getElementById("cart-count");
+    const listaModal = document.getElementById("cart-items-container");
+    const totalElem = document.getElementById("cart-total-price");
+
+    // Suma total de prendas agregadas
+    const totalPrendas = carrito.reduce(function(sum, item) { 
+        return sum + item.cantidad; 
+    }, 0);
+
+    // Actualiza el número que sale arriba en el icono del carrito
+    if (contador) {
+        contador.textContent = totalPrendas;
+    }
+
+    if (!listaModal) return;
+
+    if (carrito.length === 0) {
+        listaModal.innerHTML = '<p style="text-align: center; color: #9ca3af; margin-top: 20px;">El carrito está vacío.</p>';
+        if (totalElem) totalElem.textContent = "$0.00";
+        return;
+    }
+
+    listaModal.innerHTML = "";
+    let totalDinero = 0;
+
+    carrito.forEach(function(item, index) {
+        const subtotal = item.precio * item.cantidad;
+        totalDinero += subtotal;
+
+        const div = document.createElement("div");
+        div.className = "cart-item";
+        div.style.cssText = "display:flex; gap:10px; align-items:center; padding:10px 0; border-bottom:1px solid #eee;";
+        div.innerHTML = `
+            <img src="${item.imagen}" style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
+            <div style="flex-grow:1;">
+                <h4 style="font-size:0.9rem; margin:0;">${item.nombre}</h4>
+                <p style="font-size:0.75rem; color:#6b7280; margin:0;">Color: ${item.color} | Talla: ${item.talla}</p>
+                <p style="font-size:0.8rem; margin:0;">${item.cantidad} x $${Number(item.precio).toFixed(2)} = <strong>$${subtotal.toFixed(2)}</strong></p>
+            </div>
+            <button onclick="eliminarDelCarrito(${index})" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
+        `;
+        listaModal.appendChild(div);
+    });
+
+    if (totalElem) totalElem.textContent = `$${totalDinero.toFixed(2)}`;
+}
+
+function eliminarDelCarrito(index) {
+    carrito.splice(index, 1);
+    actualizarCarritoUI();
+}
+
+// 4. SOLUCIÓN PROBLEMA 1: FILTRO DE CATEGORÍAS FLEXIBLE
 function inicializarFiltros() {
-    const botones = document.querySelectorAll(".cat-btn");
+    const botones = document.querySelectorAll(".cat-btn, .btn-categoria");
     botones.forEach(function(btn) {
         btn.addEventListener("click", function(e) {
             botones.forEach(function(b) { b.classList.remove("active"); });
             e.currentTarget.classList.add("active");
 
-            const cat = e.currentTarget.getAttribute("data-category").trim().toLowerCase();
+            let categoriaBuscada = (e.currentTarget.getAttribute("data-category") || e.currentTarget.textContent || "").trim().toLowerCase();
 
-            if (cat === "todos" || cat === "todas") {
+            // Si es "todos", mostrar todo
+            if (categoriaBuscada.includes("todo")) {
                 renderizarProductos(listaProductos);
-            } else {
-                const filtrados = listaProductos.filter(function(p) {
-                    return (p.categoria || "").trim().toLowerCase() === cat;
-                });
-                renderizarProductos(filtrados);
+                return;
             }
+
+            // Normalización para coincidir plurales/singulares ("bodys", "body", "bodies", etc.)
+            const filtrados = listaProductos.filter(function(p) {
+                const catProducto = (p.categoria || "").trim().toLowerCase();
+                const nombreProducto = (p.nombre || "").trim().toLowerCase();
+
+                // Busca coincidencia en el campo categoria o en el título del producto
+                return catProducto.includes(categoriaBuscada) || 
+                       categoriaBuscada.includes(catProducto) ||
+                       (categoriaBuscada.includes("body") && (catProducto.includes("body") || nombreProducto.includes("body"))) ||
+                       (categoriaBuscada.includes("terno") && (catProducto.includes("terno") || nombreProducto.includes("terno"))) ||
+                       (categoriaBuscada.includes("pijama") && (catProducto.includes("pijama") || nombreProducto.includes("pijama"))) ||
+                       (categoriaBuscada.includes("vestido") && (catProducto.includes("vestido") || nombreProducto.includes("vestido"))) ||
+                       (categoriaBuscada.includes("conjunto") && (catProducto.includes("conjunto") || nombreProducto.includes("conjunto"))) ||
+                       (categoriaBuscada.includes("accesorio") && (catProducto.includes("accesorio") || nombreProducto.includes("accesorio")));
+            });
+
+            renderizarProductos(filtrados);
         });
     });
 }
 
+// INICIALIZACIÓN AUTOMÁTICA
 document.addEventListener("DOMContentLoaded", function() {
     obtenerProductos();
     inicializarFiltros();
