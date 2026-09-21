@@ -1,155 +1,302 @@
-/* ==========================================================================
-   Baby Boutique Ecuador - Catálogo de Productos desde productos.json
-   ========================================================================== */
-
-let listaProductos = [];
-
-async function obtenerProductos() {
-    try {
-        const respuesta = await fetch("data/productos.json");
-        if (respuesta.ok) {
-            listaProductos = await respuesta.json();
-            renderizarProductos(listaProductos);
-        } else {
-            console.error("No se pudo cargar data/productos.json");
-        }
-    } catch (error) {
-        console.error("Error al leer la base de datos local:", error);
-    }
-}
-
-function renderizarProductos(productosAMostrar = []) {
-    const contenedor = document.getElementById('products-container') || document.getElementById('grid-productos');
-    if (!contenedor) return;
-
-    contenedor.innerHTML = '';
-
-    if (productosAMostrar.length === 0) {
-        contenedor.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #6b7280; padding: 40px; font-size: 1.1rem;">No se encontraron productos en esta categoría.</p>`;
-        return;
-    }
-
-    productosAMostrar.forEach(prod => {
-        const tarjeta = document.createElement('div');
-        tarjeta.className = 'product-card';
-
-        // Manejo flexible de imágenes (soporta array de imágenes o string directo)
-        let imagenRuta = './img/placeholder.jpg';
-        if (Array.isArray(prod.imagenes) && prod.imagenes.length > 0) {
-            imagenRuta = prod.imagenes[0];
-        } else if (prod.imagen) {
-            imagenRuta = prod.imagen;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Productos - Baby Boutique Ecuador</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <style>
+        /* Estilos generales de la página de productos */
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f9fafb;
+            margin: 0;
+            padding: 0;
+            color: #1f2937;
         }
 
-        // Tallas por defecto si el producto no tiene especificadas
-        const tallasEstandar = ["0 a 3 meses (Talla 0)", "3 a 6 meses (Talla 1)", "6 a 9 meses (Talla 2)", "9 a 12 meses (Talla 3)"];
-        const listaTallas = (prod.tallas && prod.tallas.length > 0) ? prod.tallas : tallasEstandar;
+        .header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 2rem;
+            text-align: center;
+        }
 
-        tarjeta.innerHTML = `
-            <a href="producto.html?id=${prod.id || prod.codigo}" style="text-decoration: none; color: inherit;">
-                <img src="${imagenRuta}" alt="${prod.nombre}" style="width:100%; height:220px; object-fit:cover; border-radius:8px;" onerror="this.src='./img/placeholder.jpg'">
-            </a>
-            <div class="producto-info" style="padding: 15px;">
-                <span style="font-size: 0.8rem; color: #9ca3af;">CÓDIGO: ${prod.codigo || prod.id}</span>
-                <a href="producto.html?id=${prod.id || prod.codigo}" style="text-decoration: none;">
-                    <h3 style="font-size: 1.1rem; color: #1f2937; margin: 5px 0;">${prod.nombre}</h3>
-                </a>
-                
-                ${prod.colores && prod.colores.length > 0 ? `
-                <label style="display:block; font-size: 0.85rem; margin-top: 10px;">Color:</label>
-                <select id="color-${prod.id || prod.codigo}" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
-                    ${prod.colores.map(c => {
-                        const val = typeof c === 'object' ? c.nombre : c;
-                        return `<option value="${val}">${val}</option>`;
-                    }).join('')}
-                </select>` : ''}
+        .header h1 {
+            margin: 0;
+            color: #db2777;
+            font-size: 1.8rem;
+        }
 
-                <label style="display:block; font-size: 0.85rem;">Talla:</label>
-                <select id="talla-${prod.id || prod.codigo}" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
-                    ${listaTallas.map(t => {
-                        const val = typeof t === 'object' ? `${t.edad} (Talla ${t.numero})` : t;
-                        return `<option value="${val}">${val}</option>`;
-                    }).join('')}
-                </select>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-                <label style="display:block; font-size: 0.85rem;">Cantidad:</label>
-                <input type="number" id="cantidad-${prod.id || prod.codigo}" min="0" value="0" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 12px;">
+        /* Barra de filtros de categoría */
+        .filtros-categoria {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
 
-                <div style="text-align: center; background: #fff1f2; padding: 10px; border-radius: 8px; margin-bottom: 12px;">
-                    <span style="font-size: 1.3rem; font-weight: bold; color: #db2777;">$${(prod.precio || 0).toFixed(2)}</span>
-                    ${prod.precioMediaDocena ? `<p style="font-size: 0.75rem; color: #e11d48; margin: 0;">Media Docena: $${prod.precioMediaDocena.toFixed(2)} c/u</p>` : ''}
-                </div>
+        .cat-btn {
+            background-color: #ffffff;
+            border: 1px solid #d1d5db;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
 
-                <button onclick="prepararAgregar('${prod.id || prod.codigo}')" class="btn-primary" style="width: 100%; background: #db2777; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                    🛒 Añadir al Carrito
-                </button>
-            </div>
-        `;
-        contenedor.appendChild(tarjeta);
-    });
-}
+        .cat-btn:hover {
+            border-color: #db2777;
+            color: #db2777;
+        }
 
-function prepararAgregar(idProducto) {
-    const prod = listaProductos.find(p => p.id == idProducto || p.codigo == idProducto);
-    if (!prod) return;
+        .cat-btn.active {
+            background-color: #db2777;
+            color: #ffffff;
+            border-color: #db2777;
+        }
 
-    const colorSelect = document.getElementById(`color-${idProducto}`);
-    const tallaSelect = document.getElementById(`talla-${idProducto}`);
-    const cantidadInput = document.getElementById(`cantidad-${idProducto}`);
+        /* Rejilla de productos */
+        .grid-productos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
 
-    const cantidad = cantidadInput ? parseInt(cantidadInput.value) || 0 : 0;
+        /* Tarjeta individual de producto */
+        .product-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
 
-    if (cantidad <= 0) {
-        alert("Por favor selecciona al menos 1 prenda en la cantidad.");
-        return;
-    }
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
 
-    let imagenRuta = prod.imagen || './img/placeholder.jpg';
-    if (Array.isArray(prod.imagenes) && prod.imagenes.length > 0) {
-        imagenRuta = prod.imagenes[0];
-    }
+        .btn-primary {
+            width: 100%;
+            background: #db2777;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
 
-    const productoAAgregar = {
-        id: prod.id || prod.codigo,
-        codigo: prod.codigo || prod.id,
-        nombre: prod.nombre,
-        precio: prod.precio,
-        precioMediaDocena: prod.precioMediaDocena || prod.precio,
-        precioDocena: prod.precioDocena || prod.precio,
-        imagen: imagenRuta,
-        color: colorSelect ? colorSelect.value : 'Único',
-        talla: tallaSelect ? tallaSelect.value : 'Única',
-        cantidad: cantidad
-    };
+        .btn-primary:hover {
+            background: #be185d;
+        }
+    </style>
+</head>
+<body>
 
-    if (typeof agregarAlCarrito === 'function') {
-        agregarAlCarrito(productoAAgregar);
-    }
-}
+    <header class="header">
+        <h1>Baby Boutique Ecuador</h1>
+        <p>Catálogo de Productos</p>
+    </header>
 
-function inicializarFiltros() {
-    const botones = document.querySelectorAll('.cat-btn');
-    botones.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            botones.forEach(b => b.classList.remove('active'));
-            e.currentTarget.classList.add('active');
+    <main class="container">
+        <!-- Filtros por categoría -->
+        <nav class="filtros-categoria">
+            <button class="cat-btn active" data-category="todos">Todos</button>
+            <button class="cat-btn" data-category="conjuntos">Conjuntos</button>
+            <button class="cat-btn" data-category="pijamas">Pijamas</button>
+            <button class="cat-btn" data-category="vestidos">Vestidos</button>
+            <button class="cat-btn" data-category="accesorios">Accesorios</button>
+        </nav>
 
-            const categoriaFiltro = e.currentTarget.getAttribute('data-category').trim().toLowerCase();
+        <!-- Contenedor donde se cargan dinámicamente los productos -->
+        <div id="grid-productos" class="grid-productos"></div>
+    </main>
 
-            if (categoriaFiltro === 'todos') {
-                renderizarProductos(listaProductos);
-            } else {
-                const filtrados = listaProductos.filter(p => {
-                    const catProd = (p.categoria || '').trim().toLowerCase();
-                    return catProd === categoriaFiltro;
-                });
-                renderizarProductos(filtrados);
+    <!-- JavaScript del Catálogo Integrado -->
+    <script>
+        /* ==========================================================================
+           Baby Boutique Ecuador - Lógica del Catálogo de Productos
+           ========================================================================== */
+
+        let listaProductos = [];
+
+        async function obtenerProductos() {
+            try {
+                const respuesta = await fetch("data/productos.json");
+                if (respuesta.ok) {
+                    listaProductos = await respuesta.json();
+                    renderizarProductos(listaProductos);
+                } else {
+                    console.error("No se pudo cargar data/productos.json");
+                }
+            } catch (error) {
+                console.error("Error al leer la base de datos local:", error);
             }
-        });
-    });
-}
+        }
 
-document.addEventListener('DOMContentLoaded', () => {
-    obtenerProductos();
-    inicializarFiltros();
-});
+        function renderizarProductos(productosAMostrar = []) {
+            const contenedor = document.getElementById('products-container') || document.getElementById('grid-productos');
+            if (!contenedor) return;
+
+            contenedor.innerHTML = '';
+
+            if (productosAMostrar.length === 0) {
+                contenedor.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #6b7280; padding: 40px; font-size: 1.1rem;">No se encontraron productos en esta categoría.</p>`;
+                return;
+            }
+
+            productosAMostrar.forEach(prod => {
+                const idUnico = prod.id || prod.codigo;
+                const tarjeta = document.createElement('div');
+                tarjeta.className = 'product-card';
+
+                // Selección de ruta de imagen por defecto o según estructura
+                let imagenRuta = 'assets/placeholder.jpg';
+                if (prod.colores && prod.colores.length > 0 && prod.colores[0].imagen) {
+                    imagenRuta = prod.colores[0].imagen;
+                } else if (prod.imagen) {
+                    imagenRuta = prod.imagen;
+                } else if (Array.isArray(prod.imagenes) && prod.imagenes.length > 0) {
+                    imagenRuta = prod.imagenes[0];
+                }
+
+                // Tallas estándar por defecto si no existen especificadas
+                const tallasEstandar = ["0 a 3 meses (Talla 0)", "3 a 6 meses (Talla 1)", "6 a 9 meses (Talla 2)", "9 a 12 meses (Talla 3)"];
+                const listaTallas = (prod.tallas && prod.tallas.length > 0) ? prod.tallas : tallasEstandar;
+
+                tarjeta.innerHTML = `
+                    <a href="producto.html?id=${idUnico}" style="text-decoration: none; color: inherit;">
+                        <img id="img-${idUnico}" src="${imagenRuta}" alt="${prod.nombre}" style="width:100%; height:200px; object-fit:cover; border-radius:8px;" onerror="this.src='assets/placeholder.jpg'">
+                    </a>
+                    <div class="producto-info" style="padding: 10px 0 0 0;">
+                        <span style="display: block; font-size: 0.75rem; color: #9ca3af; font-weight: bold;">CÓDIGO: ${prod.codigo || prod.id}</span>
+                        <a href="producto.html?id=${idUnico}" style="text-decoration: none;">
+                            <h3 style="font-size: 1rem; color: #1f2937; margin: 5px 0 10px 0;">${prod.nombre}</h3>
+                        </a>
+                        
+                        ${prod.colores && prod.colores.length > 0 ? `
+                        <label style="display:block; font-size: 0.8rem; color: #4b5563;">Color:</label>
+                        <select id="color-${idUnico}" class="selector-color" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
+                            ${prod.colores.map(c => {
+                                const val = typeof c === 'object' ? c.nombre : c;
+                                const imgAttr = typeof c === 'object' && c.imagen ? `data-img="${c.imagen}"` : '';
+                                return `<option value="${val}" ${imgAttr}>${val}</option>`;
+                            }).join('')}
+                        </select>` : ''}
+
+                        <label style="display:block; font-size: 0.8rem; color: #4b5563;">Talla:</label>
+                        <select id="talla-${idUnico}" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
+                            ${listaTallas.map(t => {
+                                const val = typeof t === 'object' ? `${t.edad} (Talla${t.numero})` : t;
+                                return `<option value="${val}">${val}</option>`;
+                            }).join('')}
+                        </select>
+
+                        <label style="display:block; font-size: 0.8rem; color: #4b5563;">Cantidad:</label>
+                        <input type="number" id="cantidad-${idUnico}" min="0" value="0" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 12px;">
+
+                        <div style="text-align: center; background: #fff1f2; padding: 8px; border-radius: 8px; margin-bottom: 12px;">
+                            <span style="font-size: 1.2rem; font-weight: bold; color: #db2777;">$${Number(prod.precio || 0).toFixed(2)}</span>
+                            ${prod.precioMediaDocena ? `<p style="font-size: 0.75rem; color: #e11d48; margin: 0;">Media Docena: $${Number(prod.precioMediaDocena).toFixed(2)} c/u</p>` : ''}
+                        </div>
+
+                        <button onclick="prepararAgregar('${idUnico}')" class="btn-primary">
+                            🛒 Añadir al Carrito
+                        </button>
+                    </div>
+                `;
+
+                contenedor.appendChild(tarjeta);
+
+                // Event listener para actualizar la imagen al cambiar el color
+                const selectColor = tarjeta.querySelector(`#color-${idUnico}`);
+                if (selectColor) {
+                    selectColor.addEventListener('change', (e) => {
+                        const opt = e.target.options[e.target.selectedIndex];
+                        const nuevaRuta = opt.getAttribute('data-img');
+                        if (nuevaRuta) {
+                            const imgElem = tarjeta.querySelector(`#img-${idUnico}`);
+                            if (imgElem) imgElem.src = nuevaRuta;
+                        }
+                    });
+                }
+            });
+        }
+
+        function prepararAgregar(idProducto) {
+            const prod = listaProductos.find(p => p.id == idProducto || p.codigo == idProducto);
+            if (!prod) return;
+
+            const colorSelect = document.getElementById(`color-${idProducto}`);
+            const tallaSelect = document.getElementById(`talla-${idProducto}`);
+            const cantidadInput = document.getElementById(`cantidad-${idProducto}`);
+            const imgElem = document.getElementById(`img-${idProducto}`);
+
+            const cantidad = cantidadInput ? parseInt(cantidadInput.value) || 0 : 0;
+
+            if (cantidad <= 0) {
+                alert("Por favor selecciona al menos 1 prenda en la cantidad.");
+                return;
+            }
+
+            const productoAAgregar = {
+                id: prod.id || prod.codigo,
+                codigo: prod.codigo || prod.id,
+                nombre: prod.nombre,
+                precio: prod.precio,
+                precioMediaDocena: prod.precioMediaDocena || prod.precio,
+                precioDocena: prod.precioDocena || prod.precio,
+                imagen: imgElem ? imgElem.src : 'assets/placeholder.jpg',
+                color: colorSelect ? colorSelect.value : 'Único',
+                talla: tallaSelect ? tallaSelect.value : 'Única',
+                cantidad: cantidad
+            };
+
+            if (typeof agregarAlCarrito === 'function') {
+                agregarAlCarrito(productoAAgregar);
+            } else {
+                console.log("Producto listo para agregar:", productoAAgregar);
+            }
+        }
+
+        function inicializarFiltros() {
+            const botones = document.querySelectorAll('.cat-btn');
+            botones.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    botones.forEach(b => b.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+
+                    const categoriaFiltro = e.currentTarget.getAttribute('data-category').trim().toLowerCase();
+
+                    if (categoriaFiltro === 'todos' || categoriaFiltro === 'todas') {
+                        renderizarProductos(listaProductos);
+                    } else {
+                        const filtrados = listaProductos.filter(p => {
+                            const catProd = (p.categoria || '').trim().toLowerCase();
+                            return catProd === categoriaFiltro;
+                        });
+                        renderizarProductos(filtrados);
+                    }
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            obtenerProductos();
+            inicializarFiltros();
+        });
+    </script>
+</body>
+</html>
