@@ -1,119 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio | Baby Boutique Ecuador</title>
-
-    <!-- Estilos Unificados (Apuntando exactamente a style.css) -->
-    <link rel="stylesheet" href="./css/style.css">
-
-    <!-- Tipografía Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Baby Boutique - Catálogo</title>
+    <style>
+        * { box-sizing: border-box; font-family: sans-serif; }
+        body { margin: 0; padding: 20px; background-color: #f9fafb; }
+        #grid-productos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
-
 <body>
 
-    <div class="main-wrapper">
-        <!-- Banner de Envío Gratis Dinámico -->
-        <div class="shipping-banner">
-            <div id="shipping-text">🚚 ¡Agrega <strong>12 prendas</strong> para obtener <strong>ENVÍO GRATIS</strong> en Ecuador!</div>
-            <div class="shipping-progress-bar">
-                <div class="shipping-progress-fill" id="shipping-fill"></div>
-            </div>
-        </div>
+    <h1 style="text-align: center; color: #1f2937;">Catálogo de Productos</h1>
 
-        <!-- Encabezado / Navegación -->
-        <header>
-            <div class="header-container">
-                <a href="index.html" class="logo">
-                    👶 <span>Baby Boutique</span>
-                </a>
+    <!-- Contenedor donde se cargan los productos -->
+    <div id="grid-productos"></div>
 
-                <nav>
-                    <ul>
-                        <li><a href="index.html" class="active">Inicio</a></li>
-                        <li><a href="productos.html">Productos</a></li>
-                        <li><a href="nosotros.html">Nosotros</a></li>
-                        <li><a href="contacto.html">Contacto</a></li>
-                    </ul>
-                </nav>
-
-                <div class="acciones">
-                    <a href="carrito.html" class="cart-icon-btn" title="Ver Carrito">
-                        🛒 Carrito
-                        <span class="cart-badge" id="contadorCarrito">0</span>
-                    </a>
-                </div>
-            </div>
-        </header>
-
-        <!-- Banner Principal Hero -->
-        <main class="container">
-            <section class="hero-banner">
-                <h1>Ropa para Bebés de 0 a 24 meses</h1>
-                <p>Suavidad, calidad y amor para los primeros meses de vida de tu bebé. Venta al por mayor y menor en todo Ecuador.</p>
-                <a href="productos.html" class="add-to-cart-btn" style="display: inline-flex; width: auto; padding: 12px 30px; text-decoration: none;">
-                    🛍️ Ver Catálogo Completo
-                </a>
-            </section>
-
-            <!-- Categorías de Productos -->
-            <section class="category-filter-section">
-                <h2 class="category-title">Comprar por Categoría</h2>
-                <div class="category-buttons">
-                    <a href="productos.html?cat=Bodies" class="cat-btn">👶 Bodies</a>
-                    <a href="productos.html?cat=Enterizos" class="cat-btn">🧸 Enterizos</a>
-                    <a href="productos.html?cat=Conjuntos" class="cat-btn">👔 Conjuntos</a>
-                    <a href="productos.html?cat=Medias" class="cat-btn">🧦 Medias</a>
-                    <a href="productos.html?cat=Toallas" class="cat-btn">🛁 Toallas</a>
-                    <a href="productos.html?cat=Accesorios" class="cat-btn">🎀 Accesorios</a>
-                </div>
-            </section>
-
-            <!-- Productos Destacados / Catálogo -->
-            <section style="margin: 40px 0;">
-                <h2 class="category-title" style="text-align: left; margin-bottom: 20px;">Productos Destacados</h2>
-                <div class="products-grid" id="products-container">
-                    <!-- Los productos se cargan dinámicamente desde productos.js -->
-                </div>
-            </section>
-
-            <!-- Sección Beneficios -->
-            <section class="contact-grid" style="margin-bottom: 50px;">
-                <div class="contact-card">
-                    <h3>🚚 Envíos a Todo Ecuador</h3>
-                    <p>Entrega segura hasta la puerta de tu casa o agencia Servientrega.</p>
-                </div>
-                <div class="contact-card">
-                    <h3>💳 Múltiples Medios de Pago</h3>
-                    <p>Aceptamos transferencias y depósitos bancarios de forma fácil y directa.</p>
-                </div>
-                <div class="contact-card">
-                    <h3>📲 Atención e-Commerce por WhatsApp</h3>
-                    <p>Asesoría personalizada al instante para confirmar tallas y colores.</p>
-                </div>
-                <div class="contact-card">
-                    <h3>🎁 Envío GRATIS al Por Mayor</h3>
-                    <p>En la compra de 12 prendas o más, tu envío va totalmente gratis.</p>
-                </div>
-            </section>
-        </main>
-
-        <!-- Pie de página -->
-        <footer>
-            <div class="container">
-                <p>© 2026 Baby Boutique Ecuador. Todos los derechos reservados.</p>
-            </div>
-        </footer>
-    </div>
-
-    <!-- Scripts del Sistema (Rutas exactas a tus archivos en GitHub) -->
-    <script src="./js/carrito.js"></script>
-    <script src="./js/productos.js"></script>
+    <!-- Carga del script desde la carpeta js -->
+    <script src="js/productos.js"></script>
 </body>
-
 </html>
