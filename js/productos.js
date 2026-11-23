@@ -305,9 +305,9 @@ function inicializarFiltros() {
                        (categoriaBuscada.includes("body") && (catProducto.includes("body") || nombreProducto.includes("body"))) ||
                        (categoriaBuscada.includes("terno") && (catProducto.includes("terno") || nombreProducto.includes("terno"))) ||
                        (categoriaBuscada.includes("pijama") && (catProducto.includes("pijama") || nombreProducto.includes("pijama"))) ||
-                       (categoriaBuscada.includes("vestido") && (catProducto.includes("vestido") || nombreProducto.includes("vestido"))) ||
-                       (categoriaBuscada.includes("conjunto") && (catProducto.includes("conjunto") || nombreProducto.includes("conjunto"))) ||
-                       (categoriaBuscada.includes("accesorio") && (catProducto.includes("accesorio") || nombreProducto.includes("accesorio")));
+                       (categoriaBuscada.includes("buso") && (catProducto.includes("vestido") || nombreProducto.includes("buso"))) ||
+                       (categoriaBuscada.includes("salida_baño") && (catProducto.includes("conjunto") || nombreProducto.includes("salida_baño"))) ||
+                       (categoriaBuscada.includes("toalla") && (catProducto.includes("accesorio") || nombreProducto.includes("toalla")));
             });
 
             renderizarProductos(filtrados);
