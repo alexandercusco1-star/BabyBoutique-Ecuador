@@ -8,10 +8,10 @@ let colorSeleccionado = null;
 
 // Lista estándar de tallas requerida
 const TALLAS_ESTANDAR = [
-    { edad: "0 a 3 meses", numero: "0" },
-    { edad: "3 a 6 meses", numero: "1" },
-    { edad: "6 a 9 meses", numero: "2" },
-    { edad: "9 a 12 meses", numero: "3" }
+    { edad: "0 a 6 meses", numero: "0" },
+    { edad: "6 a 12 meses", numero: "1" },
+    { edad: "12 a 18 meses", numero: "2" },
+    { edad: "18 a 24 meses", numero: "3" }
 ];
 
 async function cargarProducto() {
