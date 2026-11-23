@@ -2,172 +2,144 @@
   {
     "id": "BODY-001",
     "codigo": "001",
-    "nombre": "Body para Bebé Algodón Premium",
+    "nombre": "Body para Bebé",
     "categoria": "Bodies",
     "precio": 4.00,
     "precioMediaDocena": 3.50,
     "precioDocena": 3.00,
     "tallas": ["0 a 3 meses", "3 a 6 meses", "6 a 9 meses", "9 a 12 meses"],
-    "tela": "Algodón 100%",
-    "clima": "Cálido",
+    "tela": "Por definir",
+    "clima": "Todo clima",
     "colores": [
       {
-        "nombre": "Rosado",
-        "hex": "#f472b6",
-        "imagen": "assets/productos/body001/rosado.jpg"
-      },
-      {
-        "nombre": "Fucsia",
-        "hex": "#db2777",
-        "imagen": "assets/productos/body001/fucsia.jpg"
+        "nombre": "Beige",
+        "hex": "#e5d3b3",
+        "imagen": "assets/productos/body001/Body_beige.jpeg"
       }
     ],
     "disponible": true,
     "destacado": true,
     "nuevo": true,
-    "descripcion": "Body de algodón suave e hipoalergénico para la piel sensible del bebé."
+    "descripcion": "Body suave e hipoalergénico para la piel sensible del bebé."
   },
   {
-    "id": "ENT-002",
+    "id": "CONJ-001",
     "codigo": "002",
-    "nombre": "Enterizo Térmico Cómodo para Bebé",
-    "categoria": "Enterizos",
-    "precio": 9.00,
-    "precioMediaDocena": 8.50,
-    "precioDocena": 8.00,
-    "tallas": ["0 a 3 meses", "3 a 6 meses", "6 a 9 meses", "9 a 12 meses"],
-    "tela": "Algodón",
-    "clima": "Fresco",
-    "colores": [
-      {
-        "nombre": "Blanco",
-        "hex": "#ffffff",
-        "imagen": "assets/productos/enterizo001/blanco.jpg"
-      }
-    ],
-    "disponible": true,
-    "destacado": true,
-    "nuevo": true,
-    "descripcion": "Enterizo cómodo con broches frontales de alta durabilidad."
-  },
-  {
-    "id": "CONJ-003",
-    "codigo": "003",
-    "nombre": "Conjunto 3 Piezas Recién Nacido",
+    "nombre": "Calentador 3 Piezas",
     "categoria": "Conjuntos",
     "precio": 12.00,
     "precioMediaDocena": 11.00,
     "precioDocena": 9.80,
-    "tallas": ["0 a 3 meses", "3 a 6 meses"],
-    "tela": "Algodón Fino",
-    "clima": "Todo clima",
+    "tallas": ["0 a 3 meses", "3 a 6 meses", "6 a 9 meses", "9 a 12 meses"],
+    "tela": "Por definir",
+    "clima": "Frío / Templado",
     "colores": [
       {
-        "nombre": "Rosa Bebé",
-        "hex": "#fce7f3",
-        "imagen": "assets/productos/conjunto001/rosa.jpg"
+        "nombre": "Morado Oscuro",
+        "hex": "#4c1d95",
+        "imagen": "assets/productos/conjunto001/Calentador_3_piezas_morado_oscuro.jpeg"
       }
     ],
     "disponible": true,
     "destacado": true,
     "nuevo": true,
-    "descripcion": "Hermoso conjunto de tres piezas (camiseta, pantalón y gorrito)."
+    "descripcion": "Conjunto calentador de 3 piezas cómodo y abrigado."
   },
   {
-    "id": "MED-004",
-    "codigo": "004",
-    "nombre": "Pack 3 Pares Medias Antideslizantes",
-    "categoria": "Medias",
-    "precio": 3.50,
-    "precioMediaDocena": 3.00,
-    "precioDocena": 2.50,
-    "tallas": ["0 a 12 meses", "12 a 24 meses"],
-    "tela": "Algodón Elástico",
-    "clima": "Todo clima",
-    "colores": [
-      {
-        "nombre": "Surtido Niña",
-        "hex": "#f472b6",
-        "imagen": "assets/productos/medias001/nina.jpg"
-      }
-    ],
-    "disponible": true,
-    "destacado": false,
-    "nuevo": false,
-    "descripcion": "Medias suaves con suela de protección antideslizante."
-  },
-  {
-    "id": "TOA-005",
-    "codigo": "005",
-    "nombre": "Toalla de Baño con Capucha Bordada",
-    "categoria": "Toallas",
+    "id": "CONJ-002",
+    "codigo": "003",
+    "nombre": "Calentador 2 Piezas",
+    "categoria": "Conjuntos",
     "precio": 10.00,
     "precioMediaDocena": 9.00,
     "precioDocena": 8.00,
-    "tallas": ["Talla Única"],
-    "tela": "Microfibra Bambú",
-    "clima": "Húmedo / Baño",
+    "tallas": ["0 a 3 meses", "3 a 6 meses", "6 a 9 meses", "9 a 12 meses"],
+    "tela": "Por definir",
+    "clima": "Todo clima",
     "colores": [
       {
-        "nombre": "Rosado Oso",
-        "hex": "#f472b6",
-        "imagen": "assets/productos/toalla001/rosado.jpg"
+        "nombre": "Morado Claro",
+        "hex": "#c084fc",
+        "imagen": "assets/productos/conjunto002/Calentador_2_piezas_morado_claro.png"
       }
     ],
     "disponible": true,
     "destacado": true,
     "nuevo": true,
-    "descripcion": "Toalla ultra absorbente y delicada con capucha bordada."
+    "descripcion": "Conjunto calentador de 2 piezas ideal para el uso diario."
   },
   {
-    "id": "ACC-006",
-    "codigo": "006",
-    "nombre": "Set Accesorios Recién Nacida",
-    "categoria": "Accesorios",
-    "precio": 6.00,
-    "precioMediaDocena": 5.20,
-    "precioDocena": 4.50,
-    "tallas": ["Talla Única"],
-    "tela": "Algodón Suave",
-    "clima": "Todo clima",
+    "id": "BUSO-001",
+    "codigo": "004",
+    "nombre": "Buso Bebé Color Tierra",
+    "categoria": "Busos",
+    "precio": 8.00,
+    "precioMediaDocena": 7.50,
+    "precioDocena": 7.00,
+    "tallas": ["0 a 3 meses", "3 a 6 meses", "6 a 9 meses", "9 a 12 meses"],
+    "tela": "Por definir",
+    "clima": "Fresco",
     "colores": [
       {
-        "nombre": "Rosa Flor",
-        "hex": "#f472b6",
-        "imagen": "assets/productos/acc001/rosa.jpg"
+        "nombre": "Tierra",
+        "hex": "#a16207",
+        "imagen": "assets/productos/buso/Terno_tierra.png"
       }
     ],
     "disponible": true,
     "destacado": false,
     "nuevo": true,
-    "descripcion": "Set delicado que incluye cintillo, babero y manoplas."
+    "descripcion": "Buso suave y cómodo para bebé."
   },
   {
-    "id": "CONJ-007",
-    "codigo": "007",
-    "nombre": "Conjunto Térmico Clima Frío Mickey",
-    "categoria": "Conjuntos",
-    "precio": 15.00,
-    "precioMediaDocena": 14.50,
-    "precioDocena": 14.00,
+    "id": "TERNO-001",
+    "codigo": "005",
+    "nombre": "Terno Bebé Color Tierra",
+    "categoria": "Ternos",
+    "precio": 14.00,
+    "precioMediaDocena": 13.00,
+    "precioDocena": 12.00,
     "tallas": ["0 a 3 meses", "3 a 6 meses", "6 a 9 meses", "9 a 12 meses"],
-    "tela": "Térmica Abrigada",
-    "clima": "Frío",
+    "tela": "Por definir",
+    "clima": "Todo clima",
     "colores": [
       {
-        "nombre": "Café Claro",
-        "hex": "#d97706",
-        "imagen": "assets/productos/conjunto001/conjunto001.jpg"
+        "nombre": "Tierra",
+        "hex": "#92400e",
+        "imagen": "assets/productos/terno001/Terno_tierra.jpeg"
       }
     ],
     "disponible": true,
     "destacado": true,
     "nuevo": true,
-    "descripcion": "Conjunto abrigado ideal para viento y clima frío."
+    "descripcion": "Terno elegante y cómodo para bebé."
+  },
+  {
+    "id": "SALIDA-001",
+    "codigo": "006",
+    "nombre": "Salida de Baño Celeste",
+    "categoria": "Salidas de baño",
+    "precio": 11.00,
+    "precioMediaDocena": 10.00,
+    "precioDocena": 9.00,
+    "tallas": ["Talla Única"],
+    "tela": "Por definir",
+    "clima": "Húmedo / Baño",
+    "colores": [
+      {
+        "nombre": "Celeste",
+        "hex": "#7dd3fc",
+        "imagen": "assets/productos/salida_baño/salida_baño_celeste.jpeg"
+      }
+    ],
+    "disponible": true,
+    "destacado": true,
+    "nuevo": true,
+    "descripcion": "Salida de baño suave y absorbente para después del baño."
   },
   {
     "id": "TOA-008",
-    "codigo": "008",
+    "codigo": "007",
     "nombre": "Toalla de Baño con Capucha Bordada",
     "categoria": "Toallas",
     "precio": 6.00,
@@ -178,19 +150,19 @@
     "clima": "Húmedo / Baño",
     "colores": [
       {
-        "nombre": "Toalla azul celeste",
-        "hex": "#B2A8D3",
+        "nombre": "Azul Celeste",
+        "hex": "#93c5fd",
         "imagen": "assets/productos/toallas001/toalla_azul.jpg"
       },
       {
-        "nombre": "Toalla verde menta",
-        "hex": "#C3E6CD",
-        "imagen": "assets/productos/toallas001/toalla_verde_limon.jpg"
+        "nombre": "Verde Agua",
+        "hex": "#6ee7b7",
+        "imagen": "assets/productos/toallas001/toalla_verde_agua.jpg"
       },
       {
-        "nombre": "Toalla azul lavanda",
-        "hex": "#B2A8D3",
-        "imagen": "assets/productos/toallas001/toalla_verde_agua.jpg"
+        "nombre": "Verde Limón",
+        "hex": "#bef264",
+        "imagen": "assets/productos/toallas001/toalla_verde_limon.jpg"
       }
     ],
     "disponible": true,
