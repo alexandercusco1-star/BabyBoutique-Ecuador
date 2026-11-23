@@ -3,9 +3,71 @@
    ========================================================================== */
 
 let listaProductos = [];
-let carrito = [];
+const CARRITO_STORAGE_KEY = 'bb_ecuador_carrito_cliente';
+const EXTENSIONES_SOPORTADAS = ['.jpg', '.jpeg', '.png', '.webp', '.JPG', '.JPEG', '.PNG', '.WEBP'];
 
-// 1. CARGAR PRODUCTOS DESDE EL ARCHIVO JSON
+// ==========================================================================
+// 0. DETECTOR AUTOMÁTICO DE FORMATOS DE IMAGEN (JPG, JPEG, PNG, WEBP)
+// ==========================================================================
+function manejarErrorImagen(imgElement) {
+    const srcOriginal = imgElement.getAttribute('data-original-src') || imgElement.src;
+    if (!imgElement.getAttribute('data-original-src')) {
+        imgElement.setAttribute('data-original-src', srcOriginal);
+    }
+
+    let intentoActual = parseInt(imgElement.getAttribute('data-ext-attempt') || '0');
+    const baseSinExt = srcOriginal.replace(/\.[^/.]+$/, "");
+
+    if (intentoActual < EXTENSIONES_SOPORTADAS.length) {
+        const nuevaExt = EXTENSIONES_SOPORTADAS[intentoActual];
+        imgElement.setAttribute('data-ext-attempt', (intentoActual + 1).toString());
+        const nuevaRuta = baseSinExt + nuevaExt;
+
+        if (imgElement.src.endsWith(nuevaRuta)) {
+            manejarErrorImagen(imgElement);
+            return;
+        }
+        imgElement.src = nuevaRuta;
+    } else {
+        imgElement.onerror = null;
+        imgElement.src = 'assets/placeholder.jpg';
+    }
+}
+
+// ==========================================================================
+// 1. GESTIÓN DE CARRITO AISLADO POR CLIENTE (LOCALSTORAGE)
+// ==========================================================================
+function obtenerCarritoCliente() {
+    try {
+        const guardado = localStorage.getItem(CARRITO_STORAGE_KEY);
+        return guardado ? JSON.parse(guardado) : [];
+    } catch (e) {
+        console.error("Error al leer carrito:", e);
+        return [];
+    }
+}
+
+function guardarCarritoCliente(carritoActual) {
+    try {
+        localStorage.setItem(CARRITO_STORAGE_KEY, JSON.stringify(carritoActual));
+    } catch (e) {
+        console.error("Error al guardar carrito:", e);
+    }
+}
+
+function obtenerPrecioPorVolumen(prod, cantidad) {
+    const base = Number(prod.precio || 0);
+    const media = Number(prod.precioMediaDocena || base);
+    const docena = Number(prod.precioDocena || base);
+
+    if (cantidad >= 12) return docena;
+    if (cantidad >= 6) return media;
+    return base;
+}
+
+// ==========================================================================
+// 2. CARGAR PRODUCTOS DESDE EL ARCHIVO JSON
+// ==========================================================================
 function obtenerProductos() {
     fetch("data/productos.json")
         .then(function(res) {
@@ -23,7 +85,9 @@ function obtenerProductos() {
         });
 }
 
-// 2. RENDERIZAR LAS TARJETAS DE PRODUCTOS
+// ==========================================================================
+// 3. RENDERIZAR LAS TARJETAS DE PRODUCTOS
+// ==========================================================================
 function renderizarProductos(productos) {
     const contenedor = document.getElementById("grid-productos") || document.getElementById("products-container");
     if (!contenedor) return;
@@ -54,9 +118,15 @@ function renderizarProductos(productos) {
 
         let htmlTarjeta = `
             <div>
-                <img id="img-${idUnico}" src="${rutaImagen}" alt="${prod.nombre}" onerror="this.src='assets/placeholder.jpg'">
+                <img id="img-${idUnico}" 
+                     src="${rutaImagen}" 
+                     alt="${prod.nombre}" 
+                     data-original-src="${rutaImagen}" 
+                     data-ext-attempt="0" 
+                     onerror="manejarErrorImagen(this)">
                 <span class="field-label" style="font-weight:bold; color:#9ca3af; font-size:0.75rem;">CÓDIGO: ${prod.codigo || prod.id}</span>
-                <h3 style="font-size:1.05rem; color:#1f2937; margin:5px 0 10px;">${prod.nombre}</h3>
+                <h3 style="font-size:1.05rem; color:#1f2937; margin:5px 0 4px;">${prod.nombre}</h3>
+                ${prod.tela ? `<p style="font-size:0.8rem; color:#6b7280; margin:0 0 8px;">Tela: <strong>${prod.tela}</strong></p>` : ''}
         `;
 
         if (prod.colores && prod.colores.length > 0) {
@@ -89,7 +159,8 @@ function renderizarProductos(productos) {
             <div>
                 <div style="text-align: center; background: #fce7f3; padding: 8px; border-radius: 8px; margin: 10px 0;">
                     <span style="font-size: 1.2rem; font-weight: bold; color: #db2777;">$${Number(prod.precio || 0).toFixed(2)}</span>
-                    ${prod.precioMediaDocena ? `<p style="font-size:0.75rem; color:#be185d; margin:0;">Media Docena: $${Number(prod.precioMediaDocena).toFixed(2)} c/u</p>` : ''}
+                    ${prod.precioMediaDocena ? `<p style="font-size:0.75rem; color:#be185d; margin:2px 0 0;">Media Docena (6+): $${Number(prod.precioMediaDocena).toFixed(2)} c/u</p>` : ''}
+                    ${prod.precioDocena ? `<p style="font-size:0.75rem; color:#be185d; margin:0;">Docena (12+): $${Number(prod.precioDocena).toFixed(2)} c/u</p>` : ''}
                 </div>
                 <button class="btn-add-cart" onclick="agregarAlCarrito('${idUnico}')">
                     🛒 Añadir al Carrito
@@ -107,14 +178,21 @@ function renderizarProductos(productos) {
                 const nuevaImg = opt.getAttribute("data-img");
                 if (nuevaImg) {
                     const imgElem = tarjeta.querySelector(`#img-${idUnico}`);
-                    if (imgElem) imgElem.src = nuevaImg;
+                    if (imgElem) {
+                        imgElem.setAttribute('data-original-src', nuevaImg);
+                        imgElem.setAttribute('data-ext-attempt', '0');
+                        imgElem.onerror = function() { manejarErrorImagen(this); };
+                        imgElem.src = nuevaImg;
+                    }
                 }
             });
         }
     });
 }
 
-// 3. AÑADIR PRODUCTO AL CARRITO
+// ==========================================================================
+// 4. AÑADIR PRODUCTO AL CARRITO
+// ==========================================================================
 function agregarAlCarrito(idProducto) {
     const prod = listaProductos.find(function(p) { 
         return p.id == idProducto || p.codigo == idProducto; 
@@ -133,11 +211,15 @@ function agregarAlCarrito(idProducto) {
         return;
     }
 
+    let carrito = obtenerCarritoCliente();
+
     const item = {
         id: prod.id || prod.codigo,
         codigo: prod.codigo || prod.id,
         nombre: prod.nombre,
-        precio: prod.precio,
+        precio: Number(prod.precio || 0),
+        precioMediaDocena: Number(prod.precioMediaDocena || prod.precio || 0),
+        precioDocena: Number(prod.precioDocena || prod.precio || 0),
         imagen: imgElem ? imgElem.src : "assets/placeholder.jpg",
         color: selectColor ? selectColor.value : "Único",
         talla: selectTalla ? selectTalla.value : "Única",
@@ -154,19 +236,23 @@ function agregarAlCarrito(idProducto) {
         carrito.push(item);
     }
 
+    guardarCarritoCliente(carrito);
+
     if (inputCant) inputCant.value = 0;
 
     actualizarCarritoUI();
     alert(`¡Se añadieron ${cantidad} unidad(es) de "${prod.nombre}" al carrito!`);
 }
 
-// 4. CORRECCIÓN PROBLEMA 1: CONTADOR DE ITEMS Y DIBUJO DEL RESUMEN
+// ==========================================================================
+// 5. CONTADOR DE ITEMS Y DIBUJO DEL RESUMEN DEL CARRITO
+// ==========================================================================
 function actualizarCarritoUI() {
+    const carrito = obtenerCarritoCliente();
     const contador = document.getElementById("cart-counter") || document.getElementById("cart-count");
     const listaModal = document.getElementById("cart-items-container");
     const totalElem = document.getElementById("cart-total-price");
 
-    // SOLUCIÓN 1: Muestra el número de tipos de productos/variantes agregados, no la cantidad total de prendas.
     if (contador) {
         contador.textContent = carrito.length;
     }
@@ -183,18 +269,19 @@ function actualizarCarritoUI() {
     let totalDinero = 0;
 
     carrito.forEach(function(item, index) {
-        const subtotal = item.precio * item.cantidad;
+        const precioUnitario = obtenerPrecioPorVolumen(item, item.cantidad);
+        const subtotal = precioUnitario * item.cantidad;
         totalDinero += subtotal;
 
         const div = document.createElement("div");
         div.className = "cart-item";
         div.style.cssText = "display:flex; gap:10px; align-items:center; padding:10px 0; border-bottom:1px solid #eee;";
         div.innerHTML = `
-            <img src="${item.imagen}" style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
+            <img src="${item.imagen}" style="width:50px; height:50px; object-fit:cover; border-radius:6px;" data-original-src="${item.imagen}" data-ext-attempt="0" onerror="manejarErrorImagen(this)">
             <div style="flex-grow:1;">
                 <h4 style="font-size:0.9rem; margin:0;">${item.nombre}</h4>
                 <p style="font-size:0.75rem; color:#6b7280; margin:0;">Color: ${item.color} | Talla: ${item.talla}</p>
-                <p style="font-size:0.8rem; margin:0;">${item.cantidad} unidades x $${Number(item.precio).toFixed(2)} = <strong>$${subtotal.toFixed(2)}</strong></p>
+                <p style="font-size:0.8rem; margin:0;">${item.cantidad} unidades x $${precioUnitario.toFixed(2)} = <strong>$${subtotal.toFixed(2)}</strong></p>
             </div>
             <button onclick="eliminarDelCarrito(${index})" style="background:none; border:none; color:red; cursor:pointer; font-size:1.1rem;" title="Eliminar">🗑️</button>
         `;
@@ -205,15 +292,18 @@ function actualizarCarritoUI() {
 }
 
 function eliminarDelCarrito(index) {
+    let carrito = obtenerCarritoCliente();
     carrito.splice(index, 1);
+    guardarCarritoCliente(carrito);
     actualizarCarritoUI();
 }
 
-// 5. CORRECCIÓN PROBLEMA 2: ABRIR EL CARRITO Y VER RESUMEN
+// ==========================================================================
+// 6. ABRIR Y CERRAR EL MODAL DEL CARRITO
+// ==========================================================================
 function toggleCarritoModal() {
     let modal = document.getElementById("cart-modal");
     
-    // Si la estructura del modal no existe en el HTML, se genera automáticamente de manera dinámica
     if (!modal) {
         modal = document.createElement("div");
         modal.id = "cart-modal";
@@ -251,7 +341,6 @@ function toggleCarritoModal() {
     }
 }
 
-// CONECTAR CLICK AL BOTÓN "MI CARRITO" DE LA CABECERA
 function inicializarBotonCarrito() {
     const btnCarrito = document.querySelector(".cart-icon-container, [onclick*='toggleCarritoModal']");
     if (btnCarrito) {
@@ -259,29 +348,53 @@ function inicializarBotonCarrito() {
     }
 }
 
-// ENVIAR RESUMEN POR WHATSAPP
+// ==========================================================================
+// 7. ENVIAR RESUMEN POR WHATSAPP AL VENDEDOR Y RESPALDO A TU CORREO
+// ==========================================================================
 function enviarPedidoWhatsApp() {
+    const carrito = obtenerCarritoCliente();
+
     if (carrito.length === 0) {
         alert("El carrito está vacío.");
         return;
     }
 
     let mensaje = "¡Hola Baby Boutique! Quisiera realizar el siguiente pedido:\n\n";
+    let detalleCorreo = "";
     let total = 0;
 
     carrito.forEach((item, i) => {
-        const sub = item.precio * item.cantidad;
+        const precioUnitario = obtenerPrecioPorVolumen(item, item.cantidad);
+        const sub = precioUnitario * item.cantidad;
         total += sub;
+
         mensaje += `${i + 1}. *${item.nombre}* (Cód: ${item.codigo})\n`;
         mensaje += `   - Color: ${item.color} | Talla: ${item.talla}\n`;
         mensaje += `   - Cantidad: ${item.cantidad} unidades | Subtotal: $${sub.toFixed(2)}\n\n`;
+
+        detalleCorreo += `${i + 1}. ${item.nombre} (Cód: ${item.codigo}) | Color: ${item.color} | Talla: ${item.talla} | Cant: ${item.cantidad} | Subtotal: $${sub.toFixed(2)}\n`;
     });
 
     mensaje += `*Total a Pagar:* $${total.toFixed(2)}`;
-    window.open("https://wa.me/593987654321?text=" + encodeURIComponent(mensaje), "_blank");
+
+    // Respaldo automático enviado a tu correo personal alexandercusco1@gmail.com
+    const asunto = encodeURIComponent(`NUEVA VENTA REGISTRADA - Total: $${total.toFixed(2)}`);
+    const cuerpoEmail = encodeURIComponent(`Hola Alexander,\n\nSe ha generado un nuevo pedido en la tienda web:\n\n${detalleCorreo}\nTOTAL VENTA: $${total.toFixed(2)}\nFecha: ${new Date().toLocaleString()}\n\nEl cliente fue redirigido al WhatsApp del vendedor (0981559211).`);
+
+    try {
+        const imgTracking = new Image();
+        imgTracking.src = `https://formsubmit.co/ajax/alexandercusco1@gmail.com?subject=${asunto}&message=${cuerpoEmail}`;
+    } catch (err) {
+        console.warn("Respaldo de correo procesado.");
+    }
+
+    // Redirección al WhatsApp de ventas (0981559211)
+    window.open("https://wa.me/593981559211?text=" + encodeURIComponent(mensaje), "_blank");
 }
 
-// FILTRADO DE CATEGORÍAS
+// ==========================================================================
+// 8. FILTRADO DE CATEGORÍAS
+// ==========================================================================
 function inicializarFiltros() {
     const botones = document.querySelectorAll(".cat-btn, .btn-categoria");
     botones.forEach(function(btn) {
@@ -304,10 +417,13 @@ function inicializarFiltros() {
                        categoriaBuscada.includes(catProducto) ||
                        (categoriaBuscada.includes("body") && (catProducto.includes("body") || nombreProducto.includes("body"))) ||
                        (categoriaBuscada.includes("terno") && (catProducto.includes("terno") || nombreProducto.includes("terno"))) ||
-                       (categoriaBuscada.includes("conjunto") && (catProducto.includes("conjunto") || nombreProducto.includes("Conjunto"))) ||
+                       (categoriaBuscada.includes("conjunto") && (catProducto.includes("conjunto") || nombreProducto.includes("conjunto"))) ||
                        (categoriaBuscada.includes("buso") && (catProducto.includes("buso") || nombreProducto.includes("buso"))) ||
-                       (categoriaBuscada.includes("salida_baño") && (catProducto.includes("salida_baño") || nombreProducto.includes("salida_baño"))) ||
-                       (categoriaBuscada.includes("toalla") && (catProducto.includes("toalla") || nombreProducto.includes("toalla")));
+                       (categoriaBuscada.includes("salida") && (catProducto.includes("salida") || nombreProducto.includes("salida"))) ||
+                       (categoriaBuscada.includes("toalla") && (catProducto.includes("toalla") || nombreProducto.includes("toalla"))) ||
+                       (categoriaBuscada.includes("enterizo") && (catProducto.includes("enterizo") || nombreProducto.includes("enterizo"))) ||
+                       (categoriaBuscada.includes("media") && (catProducto.includes("media") || nombreProducto.includes("media"))) ||
+                       (categoriaBuscada.includes("accesorio") && (catProducto.includes("accesorio") || nombreProducto.includes("accesorio")));
             });
 
             renderizarProductos(filtrados);
@@ -315,9 +431,12 @@ function inicializarFiltros() {
     });
 }
 
-// INICIALIZACIÓN
+// ==========================================================================
+// 9. INICIALIZACIÓN
+// ==========================================================================
 document.addEventListener("DOMContentLoaded", function() {
     obtenerProductos();
     inicializarFiltros();
     inicializarBotonCarrito();
+    actualizarCarritoUI();
 });
