@@ -71,20 +71,26 @@
   {
     "id": "BUSO-001",
     "codigo": "004",
-    "nombre": "Buso Bebé Color Tierra",
+    "nombre": "Buso Bebé Gris",
     "categoria": "Busos",
     "precio": 8.00,
     "precioMediaDocena": 7.50,
     "precioDocena": 7.00,
-    "tallas": ["0 a 6 meses", "6 a 12 meses", "12 a 18 meses", "18 a 24 meses"],
+    "tallas": ["0 a 3 meses", "3 a 6 meses", "6 a 9 meses", "9 a 12 meses"],
     "tela": "Por definir",
     "clima": "Fresco",
     "colores": [
       {
-        "nombre": "Tierra",
-        "hex": "#a16207",
-        "imagen": "assets/productos/buso/Terno_tierra.png"
+        "nombre": "Gris",
+        "hex": "#9ca3af",
+        "imagen": "assets/productos/buso/Buso_gris.png"
       }
+    ],
+    "disponible": true,
+    "destacado": false,
+    "nuevo": true,
+    "descripcion": "Buso suave y cómodo para bebé."
+  },
     ],
     "disponible": true,
     "destacado": false,
