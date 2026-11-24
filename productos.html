@@ -6,7 +6,6 @@
     <title>Catálogo de Productos - Baby Boutique Ecuador</title>
     <link rel="stylesheet" href="css/estilos.css">
     <style>
-        /* Estilos generales de la página de productos */
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background-color: #f9fafb;
@@ -19,13 +18,45 @@
             background-color: #ffffff;
             border-bottom: 1px solid #e5e7eb;
             padding: 1rem 2rem;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
-        .header h1 {
+        .header-titles h1 {
             margin: 0;
             color: #db2777;
             font-size: 1.8rem;
+        }
+
+        .header-titles p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .cart-icon-container {
+            position: relative;
+            cursor: pointer;
+            background-color: #fce7f3;
+            padding: 10px 18px;
+            border-radius: 25px;
+            border: 2px solid #f472b6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            color: #db2777;
+        }
+
+        .cart-count {
+            background-color: #db2777;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 0.85rem;
         }
 
         .container {
@@ -78,6 +109,9 @@
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
@@ -86,7 +120,31 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        .btn-primary {
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.8rem;
+            color: #4b5563;
+            margin-top: 5px;
+        }
+
+        .select-input, .number-input {
+            width: 100%;
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-bottom: 8px;
+            background-color: #fff;
+        }
+
+        .btn-add-cart {
             width: 100%;
             background: #db2777;
             color: white;
@@ -98,205 +156,125 @@
             transition: background 0.2s ease;
         }
 
-        .btn-primary:hover {
+        .btn-add-cart:hover {
             background: #be185d;
+        }
+
+        /* Modal del Carrito */
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: flex-end;
+        }
+
+        .cart-content {
+            background: #ffffff;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        .close-cart {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .cart-items-list {
+            overflow-y: auto;
+            flex-grow: 1;
+            margin: 15px 0;
+        }
+
+        .btn-pedir-whatsapp {
+            width: 100%;
+            background-color: #25d366;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
     <header class="header">
-        <h1>Baby Boutique Ecuador</h1>
-        <p>Catálogo de Productos</p>
+        <div class="header-titles">
+            <h1>Baby Boutique Ecuador</h1>
+            <p>Catálogo de Productos</p>
+        </div>
+
+        <div class="cart-icon-container" onclick="toggleCarritoModal()">
+            🛒 <span>Mi Carrito</span>
+            <span id="cart-counter" class="cart-count">0</span>
+        </div>
     </header>
 
     <main class="container">
         <!-- Filtros por categoría -->
         <nav class="filtros-categoria">
             <button class="cat-btn active" data-category="todos">Todos</button>
+            <button class="cat-btn" data-category="bodies">Bodies</button>
             <button class="cat-btn" data-category="conjuntos">Conjuntos</button>
-            <button class="cat-btn" data-category="pijamas">Pijamas</button>
-            <button class="cat-btn" data-category="vestidos">Vestidos</button>
-            <button class="cat-btn" data-category="accesorios">Accesorios</button>
+            <button class="cat-btn" data-category="busos">Busos</button>
+            <button class="cat-btn" data-category="ternos">Ternos</button>
+            <button class="cat-btn" data-category="salidas de baño">Salidas de baño</button>
+            <button class="cat-btn" data-category="toallas">Toallas</button>
         </nav>
 
         <!-- Contenedor donde se cargan dinámicamente los productos -->
         <div id="grid-productos" class="grid-productos"></div>
     </main>
 
-    <!-- JavaScript del Catálogo Integrado -->
-    <script>
-        /* ==========================================================================
-           Baby Boutique Ecuador - Lógica del Catálogo de Productos
-           ========================================================================== */
+    <!-- Modal Lateral del Carrito -->
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h3>Tu Carrito</h3>
+                <button class="close-cart" onclick="toggleCarritoModal()">✕</button>
+            </div>
 
-        let listaProductos = [];
+            <div id="cart-items-container" class="cart-items-list">
+                <p style="text-align: center; color: #9ca3af; margin-top: 20px;">El carrito está vacío.</p>
+            </div>
 
-        async function obtenerProductos() {
-            try {
-                const respuesta = await fetch("data/productos.json");
-                if (respuesta.ok) {
-                    listaProductos = await respuesta.json();
-                    renderizarProductos(listaProductos);
-                } else {
-                    console.error("No se pudo cargar data/productos.json");
-                }
-            } catch (error) {
-                console.error("Error al leer la base de datos local:", error);
-            }
-        }
+            <div>
+                <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem;">
+                    <span>Total:</span>
+                    <span id="cart-total-price">$0.00</span>
+                </div>
+                <button class="btn-pedir-whatsapp" onclick="enviarPedidoWhatsApp()">
+                    📱 Realizar Pedido por WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
 
-        function renderizarProductos(productosAMostrar = []) {
-            const contenedor = document.getElementById('products-container') || document.getElementById('grid-productos');
-            if (!contenedor) return;
-
-            contenedor.innerHTML = '';
-
-            if (productosAMostrar.length === 0) {
-                contenedor.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #6b7280; padding: 40px; font-size: 1.1rem;">No se encontraron productos en esta categoría.</p>`;
-                return;
-            }
-
-            productosAMostrar.forEach(prod => {
-                const idUnico = prod.id || prod.codigo;
-                const tarjeta = document.createElement('div');
-                tarjeta.className = 'product-card';
-
-                // Selección de ruta de imagen por defecto o según estructura
-                let imagenRuta = 'assets/placeholder.jpg';
-                if (prod.colores && prod.colores.length > 0 && prod.colores[0].imagen) {
-                    imagenRuta = prod.colores[0].imagen;
-                } else if (prod.imagen) {
-                    imagenRuta = prod.imagen;
-                } else if (Array.isArray(prod.imagenes) && prod.imagenes.length > 0) {
-                    imagenRuta = prod.imagenes[0];
-                }
-
-                // Tallas estándar por defecto si no existen especificadas
-                const tallasEstandar = ["0 a 3 meses (Talla 0)", "3 a 6 meses (Talla 1)", "6 a 9 meses (Talla 2)", "9 a 12 meses (Talla 3)"];
-                const listaTallas = (prod.tallas && prod.tallas.length > 0) ? prod.tallas : tallasEstandar;
-
-                tarjeta.innerHTML = `
-                    <a href="producto.html?id=${idUnico}" style="text-decoration: none; color: inherit;">
-                        <img id="img-${idUnico}" src="${imagenRuta}" alt="${prod.nombre}" style="width:100%; height:200px; object-fit:cover; border-radius:8px;" onerror="this.src='assets/placeholder.jpg'">
-                    </a>
-                    <div class="producto-info" style="padding: 10px 0 0 0;">
-                        <span style="display: block; font-size: 0.75rem; color: #9ca3af; font-weight: bold;">CÓDIGO: ${prod.codigo || prod.id}</span>
-                        <a href="producto.html?id=${idUnico}" style="text-decoration: none;">
-                            <h3 style="font-size: 1rem; color: #1f2937; margin: 5px 0 10px 0;">${prod.nombre}</h3>
-                        </a>
-                        
-                        ${prod.colores && prod.colores.length > 0 ? `
-                        <label style="display:block; font-size: 0.8rem; color: #4b5563;">Color:</label>
-                        <select id="color-${idUnico}" class="selector-color" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
-                            ${prod.colores.map(c => {
-                                const val = typeof c === 'object' ? c.nombre : c;
-                                const imgAttr = typeof c === 'object' && c.imagen ? `data-img="${c.imagen}"` : '';
-                                return `<option value="${val}" ${imgAttr}>${val}</option>`;
-                            }).join('')}
-                        </select>` : ''}
-
-                        <label style="display:block; font-size: 0.8rem; color: #4b5563;">Talla:</label>
-                        <select id="talla-${idUnico}" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px;">
-                            ${listaTallas.map(t => {
-                                const val = typeof t === 'object' ? `${t.edad} (Talla${t.numero})` : t;
-                                return `<option value="${val}">${val}</option>`;
-                            }).join('')}
-                        </select>
-
-                        <label style="display:block; font-size: 0.8rem; color: #4b5563;">Cantidad:</label>
-                        <input type="number" id="cantidad-${idUnico}" min="0" value="0" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 12px;">
-
-                        <div style="text-align: center; background: #fff1f2; padding: 8px; border-radius: 8px; margin-bottom: 12px;">
-                            <span style="font-size: 1.2rem; font-weight: bold; color: #db2777;">$${Number(prod.precio || 0).toFixed(2)}</span>
-                            ${prod.precioMediaDocena ? `<p style="font-size: 0.75rem; color: #e11d48; margin: 0;">Media Docena: $${Number(prod.precioMediaDocena).toFixed(2)} c/u</p>` : ''}
-                        </div>
-
-                        <button onclick="prepararAgregar('${idUnico}')" class="btn-primary">
-                            🛒 Añadir al Carrito
-                        </button>
-                    </div>
-                `;
-
-                contenedor.appendChild(tarjeta);
-
-                // Event listener para actualizar la imagen al cambiar el color
-                const selectColor = tarjeta.querySelector(`#color-${idUnico}`);
-                if (selectColor) {
-                    selectColor.addEventListener('change', (e) => {
-                        const opt = e.target.options[e.target.selectedIndex];
-                        const nuevaRuta = opt.getAttribute('data-img');
-                        if (nuevaRuta) {
-                            const imgElem = tarjeta.querySelector(`#img-${idUnico}`);
-                            if (imgElem) imgElem.src = nuevaRuta;
-                        }
-                    });
-                }
-            });
-        }
-
-        function prepararAgregar(idProducto) {
-            const prod = listaProductos.find(p => p.id == idProducto || p.codigo == idProducto);
-            if (!prod) return;
-
-            const colorSelect = document.getElementById(`color-${idProducto}`);
-            const tallaSelect = document.getElementById(`talla-${idProducto}`);
-            const cantidadInput = document.getElementById(`cantidad-${idProducto}`);
-            const imgElem = document.getElementById(`img-${idProducto}`);
-
-            const cantidad = cantidadInput ? parseInt(cantidadInput.value) || 0 : 0;
-
-            if (cantidad <= 0) {
-                alert("Por favor selecciona al menos 1 prenda en la cantidad.");
-                return;
-            }
-
-            const productoAAgregar = {
-                id: prod.id || prod.codigo,
-                codigo: prod.codigo || prod.id,
-                nombre: prod.nombre,
-                precio: prod.precio,
-                precioMediaDocena: prod.precioMediaDocena || prod.precio,
-                precioDocena: prod.precioDocena || prod.precio,
-                imagen: imgElem ? imgElem.src : 'assets/placeholder.jpg',
-                color: colorSelect ? colorSelect.value : 'Único',
-                talla: tallaSelect ? tallaSelect.value : 'Única',
-                cantidad: cantidad
-            };
-
-            if (typeof agregarAlCarrito === 'function') {
-                agregarAlCarrito(productoAAgregar);
-            } else {
-                console.log("Producto listo para agregar:", productoAAgregar);
-            }
-        }
-
-        function inicializarFiltros() {
-            const botones = document.querySelectorAll('.cat-btn');
-            botones.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    botones.forEach(b => b.classList.remove('active'));
-                    e.currentTarget.classList.add('active');
-
-                    const categoriaFiltro = e.currentTarget.getAttribute('data-category').trim().toLowerCase();
-
-                    if (categoriaFiltro === 'todos' || categoriaFiltro === 'todas') {
-                        renderizarProductos(listaProductos);
-                    } else {
-                        const filtrados = listaProductos.filter(p => {
-                            const catProd = (p.categoria || '').trim().toLowerCase();
-                            return catProd === categoriaFiltro;
-                        });
-                        renderizarProductos(filtrados);
-                    }
-                });
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            obtenerProductos();
-            inicializarFiltros();
-        });
-    </script>
+    <!-- Lógica unificada del catálogo y carrito -->
+    <script src="js/productos.js"></script>
 </body>
 </html>
