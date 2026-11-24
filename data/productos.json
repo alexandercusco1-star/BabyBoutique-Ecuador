@@ -76,7 +76,7 @@
     "precio": 8.00,
     "precioMediaDocena": 7.50,
     "precioDocena": 7.00,
-    "tallas": ["0 a 3 meses", "3 a 6 meses", "6 a 9 meses", "9 a 12 meses"],
+    "tallas": ["0 a 6 meses", "6 a 12 meses", "12 a 18 meses", "18 a 24 meses"],
     "tela": "Por definir",
     "clima": "Fresco",
     "colores": [
@@ -85,12 +85,6 @@
         "hex": "#9ca3af",
         "imagen": "assets/productos/buso/Buso_gris.png"
       }
-    ],
-    "disponible": true,
-    "destacado": false,
-    "nuevo": true,
-    "descripcion": "Buso suave y cómodo para bebé."
-  },
     ],
     "disponible": true,
     "destacado": false,
