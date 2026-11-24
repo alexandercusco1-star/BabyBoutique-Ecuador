@@ -6,16 +6,16 @@
     <title>Baby Boutique - Catálogo</title>
     <link rel="stylesheet" href="css/estilos.css">
     <style>
-        * { 
-            box-sizing: border-box; 
-            font-family: sans-serif; 
+        * {
+            box-sizing: border-box;
+            font-family: sans-serif;
             margin: 0;
             padding: 0;
         }
 
-        body { 
-            padding: 0; 
-            background-color: #f9fafb; 
+        body {
+            padding: 0;
+            background-color: #f9fafb;
             color: #1f2937;
         }
 
@@ -28,6 +28,8 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #f472b6;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .top-bar a {
@@ -117,15 +119,15 @@
             border-color: #db2777;
         }
 
-        /* Banner Principal */
+        /* Título Principal */
         .page-title {
-            text-align: center; 
+            text-align: center;
             color: #1f2937;
             margin: 20px 0 10px;
             font-size: 1.8rem;
         }
 
-        /* Grilla de Productos de tu plantilla */
+        /* Grilla de Productos */
         #grid-productos {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -281,8 +283,8 @@
     <div class="top-bar">
         <span>📍 Envíos a todo el Ecuador | Ventas al Por Mayor y Menor</span>
         <div>
-            <span>📞 Contacto directo: 0987654321</span>
-            <a href="https://wa.me/593987654321" target="_blank">WhatsApp</a>
+            <span>📞 Ventas: 0981559211</span>
+            <a href="https://wa.me/593981559211" target="_blank">WhatsApp</a>
         </div>
     </div>
 
@@ -302,13 +304,13 @@
     <!-- Botones de Categorías -->
     <section class="categorias-section">
         <div class="categorias-grid">
-            <button class="cat-btn active" onclick="filtrarCategoria('todos', this)">Todos</button>
-            <button class="cat-btn" onclick="filtrarCategoria('bodys', this)">Bodys</button>
-            <button class="cat-btn" onclick="filtrarCategoria('ternos', this)">Ternos</button>
-            <button class="cat-btn" onclick="filtrarCategoria('conjuntos', this)">Conjuntos</button>
-            <button class="cat-btn" onclick="filtrarCategoria('pijamas', this)">Pijamas</button>
-            <button class="cat-btn" onclick="filtrarCategoria('vestidos', this)">Vestidos</button>
-            <button class="cat-btn" onclick="filtrarCategoria('accesorios', this)">Accesorios</button>
+            <button class="cat-btn active" data-category="todos">Todos</button>
+            <button class="cat-btn" data-category="bodies">Bodies</button>
+            <button class="cat-btn" data-category="conjuntos">Conjuntos</button>
+            <button class="cat-btn" data-category="busos">Busos</button>
+            <button class="cat-btn" data-category="ternos">Ternos</button>
+            <button class="cat-btn" data-category="salidas de baño">Salidas de baño</button>
+            <button class="cat-btn" data-category="toallas">Toallas</button>
         </div>
     </section>
 
@@ -345,144 +347,10 @@
     <footer>
         <p><strong>Baby Boutique Ecuador</strong></p>
         <p>Contacto y Atención: Lunes a Sábado</p>
-        <p><a href="https://wa.me/593987654321" target="_blank">Escríbenos por WhatsApp</a></p>
+        <p><a href="https://wa.me/593981559211" target="_blank">Escríbenos por WhatsApp</a></p>
     </footer>
 
-    <!-- Carga del script de lógica del catálogo y carrito -->
+    <!-- Lógica unificada del catálogo y carrito -->
     <script src="js/productos.js"></script>
-
-    <!-- Script complementario para la funcionalidad interactiva del carrito y filtros -->
-    <script>
-        let carrito = [];
-
-        function toggleCarritoModal() {
-            const modal = document.getElementById('cart-modal');
-            if (modal) {
-                modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
-            }
-        }
-
-        function agregarAlCarrito(idProducto) {
-            if (typeof listaProductos === 'undefined') return;
-            const prod = listaProductos.find(p => p.id == idProducto || p.codigo == idProducto);
-            if (!prod) return;
-
-            const inputCant = document.getElementById(`cantidad-${idProducto}`);
-            const selectColor = document.getElementById(`color-${idProducto}`);
-            const selectTalla = document.getElementById(`talla-${idProducto}`);
-            const imgElem = document.getElementById(`img-${idProducto}`);
-
-            const cantidad = inputCant ? parseInt(inputCant.value) || 0 : 0;
-
-            if (cantidad <= 0) {
-                alert("Por favor selecciona al menos 1 unidad.");
-                return;
-            }
-
-            const item = {
-                id: prod.id || prod.codigo,
-                codigo: prod.codigo || prod.id,
-                nombre: prod.nombre,
-                precio: prod.precio,
-                imagen: imgElem ? imgElem.src : 'assets/placeholder.jpg',
-                color: selectColor ? selectColor.value : 'Único',
-                talla: selectTalla ? selectTalla.value : 'Única',
-                cantidad: cantidad
-            };
-
-            const index = carrito.findIndex(c => c.id === item.id && c.color === item.color && c.talla === item.talla);
-            if (index !== -1) {
-                carrito[index].cantidad += cantidad;
-            } else {
-                carrito.push(item);
-            }
-
-            if (inputCant) inputCant.value = 0;
-            actualizarCarritoUI();
-            alert(`¡Agregado al carrito: ${prod.nombre}!`);
-        }
-
-        function actualizarCarritoUI() {
-            const contador = document.getElementById('cart-counter');
-            const lista = document.getElementById('cart-items-container');
-            const totalElem = document.getElementById('cart-total-price');
-
-            const totalUnidades = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-            if (contador) contador.textContent = totalUnidades;
-
-            if (!lista) return;
-
-            if (carrito.length === 0) {
-                lista.innerHTML = '<p style="text-align: center; color: #9ca3af; margin-top: 20px;">El carrito está vacío.</p>';
-                if (totalElem) totalElem.textContent = '$0.00';
-                return;
-            }
-
-            lista.innerHTML = '';
-            let total = 0;
-
-            carrito.forEach((item, index) => {
-                const subtotal = item.precio * item.cantidad;
-                total += subtotal;
-
-                const div = document.createElement('div');
-                div.className = 'cart-item';
-                div.innerHTML = `
-                    <img src="${item.imagen}" alt="${item.nombre}">
-                    <div style="flex-grow: 1;">
-                        <h4 style="font-size: 0.9rem; margin:0;">${item.nombre}</h4>
-                        <p style="font-size: 0.75rem; color: #6b7280; margin:0;">${item.color} | ${item.talla}</p>
-                        <p style="font-size: 0.8rem; margin:0;">${item.cantidad} x $${Number(item.precio).toFixed(2)} = $${subtotal.toFixed(2)}</p>
-                    </div>
-                    <button onclick="eliminarItem(${index})" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
-                `;
-                lista.appendChild(div);
-            });
-
-            if (totalElem) totalElem.textContent = `$${total.toFixed(2)}`;
-        }
-
-        function eliminarItem(index) {
-            carrito.splice(index, 1);
-            actualizarCarritoUI();
-        }
-
-        function filtrarCategoria(cat, btn) {
-            const botones = document.querySelectorAll('.cat-btn');
-            botones.forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
-
-            if (typeof listaProductos === 'undefined') return;
-
-            const categoriaTarget = cat.toLowerCase().trim();
-            if (categoriaTarget === 'todos') {
-                renderizarProductos(listaProductos);
-            } else {
-                const filtrados = listaProductos.filter(p => (p.categoria || '').toLowerCase().trim() === categoriaTarget);
-                renderizarProductos(filtrados);
-            }
-        }
-
-        function enviarPedidoWhatsApp() {
-            if (carrito.length === 0) {
-                alert("El carrito está vacío.");
-                return;
-            }
-
-            let mensaje = "¡Hola Baby Boutique! Quisiera realizar este pedido:\n\n";
-            let total = 0;
-
-            carrito.forEach((item, i) => {
-                const sub = item.precio * item.cantidad;
-                total += sub;
-                mensaje += `${i + 1}. *${item.nombre}* (Cód: ${item.codigo})\n`;
-                mensaje += `   - Color: ${item.color} | Talla: ${item.talla}\n`;
-                mensaje += `   - Cantidad: ${item.cantidad} | Subtotal: $${sub.toFixed(2)}\n\n`;
-            });
-
-            mensaje += `*Total:* $${total.toFixed(2)}`;
-            window.open("https://wa.me/593987654321?text=" + encodeURIComponent(mensaje), '_blank');
-        }
-    </script>
 </body>
 </html>
