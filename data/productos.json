@@ -10,6 +10,7 @@
     "tallas": ["0 a 6 meses", "6 a 12 meses", "12 a 18 meses", "18 a 24 meses"],
     "tela": "Por definir",
     "clima": "Todo clima",
+    "imagen_principal": "assets/productos/body001/Body_beige.jpeg",
     "colores": [
       {
         "nombre": "Beige",
@@ -33,6 +34,7 @@
     "tallas": ["0 a 6 meses", "6 a 12 meses", "12 a 18 meses", "18 a 24 meses"],
     "tela": "Por definir",
     "clima": "Frío / Templado",
+    "imagen_principal": "assets/productos/conjunto001/Calentador_3_piezas_colores.jpeg",
     "colores": [
       {
         "nombre": "Morado Oscuro",
@@ -56,6 +58,7 @@
     "tallas": ["0 a 6 meses", "6 a 12 meses", "12 a 18 meses", "18 a 24 meses"],
     "tela": "Por definir",
     "clima": "Todo clima",
+    "imagen_principal": "assets/productos/conjunto002/Calentador_2_piezas_morado_claro.png",
     "colores": [
       {
         "nombre": "Morado Claro",
@@ -79,6 +82,7 @@
     "tallas": ["0 a 6 meses", "6 a 12 meses", "12 a 18 meses", "18 a 24 meses"],
     "tela": "Por definir",
     "clima": "Fresco",
+    "imagen_principal": "assets/productos/buso/Buso_colores.jpeg",
     "colores": [
       {
         "nombre": "Gris",
@@ -102,6 +106,7 @@
     "tallas": ["0 a 6 meses", "6 a 12 meses", "12 a 18 meses", "18 a 24 meses"],
     "tela": "Por definir",
     "clima": "Todo clima",
+    "imagen_principal": "assets/productos/terno001/Terno_colores.jpeg",
     "colores": [
       {
         "nombre": "Tierra",
@@ -125,6 +130,7 @@
     "tallas": ["Talla Única"],
     "tela": "Por definir",
     "clima": "Húmedo / Baño",
+    "imagen_principal": "assets/productos/salida_baño/Salida_baño_colores.jpeg",
     "colores": [
       {
         "nombre": "Celeste",
@@ -148,6 +154,7 @@
     "tallas": ["Talla Única"],
     "tela": "Algodón",
     "clima": "Húmedo / Baño",
+    "imagen_principal": "assets/productos/toallas001/toalla_azul.jpg",
     "colores": [
       {
         "nombre": "Azul Celeste",
