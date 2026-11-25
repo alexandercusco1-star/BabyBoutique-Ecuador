@@ -105,7 +105,9 @@ function renderizarProductos(productos) {
         tarjeta.className = "product-card";
 
         let rutaImagen = "assets/placeholder.jpg";
-        if (prod.colores && prod.colores.length > 0 && prod.colores[0].imagen) {
+        if (prod.imagen_principal) {
+            rutaImagen = prod.imagen_principal;
+        } else if (prod.colores && prod.colores.length > 0 && prod.colores[0].imagen) {
             rutaImagen = prod.colores[0].imagen;
         } else if (prod.imagen) {
             rutaImagen = prod.imagen;
