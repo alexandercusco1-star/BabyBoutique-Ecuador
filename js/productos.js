@@ -34,6 +34,14 @@ function manejarErrorImagen(imgElement) {
     }
 }
 
+function cambiarImagenPorColor(imgElem, nuevaImg) {
+    if (!imgElem || !nuevaImg) return;
+    imgElem.setAttribute('data-original-src', nuevaImg);
+    imgElem.setAttribute('data-ext-attempt', '0');
+    imgElem.onerror = function() { manejarErrorImagen(this); };
+    imgElem.src = nuevaImg;
+}
+
 // ==========================================================================
 // 1. GESTIÓN DE CARRITO AISLADO POR CLIENTE (LOCALSTORAGE)
 // ==========================================================================
@@ -174,20 +182,18 @@ function renderizarProductos(productos) {
         contenedor.appendChild(tarjeta);
 
         const selectColor = tarjeta.querySelector(`#color-${idUnico}`);
-        if (selectColor) {
-            selectColor.addEventListener("change", function(e) {
+        const imgElem = tarjeta.querySelector(`#img-${idUnico}`);
+        if (selectColor && imgElem) {
+            const actualizarFotoSeleccionada = function(e) {
                 const opt = e.target.options[e.target.selectedIndex];
+                if (!opt) return;
                 const nuevaImg = opt.getAttribute("data-img");
                 if (nuevaImg) {
-                    const imgElem = tarjeta.querySelector(`#img-${idUnico}`);
-                    if (imgElem) {
-                        imgElem.setAttribute('data-original-src', nuevaImg);
-                        imgElem.setAttribute('data-ext-attempt', '0');
-                        imgElem.onerror = function() { manejarErrorImagen(this); };
-                        imgElem.src = nuevaImg;
-                    }
+                    cambiarImagenPorColor(imgElem, nuevaImg);
                 }
-            });
+            };
+            selectColor.addEventListener("change", actualizarFotoSeleccionada);
+            selectColor.addEventListener("input", actualizarFotoSeleccionada);
         }
     });
 }
