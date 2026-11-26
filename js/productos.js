@@ -39,6 +39,7 @@ function cambiarImagenPorColor(imgElem, nuevaImg) {
     imgElem.setAttribute('data-original-src', nuevaImg);
     imgElem.setAttribute('data-ext-attempt', '0');
     imgElem.onerror = function() { manejarErrorImagen(this); };
+    imgElem.removeAttribute('src');
     imgElem.src = nuevaImg;
 }
 
@@ -140,26 +141,23 @@ function renderizarProductos(productos) {
         `;
 
         if (prod.colores && prod.colores.length > 0) {
-            const primerColor = prod.colores[0];
-            const primerNombre = typeof primerColor === 'object' ? primerColor.nombre : primerColor;
-            const primerHex = typeof primerColor === 'object' && primerColor.hex ? primerColor.hex : '#db2777';
-
             htmlTarjeta += `
                 <label class="field-label">Color:</label>
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                    <span id="swatch-${idUnico}" style="display:inline-block; width:22px; height:22px; border-radius:50%; background-color:${primerHex}; border:2px solid #ffffff; box-shadow:0 0 0 1.5px #9ca3af; flex-shrink:0;"></span>
+                    <span id="swatch-${idUnico}" style="display:inline-block; width:22px; height:22px; border-radius:50%; background-color:#db2777; border:2px solid #ffffff; box-shadow:0 0 0 1.5px #9ca3af; flex-shrink:0;"></span>
                     <select id="color-${idUnico}" class="select-input" style="margin-bottom:0; flex:1;">
+                        <option value="Todos los Colores" data-img="${rutaImagen}" data-hex="#db2777">Todos los Colores</option>
             `;
             prod.colores.forEach(function(c) {
                 const nombreColor = typeof c === 'object' ? c.nombre : c;
-                const imgColor = typeof c === 'object' && c.imagen ? c.imagen : '';
+                const imgColor = typeof c === 'object' && c.imagen ? c.imagen : rutaImagen;
                 const hexColor = typeof c === 'object' && c.hex ? c.hex : '#db2777';
                 htmlTarjeta += `<option value="${nombreColor}" data-img="${imgColor}" data-hex="${hexColor}">${nombreColor}</option>`;
             });
             htmlTarjeta += `
                     </select>
                 </div>
-                <div id="color-label-${idUnico}" style="font-size:0.78rem; color:#be185d; font-weight:600; margin:-4px 0 8px;">Seleccionado: ${primerNombre}</div>
+                <div id="color-label-${idUnico}" style="font-size:0.78rem; color:#be185d; font-weight:600; margin:-4px 0 8px;">Seleccionado: Todos los Colores</div>
             `;
         }
 
@@ -198,8 +196,8 @@ function renderizarProductos(productos) {
         const colorLabelElem = tarjeta.querySelector(`#color-label-${idUnico}`);
 
         if (selectColor && imgElem) {
-            const actualizarFotoSeleccionada = function(e) {
-                const opt = e.target.options[e.target.selectedIndex];
+            const actualizarFotoSeleccionada = function() {
+                const opt = selectColor.options[selectColor.selectedIndex];
                 if (!opt) return;
 
                 const nuevaImg = opt.getAttribute("data-img");
@@ -218,6 +216,7 @@ function renderizarProductos(productos) {
             };
             selectColor.addEventListener("change", actualizarFotoSeleccionada);
             selectColor.addEventListener("input", actualizarFotoSeleccionada);
+            selectColor.addEventListener("blur", actualizarFotoSeleccionada);
         }
     });
 }
