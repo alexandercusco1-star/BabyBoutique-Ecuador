@@ -410,7 +410,7 @@ function enviarPedidoWhatsApp() {
 
     // Respaldo automático enviado a tu correo personal alexandercusco1@gmail.com
     const asunto = encodeURIComponent(`NUEVA VENTA REGISTRADA - Total: $${total.toFixed(2)}`);
-    const cuerpoEmail = encodeURIComponent(`Hola Alexander,\n\nSe ha generado un nuevo pedido en la tienda web:\n\n${detalleCorreo}\nTOTAL VENTA: $${total.toFixed(2)}\nFecha: ${new Date().toLocaleString()}\n\nEl cliente fue redirigido al WhatsApp del vendedor (0981559211).`);
+    const cuerpoEmail = encodeURIComponent(`Hola Alexander,\n\nSe ha generado un nuevo pedido en la tienda web:\n\n${detalleCorreo}\nTOTAL VENTA: $${total.toFixed(2)}\nFecha: ${new Date().toLocaleString()}\n\nEl cliente fue redirigido al WhatsApp del vendedor (0984391581).`);
 
     try {
         const imgTracking = new Image();
@@ -419,8 +419,8 @@ function enviarPedidoWhatsApp() {
         console.warn("Respaldo de correo procesado.");
     }
 
-    // Redirección al WhatsApp de ventas (0981559211)
-    window.open("https://wa.me/593981559211?text=" + encodeURIComponent(mensaje), "_blank");
+    // Redirección al WhatsApp de ventas (0984391581)
+    window.open("https://wa.me/593984391581?text=" + encodeURIComponent(mensaje), "_blank");
 }
 
 // ==========================================================================
