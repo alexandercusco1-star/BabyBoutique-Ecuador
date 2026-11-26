@@ -2,7 +2,7 @@
   {
     "id": "BODY-001",
     "codigo": "001",
-    "nombre": "Body para Bebé",
+    "nombre": "Body Todos los Colores",
     "categoria": "Bodies",
     "precio": 4.00,
     "precioMediaDocena": 3.50,
@@ -10,7 +10,7 @@
     "tallas": ["0 a 6 meses", "6 a 12 meses", "12 a 18 meses", "18 a 24 meses"],
     "tela": "Por definir",
     "clima": "Todo clima",
-    "imagen_principal": "assets/productos/body001/Body_beige.jpeg",
+    "imagen_principal": "assets/productos/body001/IMG-20261126-WA0007.jpg",
     "colores": [
       {
         "nombre": "Beige",
@@ -26,7 +26,7 @@
   {
     "id": "CONJ-001",
     "codigo": "002",
-    "nombre": "Calentador 3 Piezas",
+    "nombre": "Calentador 3 Piezas Todos los Colores",
     "categoria": "Conjuntos",
     "precio": 12.00,
     "precioMediaDocena": 11.00,
@@ -50,7 +50,7 @@
   {
     "id": "CONJ-002",
     "codigo": "003",
-    "nombre": "Calentador 2 Piezas",
+    "nombre": "Calentador 2 Piezas Todos los Colores",
     "categoria": "Conjuntos",
     "precio": 10.00,
     "precioMediaDocena": 9.00,
@@ -58,7 +58,7 @@
     "tallas": ["0 a 6 meses", "6 a 12 meses", "12 a 18 meses", "18 a 24 meses"],
     "tela": "Por definir",
     "clima": "Todo clima",
-    "imagen_principal": "assets/productos/conjunto002/Calentador_2_piezas_morado_claro.png",
+    "imagen_principal": "assets/productos/conjunto002/IMG-20261126-WA0005.jpg",
     "colores": [
       {
         "nombre": "Morado Claro",
@@ -74,7 +74,7 @@
   {
     "id": "BUSO-001",
     "codigo": "004",
-    "nombre": "Buso Bebé Gris",
+    "nombre": "Buso Todos los Colores",
     "categoria": "Busos",
     "precio": 8.00,
     "precioMediaDocena": 7.50,
@@ -98,7 +98,7 @@
   {
     "id": "TERNO-001",
     "codigo": "005",
-    "nombre": "Terno Bebé Color Tierra",
+    "nombre": "Terno Todos los Colores",
     "categoria": "Ternos",
     "precio": 14.00,
     "precioMediaDocena": 13.00,
@@ -122,7 +122,7 @@
   {
     "id": "SALIDA-001",
     "codigo": "006",
-    "nombre": "Salida de Baño Celeste",
+    "nombre": "Salida de Baño Todos los Colores",
     "categoria": "Salidas de baño",
     "precio": 11.00,
     "precioMediaDocena": 10.00,
